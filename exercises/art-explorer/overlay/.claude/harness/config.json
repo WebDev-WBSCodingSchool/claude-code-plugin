@@ -1,0 +1,91 @@
+{
+  "assignment": "023-typescript-ii — Art Institute Explorer",
+  "unlockRoute": true,
+  "onboarding": false,
+  "planFile": "PLAN.md",
+  "transcripts": false,
+  "integrationBranch": "main",
+  "branchDiscipline": "warn",
+  "gated": [
+    "typedReact",
+    "runtimeValidation"
+  ],
+  "syntaxCheck": "npx oxlint",
+  "guardedExtensions": [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".html"
+  ],
+  "neverWritable": [
+    "PLAN.md",
+    ".claude/harness/",
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    ".claude/hooks/",
+    ".claude/skills/",
+    ".vscode/"
+  ],
+  "writableExceptions": [],
+  "canonical": [
+    "README.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "GEMINI.md",
+    ".github/copilot-instructions.md"
+  ],
+  "progressDir": ".claude/harness/progress",
+  "tasks": [
+    {
+      "id": "FR003",
+      "title": "Artwork schema",
+      "file": "src/lib/artwork.ts",
+      "categories": [
+        "runtimeValidation"
+      ]
+    },
+    {
+      "id": "FR004",
+      "title": "Validated API fetch",
+      "file": "src/lib/api.ts",
+      "categories": [
+        "runtimeValidation",
+        "typedReact"
+      ]
+    },
+    {
+      "id": "FR006",
+      "title": "ArtworkCard component",
+      "file": "src/components/ArtworkCard.tsx",
+      "categories": [
+        "typedReact"
+      ]
+    },
+    {
+      "id": "FR007",
+      "title": "Gallery component",
+      "file": "src/components/Gallery.tsx",
+      "categories": [
+        "typedReact"
+      ]
+    },
+    {
+      "id": "FR010",
+      "title": "Notes per artwork",
+      "file": "src/lib/notes.ts",
+      "categories": [
+        "runtimeValidation",
+        "typedReact"
+      ]
+    },
+    {
+      "id": "FR012",
+      "title": "Type-safe state",
+      "file": "src/App.tsx",
+      "categories": [
+        "typedReact"
+      ]
+    }
+  ]
+}

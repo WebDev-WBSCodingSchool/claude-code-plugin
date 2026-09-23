@@ -1,0 +1,38 @@
+{
+  "assignment": "<FILL: module and project name, e.g. 005-js-modules — Movie Diary>",
+  "variant": "<FILL: or delete this line if the project has no variants>",
+  "localFile": "<FILL: the file the student creates locally and never commits, or delete this line>",
+
+  "unlockRoute": false,
+  "onboarding": false,
+  "planFile": "PLAN.md",
+
+  "transcripts": false,
+
+  "integrationBranch": "main",
+  "branchDiscipline": "warn",
+
+  "gated": [],
+
+  "syntaxCheck": "node --check",
+
+  "guardedExtensions": [".js", ".mjs", ".cjs", ".html"],
+
+  "neverWritable": [
+    "PLAN.md",
+    ".claude/harness/",
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    ".claude/hooks/",
+    ".claude/skills/",
+    ".vscode/"
+  ],
+
+  "writableExceptions": [],
+
+  "canonical": ["README.md", "CLAUDE.md", "AGENTS.md", "GEMINI.md", ".github/copilot-instructions.md"],
+
+  "progressDir": ".claude/harness/progress",
+
+  "tasks": []
+}

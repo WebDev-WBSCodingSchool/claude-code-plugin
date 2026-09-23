@@ -1,0 +1,30 @@
+/* css/style.css — yours to type, all of it. Nothing is set up here, not even a
+   reset: whatever you want the browser to stop doing by default, you write.
+
+   The markers name the requirements from README.md. Delete one once you have
+   built past it.
+
+   One stylesheet or several is up to you. More files means fewer merge
+   conflicts and more <link> tags (or an @import at the top of this one); one
+   growing file means everything is in one place and you will meet each other
+   in it. Both are real answers — decide it together, early, and write it down
+   in PLAN.md so nobody is surprised. */
+
+
+/* FR006 — The layout.
+   Where the boxes go: the arrangement of the header, the sections and the
+   footer, and the arrangement of things inside them. Flexbox for a row or a
+   column of things, grid when you mean rows *and* columns. Before you reach
+   for position, check whether the layout you want is one of those two. */
+
+
+/* FR007 — The look of it.
+   Colour, typography, spacing, borders, shadows, and what happens on hover and
+   on keyboard focus. Focus especially: it is how someone who is not using a
+   mouse can see where they are, and the default one disappears the moment you
+   start restyling. */
+
+
+/* FR010 — Responsive, if you get there.
+   A stretch goal, not a requirement. Desktop first, so your media queries ask
+   what should change on a narrower screen. Do not start here. */

@@ -1,0 +1,61 @@
+{
+  "assignment": "019 — Personal Diary",
+
+  "unlockRoute": true,
+  "onboarding": false,
+  "planFile": "PLAN.md",
+
+  "transcripts": false,
+
+  "integrationBranch": "main",
+  "branchDiscipline": "warn",
+
+  "gated": ["reactRendering", "reactState", "reactEffects"],
+
+  "syntaxCheck": "npx oxlint",
+
+  "guardedExtensions": [".js", ".jsx", ".mjs", ".html"],
+
+  "neverWritable": [
+    "PLAN.md",
+    ".claude/harness/",
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    ".claude/hooks/",
+    ".claude/skills/",
+    ".vscode/"
+  ],
+
+  "writableExceptions": [],
+
+  "canonical": ["README.md", "CLAUDE.md", "AGENTS.md", "GEMINI.md", ".github/copilot-instructions.md"],
+
+  "progressDir": ".claude/harness/progress",
+
+  "tasks": [
+    {
+      "id": "FR013",
+      "title": "Entry card",
+      "file": "src/components/EntryCard.jsx",
+      "categories": ["reactRendering"]
+    },
+    {
+      "id": "FR011",
+      "title": "Homepage list, newest first",
+      "file": "src/components/EntryList.jsx",
+      "categories": ["reactRendering"]
+    },
+    {
+      "id": "FR006",
+      "title": "Add Entry button opens the modal",
+      "file": "src/App.jsx",
+      "categories": ["reactState"]
+    },
+    {
+      "id": "FR012",
+      "title": "Load stored entries when the app mounts",
+      "file": "src/App.jsx",
+      "categories": ["reactEffects"]
+    }
+  ]
+}

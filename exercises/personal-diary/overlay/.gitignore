@@ -1,0 +1,22 @@
+# Claude Code writes this one itself and gitignores it. Left here so it is
+# obvious it exists: it is the one override of the harness that would not show up
+# in a diff.
+.claude/settings.local.json
+
+.DS_Store
+node_modules/
+*.log
+
+# Do NOT ignore .claude/harness/progress — it is committed on purpose. A local-only
+# ledger evaporates on a fresh clone or a second laptop.
+
+# Vite
+dist/
+dist-ssr/
+*.local
+
+# Local environment overrides. Nothing in Personal Diary needs one — entries
+# live in the browser, not on a server — but Vite reads these if they appear.
+.env
+.env.*
+!.env.example

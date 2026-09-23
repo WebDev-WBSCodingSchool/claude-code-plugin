@@ -1,0 +1,37 @@
+/* Base styling only, and all of it is yours to change — styling is not gated. */
+:root {
+  --text: #1c1b1f;
+  --bg: #ffffff;
+  --muted: #6b6375;
+  --border: #e5e4e7;
+
+  color-scheme: light dark;
+  font: 16px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f3f4f6;
+    --bg: #16171d;
+    --muted: #9ca3af;
+    --border: #2e303a;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

@@ -1,0 +1,93 @@
+{
+  "assignment": "JavaScript Modules — Movie Diary",
+  "variant": "movie-diary",
+  "localFile": "config.js",
+
+  "unlockRoute": true,
+  "onboarding": true,
+  "planFile": "PLAN.md",
+
+  "transcripts": false,
+
+  "integrationBranch": "main",
+  "branchDiscipline": "warn",
+
+  "gated": ["fetch", "dom", "localStorage"],
+
+  "syntaxCheck": "node --check",
+
+  "guardedExtensions": [".js", ".mjs", ".cjs", ".html"],
+
+  "neverWritable": [
+    "PLAN.md",
+    ".claude/harness/",
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    ".claude/hooks/",
+    ".claude/skills/",
+    ".vscode/"
+  ],
+
+  "writableExceptions": [],
+
+  "canonical": ["README.md", "CLAUDE.md", "AGENTS.md", "GEMINI.md", ".github/copilot-instructions.md"],
+
+  "progressDir": ".claude/harness/progress",
+
+  "tasks": [
+    {
+      "id": "FR009",
+      "title": "Fetch popular movies",
+      "file": "main.js",
+      "categories": ["fetch", "dom"]
+    },
+    {
+      "id": "FR010",
+      "title": "Search with dialog",
+      "file": "main.js",
+      "categories": ["fetch", "dom"]
+    },
+    {
+      "id": "FR011",
+      "title": "Movie cards",
+      "file": "main.js",
+      "categories": ["dom"]
+    },
+    {
+      "id": "FR012",
+      "title": "Add to favourites",
+      "file": "main.js",
+      "categories": ["localStorage"]
+    },
+    {
+      "id": "X1",
+      "title": "Empty and error states",
+      "file": "main.js",
+      "categories": ["fetch", "dom"]
+    },
+    {
+      "id": "X3",
+      "title": "Favourite button reflects what is stored",
+      "file": "main.js",
+      "categories": ["dom", "localStorage"]
+    },
+    {
+      "id": "FR013",
+      "title": "Journal page display",
+      "file": "journal.js",
+      "categories": ["localStorage", "dom"]
+    },
+    {
+      "id": "FR014",
+      "title": "Personal notes",
+      "file": "journal.js",
+      "categories": ["localStorage", "dom"]
+    },
+    {
+      "id": "X4",
+      "title": "Remove a film from the journal",
+      "file": "journal.js",
+      "categories": ["localStorage", "dom"]
+    }
+  ]
+}

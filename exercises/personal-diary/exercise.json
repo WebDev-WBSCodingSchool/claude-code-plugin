@@ -1,0 +1,8 @@
+{
+  "id": "personal-diary",
+  "title": "Personal Diary",
+  "source": {
+    "repository": "starter-personal-diary",
+    "commit": "044b60f98fec9b006c92799ba6ae3fb4193f4c77"
+  }
+}
