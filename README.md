@@ -14,9 +14,10 @@ It bundles every starter currently in `/home/stephan/coding/wbs/starter-repos`:
 - `tailwind`
 
 Each entry is an assignment-specific overlay. The shared `runtime/` contains the
-hooks, skills, settings, and editor configuration used by every exercise. Setup assembles
-the two layers, verifies the result, records its source version, initializes a
-clean Git repository, and only then makes the target directory visible.
+hooks, skills, settings, and editor configuration used by every exercise. Setup
+assembles the two layers, verifies the result, records its source version,
+initializes a clean Git repository, and only then makes the target directory
+visible.
 
 The plugin also contains an explicit instructor command. From a clean clone of
 the plugin repository, run Claude Code with `--plugin-dir .`, then invoke:
@@ -61,6 +62,7 @@ Run the small integration test with:
 ```sh
 node test/setup.test.mjs
 node test/detectors.test.mjs
+node test/pack-exercise.test.mjs
 ```
 
 ## Deliberate limits
