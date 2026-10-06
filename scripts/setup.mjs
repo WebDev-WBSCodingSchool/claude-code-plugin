@@ -72,6 +72,24 @@ function createProject(exercise, targetArgument) {
     rmSync(join(staging, ".gitignore-base"), { force: true });
     copyContents(join(exercise.directory, "overlay"), staging);
 
+    // The committed lockfile ages between releases, so patch it to the newest
+    // fixed versions the package.json ranges allow. Without --force this never
+    // crosses a major version, so the starter stays on what it was written for.
+    // Offline or unfixable is not a reason to fail setup.
+    if (existsSync(join(staging, "package-lock.json"))) {
+      try {
+        execFileSync("npm", ["audit", "fix", "--package-lock-only"], {
+          cwd: staging,
+          stdio: "ignore",
+          shell: process.platform === "win32",
+        });
+      } catch {
+        console.warn(
+          "note: could not apply security fixes to package-lock.json; run `npm audit` after installing",
+        );
+      }
+    }
+
     writeFileSync(
       join(staging, ".claude", "harness", "lock.json"),
       `${JSON.stringify(
