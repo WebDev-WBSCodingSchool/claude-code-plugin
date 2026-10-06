@@ -73,7 +73,7 @@ function pack(pluginRoot, starterRoot, id) {
 
   const sourcePlugin = manifest(pluginRoot);
   const runningPlugin = manifest(toolRoot);
-  if (sourcePlugin.name !== "wbs-cs") {
+  if (sourcePlugin.name !== "exercise") {
     throw new Error(`unexpected plugin name: ${sourcePlugin.name}`);
   }
   if (sourcePlugin.version !== runningPlugin.version) {

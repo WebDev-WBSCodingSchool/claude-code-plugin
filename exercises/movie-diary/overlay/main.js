@@ -41,7 +41,7 @@
 
 
 
-// ─── X1 · Empty and error states ─────────────────────────────────────────────
+// ─── FR013 · Empty and error states ──────────────────────────────────────────
 // When the films cannot be loaded — TMDB is down, the token is wrong, the wifi
 // is gone — the page says so instead of sitting empty. Same when a search finds
 // nothing.
@@ -49,6 +49,6 @@
 
 
 
-// ─── X3 · The favourite button knows ─────────────────────────────────────────
+// ─── FR014 · The favourite button knows ──────────────────────────────────────
 // A card's favourite button shows whether that film is already in the journal,
 // and flips when clicked, without the whole list being drawn again.

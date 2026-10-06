@@ -98,49 +98,49 @@
       "categories": ["postRequests", "reactState", "frontendAuth", "errorHandling"]
     },
     {
-      "id": "X1",
+      "id": "FR022",
       "title": "Edit an event",
       "file": "src/pages/EditEventPage.jsx",
       "categories": ["getRequests", "putRequests", "reactState", "reactEffects", "reactRouting", "frontendAuth", "errorHandling"]
     },
     {
-      "id": "X2",
+      "id": "FR023",
       "title": "Keep event details current",
       "file": "src/pages/EventDetailsPage.jsx",
       "categories": ["getRequests", "reactEffects", "errorHandling"]
     },
     {
-      "id": "X3",
+      "id": "FR024",
       "title": "Share the signed-in user",
       "file": "src/layouts/MainLayout.jsx",
       "categories": ["reactRouting", "frontendAuth"]
     },
     {
-      "id": "X4",
+      "id": "FR025",
       "title": "Paginate the event list",
       "file": "src/pages/HomePage.jsx",
       "categories": ["getRequests", "reactState", "reactEffects", "errorHandling"]
     },
     {
-      "id": "X5",
+      "id": "FR026",
       "title": "Prevent duplicate event creation",
       "file": "src/pages/CreateEventPage.jsx",
       "categories": ["reactState"]
     },
     {
-      "id": "X6",
+      "id": "FR027",
       "title": "Delete an event",
       "file": "src/pages/EventDetailsPage.jsx",
       "categories": ["deleteRequests", "reactRouting", "frontendAuth", "errorHandling"]
     },
     {
-      "id": "X7",
+      "id": "FR028",
       "title": "Show a Not Found page",
       "file": "src/App.jsx",
       "categories": ["reactRouting", "errorHandling"]
     },
     {
-      "id": "X8",
+      "id": "FR029",
       "title": "Sign out",
       "file": "src/layouts/MainLayout.jsx",
       "categories": ["reactRouting", "frontendAuth"]

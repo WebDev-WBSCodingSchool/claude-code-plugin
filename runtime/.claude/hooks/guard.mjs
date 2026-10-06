@@ -212,6 +212,27 @@ const DETECTORS = {
     /(^|[\n};])\s*([.#][\w-]|:root\b)[^{}\n(]*\{/,
     /@(media|import|font-face|keyframes|supports)\b/i,
   ],
+  // A vanilla-to-Vite refactor: converting the codebase to native ES modules.
+  // Note what is NOT here: the module's contents. `import`/`export` are the
+  // topic itself, once a project moves off plain `<script>` tags; everything
+  // written inside the module is the student's anyway, and this detector
+  // does not need to see it twice.
+  esModules: [
+    // A statement, not the word: `\s+` after `import`/`export` is what keeps
+    // `let exportButton = ...` and prose ("// export this later") out, since
+    // neither has whitespace directly after the bare word.
+    /^\s*import\s+[\s\S]{0,200}?\bfrom\s+['"]/m,
+    /^\s*export\s+(default|const|function|class|let|var)\b/m,
+  ],
+  // Vite's own config file: the plugin wiring and the multi-page build entries.
+  // Note what is NOT here: the word "config" alone, or a variable named
+  // `input` — both are common outside this file, and only the three Vite-
+  // specific terms below are unique to it.
+  viteConfig: [
+    /\bdefineConfig\s*\(/,
+    /\brollupOptions\b/,
+    /@tailwindcss\/vite\b/,
+  ],
   // Utility-class styling, for a module taught as Tailwind rather than as CSS.
   // Both patterns require a literal `class=` / `className=` attribute, which is
   // what keeps them off everything else in a script file: `classList.add("hidden")`

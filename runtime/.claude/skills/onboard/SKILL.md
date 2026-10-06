@@ -29,10 +29,10 @@ node .claude/hooks/onboard.mjs --check
 ```
 
 The command reports whether the student is at the repository root, whether their
-Git email matches the plan, and whether pull requests point to the working fork.
-It also tries to set the local GitHub CLI default and install the repository's
-pre-commit hook. Those changes stay in local Git configuration and are not
-committed.
+Git email matches the plan, and whether the project is on GitHub in a repo they
+can push to. It also tries to set the local GitHub CLI default and install the
+repository's pre-commit hook. Those changes stay in local Git configuration and
+are not committed.
 
 Do not begin by pasting the check output. Use it to choose the relevant path
 below. When something fails, explain one problem, why it matters, and the next
@@ -44,6 +44,7 @@ After fixing a setup problem, rerun `--check` before moving on.
 
 | What you find | What to do |
 | --- | --- |
+| The project is not on GitHub yet | Put it there first, as described under "Put the project on GitHub". |
 | The student is in the wrong repository | Fix that first. Do not continue setup until it is clear where the work belongs. |
 | `onboarding` is `false` | Give a short orientation, complete local setup, ask about the assignment's required opening decisions, then create a task branch. |
 | `onboarding` is `true` and the plan is missing | Give the orientation, complete local setup, then guide the group kickoff. |
@@ -71,22 +72,51 @@ Cover:
 End with one next action. Do not attach the full setup checklist to the same
 message.
 
-## Fix the wrong repository first
+## Put the project on GitHub
 
-The check can find two repository problems:
+The WBS CODING SCHOOL plugin created this project as a local repository with no
+remote. Pull requests need it on GitHub, so this comes before the task branch.
 
-- The student has read-only access. They cloned the source repository instead of
-  a fork. They cannot push there, and a pull request would target someone else's
-  repository.
-- The student is in the source repository that other people forked. A push may
-  succeed, but it puts their branch outside the group's working fork.
+For a group project, exactly one member does this. Ask first whether someone in
+the group already has. If so, this student should not continue in this folder:
+they clone the group's repo instead and run `/onboard` there. Two members who
+each publish their own setup give the group two repos, and their work will not
+meet.
 
-Explain that the existing work is not lost and can be moved after the correct
-fork is cloned.
+Let the student choose the repository name, then confirm it with them, because
+the command creates a public repository under their GitHub account:
 
-The script cannot detect every fork of a fork. A group uses one fork and adds all
-members as collaborators. Before a new member clones, name the exact URL the
-group uses.
+```text
+gh repo create <repo-name> --public --source . --remote origin --push
+```
+
+If `gh` is missing or not logged in, the student can create an empty repository
+on github.com instead, without a README or license, and then run:
+
+```text
+git remote add origin <repository-url>
+git push -u origin main
+```
+
+For a group project, the student then adds every other member as a collaborator
+under the repository's Settings → Collaborators. Each member accepts the
+invitation, clones the repository, and runs `/onboard` in their clone. They do
+not need the WBS CODING SCHOOL plugin for that.
+
+Rerun `--check` afterwards.
+
+## Fix the wrong repository
+
+The check reports read-only access when the student cannot push to the
+repository they cloned. Either nobody has added them as a collaborator yet, or
+they cloned someone else's repository. They cannot push there, and a pull request
+would target the wrong repository.
+
+If it is their group's repository, the member who created it adds them as a
+collaborator, and they accept the invitation. Nothing else needs to change. If it
+is not, explain that the existing work is not lost and can be moved after they
+clone the group's repo. Before a member clones, name the exact URL the group
+uses.
 
 ## Complete local setup
 
@@ -103,17 +133,17 @@ You may help fully with setup because it is not code the student must implement.
   contain credentials.
 - Mention required accounts early when registration may delay the first task.
 
-## Confirm the working fork
+## Confirm the working repo
 
-The group works in one fork:
+The group works in one repo, published once from one member's setup:
 
-- One member owns the fork and adds the others as collaborators.
-- `--check` lists who can push. Compare that list with the group.
-- Every member clones that same fork, not a separate fork and not the source
-  repository.
-
-GitHub's "Compare & pull request" button may select the source repository as the
-base. Warn the group once during setup so they know to select their working fork.
+- One member puts the project on GitHub and adds the others as collaborators.
+- `--check` lists who can push. Compare that list with the group. If only one
+  person can push and others say they already set the project up, two members
+  probably published separately. The group picks one repo, and the others clone
+  it.
+- Every member clones that same repo instead of running the plugin's setup
+  again.
 
 ## Handle a solo assignment
 
@@ -244,8 +274,8 @@ Close with only the unfinished actions:
   `node .claude/hooks/onboard.mjs --check` for current status.
 
 For a group project, setup is complete when the plan passes, every member has
-cloned the working fork, each setup check passes, everyone has a task, and each
-person has a task branch. For a solo assignment, setup is complete when the
+cloned the group's own repo, each setup check passes, everyone has a task, and
+each person has a task branch. For a solo assignment, setup is complete when the
 checks pass, the opening decisions are settled, and the student has a task branch.
 
 After the plan and setup checks pass, do not offer to create code. Treat any

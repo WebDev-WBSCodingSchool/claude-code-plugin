@@ -5,6 +5,6 @@
 // Collect event data with React state or a form action, attach the stored token,
 // create the event through the API, and show success or failure.
 
-// X5 - Prevent duplicate event creation
+// FR026 - Prevent duplicate event creation
 // While creation is pending, show that work is in progress and disable the send
 // button until the request finishes.

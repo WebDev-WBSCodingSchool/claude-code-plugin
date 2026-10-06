@@ -31,7 +31,7 @@ exercise may set either to `false`, but record that as an instructor decision.
 Keep the shared runtime sections from `runtime/README.md`. Replace every fill
 marker with the approved assignment content. Preserve this order:
 
-1. Title, duration, description, and fork-once instruction.
+1. Title, duration, description, and the put-it-on-GitHub-once instruction.
 2. Requirement table.
 3. Setup limit and local-file instructions.
 4. What students type and where agent help is available.

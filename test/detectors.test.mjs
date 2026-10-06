@@ -34,6 +34,8 @@ const CASES = [
   ["semanticHtml", "index.html", "<!doctype html><main></main>", "if (a < b) return a"],
   ["css", "styles.css", "display: flex;", 'const box = { display: "flex" }'],
   ["tailwindStyling", "index.html", '<div class="flex gap-4">', '<div class="card">'],
+  ["esModules", "main.js", 'import { render } from "./render.js"', "let exportButton = null"],
+  ["viteConfig", "vite.config.js", "defineConfig({})", 'const config = { input: "main.js" }'],
 ];
 
 function denied(repo, file, content) {

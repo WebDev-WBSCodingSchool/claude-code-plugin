@@ -24,8 +24,11 @@ exercise catalog.
    ```
 
 4. Report the created path. Tell the user to open Claude Code in that directory
-   and run `/onboard` when the exercise has onboarding enabled, otherwise tell
-   them to read `README.md` and run `/tutor` when they want guidance.
+   and run `/onboard`, which puts the project on GitHub and finishes setup.
+
+In a group project, only one member sets the project up. If the user says a
+teammate already did, do not run setup. Tell them to clone the group's repository
+and run `/onboard` there instead.
 
 Do not complete assignment tasks during setup. The setup script refuses to
 overwrite an existing path and verifies the assembled harness before publishing

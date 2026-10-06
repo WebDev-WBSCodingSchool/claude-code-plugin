@@ -1,5 +1,5 @@
 ---
-name: add-exercise
+name: add
 description: Add a pre-AI project assessment to the WBS harness plugin through the instructor interview. Use when an instructor wants to turn an assessment Markdown file into a new packaged exercise.
 argument-hint: "<path-to-assessment.md>"
 disable-model-invocation: true
@@ -20,7 +20,7 @@ Before the interview:
 
 1. Resolve the current Git root with `git rev-parse --show-toplevel`.
 2. Confirm that its `.claude-plugin/plugin.json` names
-   `wbs-cs`.
+   `exercise`.
 3. Confirm that its plugin version equals the version under
    `${CLAUDE_PLUGIN_ROOT}`.
 4. Require an empty `git status --porcelain`. If it is not empty, stop and name

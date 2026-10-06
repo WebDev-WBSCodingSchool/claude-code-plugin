@@ -6,13 +6,14 @@
   "unlockRoute": true,
   "onboarding": true,
   "planFile": "PLAN.md",
+  "preScaffold": true,
 
   "transcripts": false,
 
   "integrationBranch": "main",
   "branchDiscipline": "warn",
 
-  "gated": ["fetch", "dom", "localStorage"],
+  "gated": ["fetch", "dom", "localStorage", "esModules", "viteConfig"],
 
   "syntaxCheck": "node --check",
 
@@ -60,34 +61,70 @@
       "categories": ["localStorage"]
     },
     {
-      "id": "X1",
+      "id": "FR013",
       "title": "Empty and error states",
       "file": "main.js",
       "categories": ["fetch", "dom"]
     },
     {
-      "id": "X3",
+      "id": "FR014",
       "title": "Favourite button reflects what is stored",
       "file": "main.js",
       "categories": ["dom", "localStorage"]
     },
     {
-      "id": "FR013",
+      "id": "FR015",
       "title": "Journal page display",
       "file": "journal.js",
       "categories": ["localStorage", "dom"]
     },
     {
-      "id": "FR014",
+      "id": "FR016",
       "title": "Personal notes",
       "file": "journal.js",
       "categories": ["localStorage", "dom"]
     },
     {
-      "id": "X4",
+      "id": "FR017",
       "title": "Remove a film from the journal",
       "file": "journal.js",
       "categories": ["localStorage", "dom"]
+    },
+    {
+      "id": "FR018",
+      "title": "Vite + npm Tailwind setup",
+      "file": "vite.config.js",
+      "categories": ["viteConfig"]
+    },
+    {
+      "id": "FR019",
+      "title": "Multi-page entries configured",
+      "file": "vite.config.js",
+      "categories": ["viteConfig"]
+    },
+    {
+      "id": "FR020",
+      "title": "Convert homepage to ES modules",
+      "file": "src/home.js",
+      "categories": ["esModules"]
+    },
+    {
+      "id": "FR021",
+      "title": "Convert journal page to ES modules",
+      "file": "src/journal.js",
+      "categories": ["esModules"]
+    },
+    {
+      "id": "FR022",
+      "title": "Refactor homepage for readability",
+      "file": "src/home.js",
+      "categories": []
+    },
+    {
+      "id": "FR023",
+      "title": "Refactor journal page for readability",
+      "file": "src/journal.js",
+      "categories": []
     }
   ]
 }

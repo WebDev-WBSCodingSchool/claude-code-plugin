@@ -1,0 +1,62 @@
+# Cuts a release: runs the tests, bumps the version in plugin.json, tags it, and
+# moves `stable` to it. Students install from `stable`, so nothing merged to main
+# reaches them until this runs. Installed copies only update when the version
+# string changes, which is why the bump and the branch move happen together.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to increase
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Test
+        run: for t in test/*.mjs; do node "$t"; done
+
+      - name: Bump version
+        id: bump
+        run: |
+          node --input-type=module -e '
+            import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
+            const path = ".claude-plugin/plugin.json";
+            const plugin = JSON.parse(readFileSync(path, "utf8"));
+            const parts = plugin.version.split(".").map(Number);
+            if (parts.length !== 3 || parts.some(Number.isNaN)) throw new Error(`not x.y.z: ${plugin.version}`);
+            const i = ["major", "minor", "patch"].indexOf(process.argv[1]);
+            parts[i] += 1;
+            parts.fill(0, i + 1);
+            plugin.version = parts.join(".");
+            writeFileSync(path, `${JSON.stringify(plugin, null, 2)}\n`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `version=${plugin.version}\n`);
+          ' "${{ inputs.bump }}"
+
+      - name: Commit, tag, and publish to stable
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release v$VERSION"
+          git tag "v$VERSION"
+          # Atomic, so main, the tag, and stable either all move or none do.
+          git push --atomic origin HEAD:main "v$VERSION" HEAD:stable

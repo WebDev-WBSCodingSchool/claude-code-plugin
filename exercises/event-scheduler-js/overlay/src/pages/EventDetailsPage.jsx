@@ -5,10 +5,10 @@
 // Read the event ID from the route, fetch that event when the ID changes, keep
 // it in React state, and give the user useful loading and failure feedback.
 
-// X2 - Keep event details current
+// FR023 - Keep event details current
 // Cancel or ignore an older in-flight request when the route changes so its
 // response cannot replace the event selected by the current URL.
 
-// X6 - Delete an event
+// FR027 - Delete an event
 // Ask for confirmation, send an authenticated delete request, handle failure,
 // and return to an event list that no longer shows the deleted event.

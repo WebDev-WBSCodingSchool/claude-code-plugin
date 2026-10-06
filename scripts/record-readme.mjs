@@ -6,9 +6,9 @@ import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from
 import { dirname, join, resolve } from "node:path";
 
 const policyFiles = [
-  "skills/add-exercise/SKILL.md",
-  "skills/add-exercise/references/interview.md",
-  "skills/add-exercise/references/authoring.md",
+  "skills/add/SKILL.md",
+  "skills/add/references/interview.md",
+  "skills/add/references/authoring.md",
   "runtime/README.md",
 ];
 
@@ -35,7 +35,7 @@ function record(pluginRoot, starterRoot) {
   const manifestPath = join(pluginRoot, ".claude-plugin", "plugin.json");
   if (!existsSync(manifestPath)) throw new Error("plugin source has no .claude-plugin/plugin.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (manifest.name !== "wbs-cs") throw new Error(`unexpected plugin: ${manifest.name}`);
+  if (manifest.name !== "exercise") throw new Error(`unexpected plugin: ${manifest.name}`);
 
   const commit = git(pluginRoot, ["rev-parse", "HEAD"]).trim();
   const currentPolicy = policyFiles.map((path) => readFileSync(join(pluginRoot, path), "utf8"));

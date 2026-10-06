@@ -3,16 +3,18 @@
 Two days (full time) / five days (part time). Solo project, mandatory
 presentation at the end.
 
-This repo is your starting point. **Fork it once** and work in your fork. Every
-change merges to `main` through a Pull Request.
+This repo is your starting point. **Put it on GitHub as your own repo**, and
+`/onboard` walks you through that. Every change merges to `main` through a Pull
+Request.
 
 ## Where you are
 
 Four stages. Each stage names what ends it, which is the part easy to lose sight
 of from the inside.
 
-1. **Fork it, clone it, run `/onboard`.** Ends when the setup checks pass and you
-   have answered the two questions in "Before you write code" below.
+1. **Run `/onboard`, which puts this repo on GitHub.** Ends
+   when the setup checks pass and you have answered the two questions in
+   "Before you write code" below.
 2. **Pick a task, cut a branch.** `git switch -c <task-id>-<short-name>`. Ends
    when you have a branch for the work instead of committing to `main`.
 3. **Write it, commit it, explain it.** Ends when the sign-off is recorded. It

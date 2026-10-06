@@ -3,9 +3,12 @@
 <FILL: duration, one line. "Five days (full time) / ten days (part time). Group
 project, mandatory presentation at the end.">
 
-This repo is your starting point. **Fork it once<FILL: " for your group" if this is
-a group project>** and add your team members as collaborators. One fork, everyone
-works in it, and every change merges to `main` through a Pull Request.
+This repo is your starting point. **Put it on GitHub once<FILL: " for your group" if
+this is a group project>**, and `/onboard` walks you through that. <FILL: for a
+group project, "One of you does this and adds the others as collaborators; they
+clone that repo instead of setting the project up again. One repo, everyone works
+in it, and" — for a solo project, "From then on"> every change merges to `main`
+through a Pull Request.
 
 <FILL: variant-rename note, or delete this paragraph if the project has no variants>
 
@@ -25,7 +28,8 @@ each on its own.>
 Five stages. Each stage names what ends it, which is the part easy to lose sight
 of from the inside.
 
-1. **Fork it, clone it, run `/onboard`.** Ends when the only open item is
+1. **Run `/onboard`, which puts this repo on GitHub, or clone your group's
+   copy if a teammate already did.** Ends when the only open item is
    `PLAN.md`. That is stage 2, and it stays open until you get there.
    Everything above it should pass.
 2. **Meet, and write `PLAN.md` together.** Ends when the check passes: every
@@ -202,7 +206,7 @@ plan, never whether it was any good.
 split against.>
 
 `PLAN.md` is the snapshot from the kickoff. **From then on your tasks are GitHub
-Issues on your fork.** `/onboard` can create them from your task lines, or make
+Issues in your group's repo.** `/onboard` can create them from your task lines, or make
 them by hand. The issues are the live version and nothing syncs them back.
 
 Write them yourselves either way. The agent will not give you a breakdown. Once

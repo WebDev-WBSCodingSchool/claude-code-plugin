@@ -1,0 +1,14 @@
+{
+  "name": "wbs-cs",
+  "description": "WBS Coding School plugins for Claude Code.",
+  "owner": {
+    "name": "WBS Coding School"
+  },
+  "plugins": [
+    {
+      "name": "exercise",
+      "source": "./",
+      "description": "Set up WBS Coding School assignments as self-contained projects with their task harness."
+    }
+  ]
+}
