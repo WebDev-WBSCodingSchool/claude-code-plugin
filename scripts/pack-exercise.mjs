@@ -73,7 +73,7 @@ function pack(pluginRoot, starterRoot, id) {
 
   const sourcePlugin = manifest(pluginRoot);
   const runningPlugin = manifest(toolRoot);
-  if (sourcePlugin.name !== "wbs-harness-prototype") {
+  if (sourcePlugin.name !== "wbs-cs") {
     throw new Error(`unexpected plugin name: ${sourcePlugin.name}`);
   }
   if (sourcePlugin.version !== runningPlugin.version) {
@@ -114,7 +114,7 @@ function pack(pluginRoot, starterRoot, id) {
 
   try {
     for (const relative of tracked) {
-      if (relative === ".claude/harness/prototype-lock.json") continue;
+      if (relative === ".claude/harness/lock.json") continue;
 
       const starterFile = join(starterRoot, relative);
       const runtimeFile = join(runtime, relative);

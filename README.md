@@ -23,7 +23,7 @@ The plugin also contains an explicit instructor command. From a clean clone of
 the plugin repository, run Claude Code with `--plugin-dir .`, then invoke:
 
 ```text
-/wbs-harness-prototype:add-exercise /path/to/assessment.md
+/wbs-cs:add-exercise /path/to/assessment.md
 ```
 
 It runs the instructor interview, builds a review starter, verifies it, and
@@ -35,7 +35,7 @@ author into an installed plugin cache or a dirty source checkout.
 Run Claude Code with the plugin loaded from this checkout:
 
 ```sh
-claude --plugin-dir /home/stephan/coding/wbs-task-harness/claude-harness-plugin-prototype
+claude --plugin-dir /home/stephan/coding/wbs-task-harness/wbs-cs
 ```
 
 Then ask:

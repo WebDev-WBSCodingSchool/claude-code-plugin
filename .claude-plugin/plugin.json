@@ -1,5 +1,5 @@
 {
-  "name": "wbs-harness-prototype",
+  "name": "wbs-cs",
   "version": "0.2.0",
   "description": "Prototype Claude Code plugin that creates self-contained WBS exercise projects.",
   "author": {

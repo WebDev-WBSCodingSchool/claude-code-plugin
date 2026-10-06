@@ -64,7 +64,7 @@ function createProject(exercise, targetArgument) {
 
   const parent = dirname(target);
   mkdirSync(parent, { recursive: true });
-  const staging = mkdtempSync(join(parent, ".wbs-harness-prototype-"));
+  const staging = mkdtempSync(join(parent, ".wbs-cs-"));
 
   try {
     copyContents(runtimeRoot, staging);
@@ -73,11 +73,10 @@ function createProject(exercise, targetArgument) {
     copyContents(join(exercise.directory, "overlay"), staging);
 
     writeFileSync(
-      join(staging, ".claude", "harness", "prototype-lock.json"),
+      join(staging, ".claude", "harness", "lock.json"),
       `${JSON.stringify(
         {
           schemaVersion: 1,
-          prototype: true,
           pluginVersion: plugin.version,
           exercise: exercise.id,
           source: exercise.source,
@@ -98,10 +97,10 @@ function createProject(exercise, targetArgument) {
     runGit(["commit", "--no-verify", "-m", `Create ${exercise.title} starter`], staging, {
       env: {
         ...process.env,
-        GIT_AUTHOR_NAME: "WBS Harness Prototype",
-        GIT_AUTHOR_EMAIL: "prototype@wbs.invalid",
-        GIT_COMMITTER_NAME: "WBS Harness Prototype",
-        GIT_COMMITTER_EMAIL: "prototype@wbs.invalid",
+        GIT_AUTHOR_NAME: "WBS Coding School",
+        GIT_AUTHOR_EMAIL: "wbs-cs@wbs.invalid",
+        GIT_COMMITTER_NAME: "WBS Coding School",
+        GIT_COMMITTER_EMAIL: "wbs-cs@wbs.invalid",
       },
     });
 

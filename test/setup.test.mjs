@@ -28,7 +28,7 @@ try {
       readFileSync(join(target, ".claude", "harness", "config.json"), "utf8"),
     );
     const lock = JSON.parse(
-      readFileSync(join(target, ".claude", "harness", "prototype-lock.json"), "utf8"),
+      readFileSync(join(target, ".claude", "harness", "lock.json"), "utf8"),
     );
 
     assert.deepEqual(config, expectedConfig);

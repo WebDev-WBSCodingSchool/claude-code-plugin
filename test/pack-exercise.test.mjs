@@ -61,13 +61,13 @@ try {
   assert.equal(existsSync(join(entry, "overlay", "main.js")), true);
   assert.equal(existsSync(join(entry, "overlay", ".claude", "hooks", "guard.mjs")), false);
   assert.equal(
-    existsSync(join(entry, "overlay", ".claude", "harness", "prototype-lock.json")),
+    existsSync(join(entry, "overlay", ".claude", "harness", "lock.json")),
     false,
   );
 
   execFileSync(process.execPath, [join(pluginCopy, "scripts", "setup.mjs"), "setup", id, regenerated]);
   const lock = JSON.parse(
-    readFileSync(join(regenerated, ".claude", "harness", "prototype-lock.json"), "utf8"),
+    readFileSync(join(regenerated, ".claude", "harness", "lock.json"), "utf8"),
   );
   assert.equal(lock.exercise, id);
   assert.equal(git(regenerated, ["status", "--porcelain"]), "");
