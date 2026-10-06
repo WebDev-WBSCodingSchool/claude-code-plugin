@@ -60,7 +60,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/verify.mjs" "<review-starter-root>"
 
 It must print `no problems`. Then initialize a local Git repository, configure
 `.claude/githooks` as `core.hooksPath`, and commit the starter. Do not publish it.
-The commit gives the packaged entry a source revision.
+The packer only reads files Git tracks, and it refuses a starter with uncommitted changes.
 
 ## Package it
 

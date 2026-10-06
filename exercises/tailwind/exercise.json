@@ -1,8 +1,4 @@
 {
   "id": "tailwind",
-  "title": "Figma and Tailwind CSS",
-  "source": {
-    "repository": "starter-tailwind",
-    "commit": "d7e3e4c6fc86c39ac053faa112151d56641aed38"
-  }
+  "title": "Figma and Tailwind CSS"
 }

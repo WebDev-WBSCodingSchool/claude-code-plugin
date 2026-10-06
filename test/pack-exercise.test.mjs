@@ -57,7 +57,6 @@ try {
   const entry = join(pluginCopy, "exercises", id);
   const manifest = JSON.parse(readFileSync(join(entry, "exercise.json"), "utf8"));
   assert.equal(manifest.id, id);
-  assert.match(manifest.source.commit, /^[0-9a-f]{40}$/);
   assert.equal(existsSync(join(entry, "overlay", "main.js")), true);
   assert.equal(existsSync(join(entry, "overlay", ".claude", "hooks", "guard.mjs")), false);
   assert.equal(

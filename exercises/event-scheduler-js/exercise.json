@@ -1,8 +1,4 @@
 {
   "id": "event-scheduler-js",
-  "title": "Event Scheduler",
-  "source": {
-    "repository": "starter-event-scheduler-js",
-    "commit": "8d8bd400d202afa6fd573fe5e1e0921f65dcff0d"
-  }
+  "title": "Event Scheduler"
 }

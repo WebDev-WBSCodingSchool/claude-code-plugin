@@ -79,7 +79,6 @@ function createProject(exercise, targetArgument) {
           schemaVersion: 1,
           pluginVersion: plugin.version,
           exercise: exercise.id,
-          source: exercise.source,
         },
         null,
         2,

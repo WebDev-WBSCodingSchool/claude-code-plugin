@@ -1,8 +1,4 @@
 {
   "id": "html",
-  "title": "From concept to deployment",
-  "source": {
-    "repository": "starter-html",
-    "commit": "5b5ed0f65cf4dba924dc72df6cf28eb4f2090f93"
-  }
+  "title": "From concept to deployment"
 }

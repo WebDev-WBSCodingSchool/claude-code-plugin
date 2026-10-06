@@ -1,8 +1,4 @@
 {
   "id": "art-explorer",
-  "title": "Art Institute Explorer",
-  "source": {
-    "repository": "starter-art-explorer",
-    "commit": "f758ddf77a7293baf7bbe1b835b6127d48c03712"
-  }
+  "title": "Art Institute Explorer"
 }

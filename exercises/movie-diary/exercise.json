@@ -1,8 +1,4 @@
 {
   "id": "movie-diary",
-  "title": "Movie Diary",
-  "source": {
-    "repository": "starter-movie-diary",
-    "commit": "d230e66ae89a94579654ac7fc195c82a16cde899"
-  }
+  "title": "Movie Diary"
 }

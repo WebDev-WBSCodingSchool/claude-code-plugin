@@ -12,7 +12,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { problems } from "./verify.mjs";
@@ -142,13 +142,9 @@ function pack(pluginRoot, starterRoot, id) {
       copyTrackedFile(starterRoot, relative, overlay);
     }
 
-    const source = {
-      repository: basename(starterRoot),
-      commit: git(starterRoot, ["rev-parse", "HEAD"]),
-    };
     writeFileSync(
       join(staging, "exercise.json"),
-      `${JSON.stringify({ id, title: config.assignment.trim(), source }, null, 2)}\n`,
+      `${JSON.stringify({ id, title: config.assignment.trim() }, null, 2)}\n`,
     );
     renameSync(staging, target);
   } catch (error) {
