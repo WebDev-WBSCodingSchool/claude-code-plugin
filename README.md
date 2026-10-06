@@ -13,12 +13,12 @@ You need Claude Code, Node.js 22 or newer, Git, and a GitHub account. The
 Run these two commands once, in a terminal:
 
 ```sh
-claude plugin marketplace add WebDev-WBSCodingSchool/claude-code-plugin#stable
+claude plugin marketplace add "WebDev-WBSCodingSchool/claude-code-plugin#stable"
 claude plugin install exercise@wbs-cs
 ```
 
 To check that it worked, start Claude Code and type `/exercise:`. You should see
-`/exercise:setup`.
+`/exercise:setup` and `/exercise:list`.
 
 ## Update
 
