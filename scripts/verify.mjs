@@ -3,7 +3,6 @@
 // Check a generated starter repo before anyone forks it.
 //
 //   node verify.mjs <repo>
-//   node verify.mjs <repo> --against /home/stephan/coding/task-harness/movie-diary-harness
 //
 // Every check here is a failure that is silent on a student's machine. The
 // loudest is the first: guard.mjs treats a gated category with no detector as a
@@ -13,11 +12,10 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { drift } from "./sync.mjs";
 
 /**
  * A skeleton config ships several keys as `<FILL: ...>` placeholders
- * (`assignment`, `variant`, `localFile`) so a copy of `template/` still
+ * (`assignment`, `variant`, `localFile`) so a copy of `runtime/` still
  * parses. A marker is not a value — any check that reads one as real reports
  * a problem that was never there. Every check below that reads a
  * generator-filled key should route through this first.
@@ -140,9 +138,9 @@ export function problems(repo) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const repo = process.argv[2];
-  if (!repo) {
-    console.error("usage: node verify.mjs <repo> [--against <exemplar>]");
+  const [repo, ...extra] = process.argv.slice(2);
+  if (!repo || extra.length) {
+    console.error("usage: node verify.mjs <repo>");
     process.exit(2);
   }
 
@@ -150,25 +148,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   for (const p of found) console.log(`  problem  ${p}`);
   console.log(found.length ? `\n${found.length} problem(s)` : "no problems");
 
-  let drifted = [];
-  const i = process.argv.indexOf("--against");
-  if (i !== -1) {
-    const exemplar = process.argv[i + 1];
-    drifted = drift(repo, exemplar);
-    console.log(`\nmechanical tier against ${exemplar}:`);
-    for (const r of drifted) console.log(`  ${r.how.padEnd(17)}${r.rel}`);
-    if (!drifted.length) console.log("  identical");
-    // The brief is generated prose and will not match byte for byte. Reported
-    // for reading, never a failure.
-    const a = join(repo, "README.md");
-    const b = join(exemplar, "README.md");
-    if (existsSync(a) && existsSync(b))
-      console.log(
-        readFileSync(a, "utf8") === readFileSync(b, "utf8")
-          ? "\nREADME.md is identical"
-          : "\nREADME.md differs — read it, do not assume it is wrong",
-      );
-  }
-
-  process.exit(found.length || drifted.length ? 1 : 0);
+  process.exit(found.length ? 1 : 0);
 }

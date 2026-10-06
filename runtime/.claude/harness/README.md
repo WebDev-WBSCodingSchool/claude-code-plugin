@@ -14,7 +14,7 @@ next.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `assignment`        | The module and project name. Descriptive only: no script reads it. It is here so whoever is reading this config knows which assignment it belongs to.                         |
 | `variant`           | Which named variant of the assignment this is, where a module has more than one retelling of the same requirements. Nothing in the harness reads it either, and it can be deleted where an assignment has no variant. |
-| `unlockRoute`       | Whether anything gated can become open _within_ this assignment. `true` on a project: tasks unlock gated categories as they are signed off, tracked in a progress file. `false` on a short hand-coding daily, where there is nothing to earn task by task, so `signoff.mjs` offers `--done` instead of per-task sign-off and opens everything gated at once.                         |
+| `unlockRoute`       | Whether anything gated can become open _within_ this assignment. `true`: tasks unlock gated categories as they are signed off, tracked in a progress file. `false`: there is no per-task signoff, and the protected code stays assigned to the student throughout the exercise. |
 | `onboarding`        | Whether the `PLAN.md` gate applies at all. `true` on a group project: no code for anyone until `PLAN.md` exists and every member it lists has a task, checked live on every guarded write. `false` on a solo assignment, where there is no group to plan with, so the gate and `onboard.mjs --check`'s plan-related item are both skipped rather than failed.                         |
 | `planFile`          | Which file the onboarding gate reads as the group's plan. `"PLAN.md"` unless changed. `guard.mjs` locks this exact path so only the check, never the agent, can pass it.                                              |
 | `gated`             | Which content categories are closed until demonstrated. Names, not patterns. Each one maps to a detector function in `guard.mjs`.                                                                                      |
@@ -67,8 +67,8 @@ sentence to be re-generated, which hides a badly drafted line instead of fixing 
 
 ## `progress/<student>.json`
 
-Guard state, one file per student, committed. The filename is the part of their
-git email before the `@`, lowercased. Written **only** by `signoff.mjs`, and read
+Guard state, one file per student, committed. The filename is the SHA-256 hash
+of their complete lowercased git email. Written **only** by `signoff.mjs`, and read
 on every gated write to decide the agent's permitted level of help.
 
 Every field is a git fact or a state flag: `task`, `at`, `route`, `branch`,
@@ -78,9 +78,7 @@ in sum the evidence for a solved task, a first go and its fixes rather than just
 the last of them. On a reviewed row `branch` is empty and `commits` holds only the
 reviewer's HEAD at review time, because the work is the author's, not the
 reviewer's, and `pr` plus `author` carry that provenance instead. `route` is
-`written`, `reviewed`, or `done`. The last only appears where `unlockRoute` is
-`false`, and carries no task, because a short exercise is finished all at once
-rather than piece by piece.
+`written` or `reviewed`.
 
 `coverage()` reads **all** of these files, not just this student's, to answer one
 question: has the group hand-written the core? Only `written` rows count toward

@@ -4,7 +4,6 @@
 //
 //   node .claude/hooks/signoff.mjs FR011
 //   node .claude/hooks/signoff.mjs FR011 --review --pr <url> --author <name>
-//   node .claude/hooks/signoff.mjs --done      (only where there is no unlock route)
 //   node .claude/hooks/signoff.mjs --status
 //
 // The agent invokes this after an explain-back it judged a pass. It cannot write
@@ -85,89 +84,23 @@ if (process.argv.includes("--status")) {
   // The group line, and the only place the agent can read it. README.md states
   // what this project is built out of; until the core is covered, the tutor holds
   // that ceiling rather than adding machinery a teammate would have to install.
-  const core = coverage(config);
-  const coreLabel = config.onboarding === false ? "Core hand-written by you" : "Core hand-written by the group";
-  console.log(
-    `\n${coreLabel}: ${
-      core.complete
-        ? "yes — the setup ceiling in README.md is a remark from here on, not a hold"
-        : config.unlockRoute === false
-          ? "not yet (run --done when you have finished and committed)"
+  if (config.unlockRoute !== false) {
+    const core = coverage(config);
+    const coreLabel = config.onboarding === false ? "Core hand-written by you" : "Core hand-written by the group";
+    console.log(
+      `\n${coreLabel}: ${
+        core.complete
+          ? "yes — the setup ceiling in README.md is a remark from here on, not a hold"
           : `not yet — still to be written by someone: ${core.missing
               .map((id) => `${taskById(config, id)?.title ?? id} (${id})`)
               .join(", ")}`
-    }`,
-  );
-  if (core.unreadable.length) {
-    console.log(`Unreadable progress files (conflict markers?): ${core.unreadable.join(", ")}`);
+      }`,
+    );
+    if (core.unreadable.length) {
+      console.log(`Unreadable progress files (conflict markers?): ${core.unreadable.join(", ")}`);
+    }
   }
   console.log();
-  process.exit(0);
-}
-
-// --- --done ----------------------------------------------------------------
-//
-// The completion state for an assignment with no unlock route. Nothing is being
-// earned here and nothing is judged: the student says the exercise is finished,
-// the same commit-first rule applies, and the gated set opens. The explain-back
-// is still offered as their own self-check and is still theirs to decline — it is
-// deliberately NOT a precondition of this, because the moment it gates something
-// it stops being a self-check.
-//
-// No trailer check here: --done covers the whole tree rather than one task's file,
-// so there is no single commit to check. Revisit when the daily prototype exists
-// and there is something real to check it against.
-
-if (process.argv.includes("--done")) {
-  if (config.unlockRoute !== false) {
-    fail(
-      `Not on this assignment. Tasks are signed off one at a time here — write it, ` +
-        `commit it with --signoff, and talk it through:\n\n` +
-        `  node .claude/hooks/signoff.mjs ${config.tasks[0]?.id ?? "<TASK>"}\n\n` +
-        `--done exists for short exercises where nothing is earned task by task.`,
-    );
-  }
-
-  const unlocks = readProgress(config);
-  if (unlocks.some((u) => u.route === "done")) {
-    fail(`Already marked done. Nothing to do.`);
-  }
-
-  let head;
-  try {
-    head = git(["rev-parse", "HEAD"]);
-  } catch {
-    fail(`This repo has no commits yet. Commit your work, then run this again.`);
-  }
-
-  // Tracked changes only: a scratch file the student never added should not stand
-  // between them and the end of the exercise.
-  let dirty = "";
-  try {
-    dirty = git(["status", "--porcelain", "--untracked-files=no"]);
-  } catch (err) {
-    fail(`Couldn't ask git for the status of this repo: ${err.message}`);
-  }
-  if (dirty) {
-    fail(
-      `You have uncommitted changes. Commit them first, then run this again.\n\n` +
-        `  git add -A\n  git commit -m "done"\n\n` +
-        `Same reason as everywhere else here: your version goes into the history ` +
-        `before any assisted version does.`,
-    );
-  }
-
-  unlocks.push({ at: new Date().toISOString(), route: "done", commit: head });
-  writeProgress(config, unlocks);
-
-  console.log(`\nMarked done. Recorded in ${progressPath(config).replace(root, ".")}`);
-  const gated = config.gated ?? [];
-  console.log(
-    gated.length
-      ? `You may now ask the agent for help with ${gated.join(", ")}. It still waits for your request and asks a project-specific question before editing code.`
-      : `Nothing was protected by this check. The agent still waits for your request and asks a project-specific question before editing code.`,
-  );
-  console.log(`Commit that file along with your work.\n`);
   process.exit(0);
 }
 
@@ -176,9 +109,7 @@ if (process.argv.includes("--done")) {
 if (config.unlockRoute === false) {
   fail(
     `Nothing gets handed over on this assignment. Writing a task and explaining it ` +
-      `changes nothing here — that code stays yours for the whole exercise.\n\n` +
-      `When you have finished and committed it:\n\n` +
-      `  node .claude/hooks/signoff.mjs --done`,
+      `changes nothing here — that code stays yours for the whole exercise.`,
   );
 }
 

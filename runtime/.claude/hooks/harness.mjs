@@ -6,6 +6,7 @@
 // the right answer differs (the guard denies, the unlock script explains).
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 
@@ -169,10 +170,13 @@ function nameFrom(line) {
  * people write first names, which is the whole point. Upgrade path if a real
  * group hits it is full-name-only, which costs the thing the ticket asked for.
  */
-function namesMember(line, name) {
+function namesMember(line, name, includeFirstName = true) {
   if (!name) return false;
-  const parts = [name, name.split(/\s+/)[0]].filter((p) => p.length >= 2);
-  return parts.some((p) => new RegExp(`\\b${escapeRe(p)}\\b`, "i").test(line));
+  // Treat composed and decomposed accents alike; letters and marks in any script stay inside words.
+  line = line.normalize("NFC");
+  name = name.normalize("NFC");
+  const parts = (includeFirstName ? [name, name.split(/\s+/)[0]] : [name]).filter((p) => p.length >= 2);
+  return parts.some((p) => new RegExp(`(?<![\\p{L}\\p{M}\\p{N}_])${escapeRe(p)}(?![\\p{L}\\p{M}\\p{N}_])`, "iu").test(line));
 }
 
 /** Every address in PLAN.md, with its owner's name and where it appeared. */
@@ -216,14 +220,24 @@ export function checkPlan(text) {
 
 /** Every line that claims a task, for `onboard.mjs --issues`. */
 export function taskLines(text) {
+  const people = readPlan(text);
   const seen = new Map();
   const lines = [];
   text.split(/\r?\n/).forEach((line, i) => {
     const emails = [...line.matchAll(EMAIL)].map((m) => m[0].toLowerCase());
-    if (!emails.length) return;
-    const claim = emails.some((e) => seen.has(e)) || isTableClaim(line);
+    const claim = emails.length > 0 && (emails.some((e) => seen.has(e)) || isTableClaim(line));
     for (const e of emails) seen.set(e, true);
-    if (!claim) return;
+    if (emails.length && !claim) return;
+    const nameText = line.replace(EMAIL, "");
+    const fullNames = people.filter((person) => namesMember(nameText, person.name, false));
+    const fullFirstNames = new Set(fullNames.map((person) => person.name.normalize("NFC").split(/\s+/)[0].toLowerCase()));
+    for (const person of people) {
+      if (person.at[0].line !== i + 1 && !emails.includes(person.email) && namesMember(nameText, person.name) &&
+          (fullNames.includes(person) || !fullFirstNames.has(person.name.normalize("NFC").split(/\s+/)[0].toLowerCase()))) {
+        emails.push(person.email);
+      }
+    }
+    if (!emails.length) return;
     // The title is the line with the addresses and the markdown taken out. Whatever
     // the group wrote IS the title — this never invents one, per group-referee-stance.
     const title = line
@@ -365,13 +379,13 @@ export function git(args) {
  *
  * Keyed on git identity, per repo-split-expression. That is spoofable — but
  * spoofing it also changes commit authorship, which is public, so the bargain is
- * the usual one. The email local part is used rather than the display name
- * because it is ASCII, unique per person, and safe as a filename.
+ * the usual one. Hashing the complete lowercased email keeps different domains
+ * and punctuation distinct while producing a filename safe on every platform.
  */
 export function studentKey() {
   let raw = "";
   try {
-    raw = git(["config", "user.email"]).split("@")[0];
+    raw = git(["config", "user.email"]);
   } catch {
     /* fall through */
   }
@@ -382,11 +396,7 @@ export function studentKey() {
       /* fall through */
     }
   }
-  const slug = raw
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return slug || "unknown";
+  return raw ? createHash("sha256").update(raw.toLowerCase()).digest("hex") : "unknown";
 }
 
 export function progressPath(config, key = studentKey()) {
@@ -428,15 +438,11 @@ export function taskById(config, id) {
  * tasks rather than stored, so the record stays a list of git facts and the
  * task -> category mapping stays in config where it can be changed per assignment.
  *
- * If unlockRoute is false there is no unlock to derive anything from, so the
- * gated set stays gated — until the student declares the exercise finished with
- * `signoff.mjs --done`, which opens all of it at once. Nothing is earned task by
- * task on a daily, so nothing opens task by task either.
+ * If unlockRoute is false, the gated categories stay closed throughout the
+ * assignment. There is no per-task signoff or completion state on that route.
  */
 export function demonstrated(config, unlocks) {
-  if (config.unlockRoute === false) {
-    return unlocks.some((u) => u.route === "done") ? new Set(config.gated ?? []) : new Set();
-  }
+  if (config.unlockRoute === false) return new Set();
   const open = new Set();
   for (const row of unlocks) {
     const task = taskById(config, row.task);
@@ -469,7 +475,6 @@ export function coverage(config) {
   const dir = join(root, config.progressDir);
   const written = new Set();
   const unreadable = [];
-  let done = false;
 
   if (existsSync(dir)) {
     for (const f of readdirSync(dir)) {
@@ -478,7 +483,6 @@ export function coverage(config) {
         const parsed = JSON.parse(readFileSync(join(dir, f), "utf8"));
         for (const row of parsed?.unlocks ?? []) {
           if (row?.route === "written") written.add(String(row.task).toLowerCase());
-          if (row?.route === "done") done = true;
         }
       } catch {
         // A file that does not parse contributes nothing, which can only make
@@ -489,10 +493,6 @@ export function coverage(config) {
       }
     }
   }
-
-  // A daily has nothing to cover task by task. It is finished when the student
-  // says it is, and `--done` is where they say it.
-  if (config.unlockRoute === false) return { complete: done, missing: [], unreadable };
 
   const missing = config.tasks.filter((t) => !written.has(t.id.toLowerCase())).map((t) => t.id);
   return { complete: missing.length === 0, missing, unreadable };

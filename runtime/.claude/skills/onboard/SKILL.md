@@ -208,6 +208,10 @@ check. Tell the group only what the check requires:
 - Each member appears again on at least one task line. A name is enough there.
 - They may use a list, table, or prose, in German or English.
 
+If task ownership is unclear, ask about that task and let the group clarify it.
+This includes a first name shared by several members. Accept any wording that
+identifies the owner; do not require emails on task lines or rewrite the plan.
+
 After the group writes the plan, run `--check` again and report any remaining
 action.
 
@@ -216,6 +220,8 @@ action.
 Run `--check` and keep the response brief. You may mention one concern, such as an
 uneven workload, a task blocked by two others, or two members editing the same
 function. Mention it once and continue.
+
+Clarify unclear task ownership before creating issues or the student's task branch.
 
 A student who is new to the clone needs to know which task is theirs, whether
 their setup passes, and which branch to create.

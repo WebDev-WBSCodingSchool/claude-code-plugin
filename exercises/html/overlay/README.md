@@ -42,8 +42,8 @@ that's easy to lose sight of from the inside.
    This ends when you have a branch for the work instead of committing to
    `main`.
 4. Write it, commit it, explain it. This ends when your change is committed.
-   Explanation is an optional self-check here, since nothing opens task by
-   task; the whole exercise gets one `--done` record when it is finished.
+   Explanation is an optional self-check here; the protected code stays yours
+   to write throughout the exercise.
 5. Open a Pull Request. This ends when it is merged. Then return to stage 3
    with the next task.
 
@@ -167,9 +167,7 @@ three short follow-ups: more for a big commit, fewer for a small one. Nothing
 is graded and nothing you say is written down. The commit ahead of it in the
 history is already the record of who wrote what.
 
-Once all the HTML and CSS is written and committed, and optionally explained
-as a self-check, one person runs `node .claude/hooks/signoff.mjs --done`.
-This records the whole exercise once and opens the protected HTML and CSS.
+The HTML and CSS remain yours to write throughout this assignment.
 
 ### Signing your commits
 

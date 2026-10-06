@@ -319,11 +319,11 @@ if (has("--issues")) {
       console.log(`Turned the Issues tab on for ${repo.nameWithOwner} — it was switched off.`);
     }
   } catch (err) {
-    // Not an admin here, offline, no origin. Carry on: the calls below fail with
-    // their own messages if this was the reason, and stopping here would also
-    // stop the case where the base was already right.
-    console.log(`Couldn't confirm which repo to use, so this may land somewhere unexpected:`);
+    // Issues are optional. An uncertain destination or unavailable Issues tab
+    // skips this step without failing onboarding.
+    console.log(`Couldn't prepare GitHub issues, so I skipped creating them. The split remains in ${plan}.`);
     console.log(`${ghWhy(err)}`);
+    process.exit(failed ? 1 : 0);
   }
 
   // Idempotent, matched on title: running this twice must not post six duplicates.

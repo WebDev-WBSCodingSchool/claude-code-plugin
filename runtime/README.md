@@ -20,8 +20,8 @@ false`, and there is no one to meet or split the plan with.)>
 
 <If unlockRoute is false, reword stage 4's ending. Nothing "opens up" task by task
 here. The stage still happens (write it, commit it, and explain it if you want the
-self-check), but what gets recorded is one `--done` for the whole exercise, not a
-per-task sign-off. See "Write it, commit it, explain it" below. The two flags are
+self-check), but no sign-off is recorded and the protected code stays assigned
+to the student. See "Write it, commit it, explain it" below. The two flags are
 independent: this repo ships both false, but neither implies the other, so check
 each on its own.>
 
@@ -102,10 +102,8 @@ already the record of who wrote what.
 
 <If unlockRoute is false, delete "What changes afterwards" and the paragraph after
 it ("Which of the tasks marked in bold..."). Neither kind of code unlocks on its
-own here, and progress is not filed per task. Replace both with one line: once
-everything is written, committed, and (if you want the self-check) explained, run
-`node .claude/hooks/signoff.mjs --done`, which is what opens the whole gated set,
-recorded the same way, once.>
+own here, and progress is not filed per task. Replace both with one line:
+"The protected code remains yours to write throughout this assignment.">
 
 **What changes afterwards.** Once you have written and explained one piece of a
 given kind of code, the agent will write that kind with you for the rest of the

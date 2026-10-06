@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,7 +65,13 @@ try {
     false,
   );
 
-  execFileSync(process.execPath, [join(pluginCopy, "scripts", "setup.mjs"), "setup", id, regenerated]);
+  const setup = join(pluginCopy, "scripts", "setup.mjs");
+  const catalog = execFileSync(process.execPath, [setup, "list"], { encoding: "utf8" });
+  // An unfinished packaging directory must not affect listing or project setup.
+  mkdirSync(join(pluginCopy, "exercises", ".pack-interrupted"));
+  assert.equal(execFileSync(process.execPath, [setup, "list"], { encoding: "utf8" }), catalog);
+
+  execFileSync(process.execPath, [setup, "setup", id, regenerated]);
   const lock = JSON.parse(
     readFileSync(join(regenerated, ".claude", "harness", "lock.json"), "utf8"),
   );

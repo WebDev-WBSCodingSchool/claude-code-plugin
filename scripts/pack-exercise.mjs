@@ -15,8 +15,21 @@ import {
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { MECHANICAL } from "./sync.mjs";
 import { problems } from "./verify.mjs";
+
+// Shared runtime files; exercise-specific README and config are packaged separately.
+const MECHANICAL = [
+  ".claude/hooks",
+  ".claude/skills",
+  ".claude/settings.json",
+  ".claude/githooks",
+  ".claude/harness/README.md",
+  ".vscode",
+  "CLAUDE.md",
+  "AGENTS.md",
+  "GEMINI.md",
+  ".github",
+];
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const allowedMechanicalOverrides = new Set([

@@ -20,14 +20,6 @@ import { loadConfig, lockedPaths } from "./harness.mjs";
 // Eval flags: no legitimate use in this project, and the canonical bypass.
 const EVAL = /\b(node|deno|bun|python3?|perl|ruby)\b[^|;&]*?\s(-e|--eval|-p|--print|-c)\b/;
 
-// `signoff.mjs` is how a signed-off task gets recorded and `onboard.mjs` is how
-// the group's plan gets checked. Both must survive.
-//
-// The syntax check the tutor runs must survive too, but it is language-specific,
-// so it comes from `config.syntaxCheck` rather than being named here — this file
-// should not need editing to move to an assignment in another language.
-const ALWAYS_OK = [/\bnode\s+[^|;&]*(signoff|onboard)\.mjs\b/];
-
 function writesInto(command, exts) {
   const e = exts.map((x) => x.replace(".", "\\.")).join("|");
   return [
@@ -102,7 +94,6 @@ try {
 try {
   const command = event?.tool_input?.command;
   if (typeof command !== "string" || !command.trim()) process.exit(0);
-  if (ALWAYS_OK.some((re) => re.test(command))) process.exit(0);
 
   const config = loadConfig();
   const exts = config.guardedExtensions ?? [".js"];

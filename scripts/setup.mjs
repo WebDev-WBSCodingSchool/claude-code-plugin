@@ -26,7 +26,7 @@ const plugin = JSON.parse(
 
 function catalog() {
   return readdirSync(exercisesRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
     .map((entry) => {
       const directory = join(exercisesRoot, entry.name);
       const manifest = JSON.parse(readFileSync(join(directory, "exercise.json"), "utf8"));
