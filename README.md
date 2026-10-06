@@ -28,9 +28,11 @@ update by hand instead:
 
 ```sh
 claude plugin marketplace update wbs-cs
+claude plugin update exercise@wbs-cs
 ```
 
-An update only affects projects you set up afterwards.
+The first command fetches the latest catalog and the second installs the new
+version. Restart Claude Code afterwards. An update only affects projects you set up afterwards.
 
 ## Usage
 
