@@ -45,9 +45,9 @@ try {
       "",
     );
 
-    // After setup the project must work with the plugin uninstalled, so no file
-    // in it may point back at the plugin's files. See "The plugin and a project
-    // are separate" in README.md.
+    // A set-up project is governed by the harness committed inside it, never by
+    // the plugin: a plugin update must not change it, and teammates who clone it
+    // have no plugin at all. So no file in it may point back at the plugin.
     const files = execFileSync("git", ["ls-files", "-z"], { cwd: target, encoding: "utf8" })
       .split("\0")
       .filter(Boolean);
@@ -67,7 +67,7 @@ try {
     .filter((name) => name !== ".git" && name !== ".in_use")
     .sort();
   assert.deepEqual(shipped, [
-    ".claude-plugin", ".github", "README.md", "exercises", "runtime", "scripts", "skills", "test",
+    ".claude-plugin", ".github", "CONTRIBUTING.md", "README.md", "exercises", "runtime", "scripts", "skills", "test",
   ]);
   const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
   assert.deepEqual(Object.keys(manifest).sort(), ["author", "description", "name", "version"]);
