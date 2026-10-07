@@ -26,6 +26,14 @@ try {
     .map((entry) => entry.name)
     .sort();
 
+  // Every shipped exercise needs a place in the curriculum order, and `list`
+  // must print them in that order.
+  const curriculum = JSON.parse(readFileSync(join(pluginRoot, "exercises", "curriculum.json"), "utf8"));
+  assert.deepEqual([...curriculum].sort(), exerciseIds);
+  const listed = execFileSync(process.execPath, [setup, "list"], { encoding: "utf8" })
+    .trim().split("\n").map((line) => line.split("\t")[0]);
+  assert.deepEqual(listed, curriculum);
+
   for (const id of exerciseIds) {
     const target = join(scratch, id);
     execFileSync(process.execPath, [setup, "setup", id, target], { stdio: "pipe", env });

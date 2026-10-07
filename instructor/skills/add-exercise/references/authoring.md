@@ -72,7 +72,9 @@ Run the command from the main skill. The packer:
 - permits settings overrides only for approved `writableExceptions`;
 - writes `exercise.json` and the assignment overlay atomically.
 
-After packaging, generate a fresh project through `exercise/scripts/setup.mjs`. Inspect its
+After packaging, add the exercise ID to `exercise/exercises/curriculum.json` at its
+place in the curriculum; the catalog lists exercises in that order, and
+`test/setup.test.mjs` fails until the ID is there. Then generate a fresh project through `exercise/scripts/setup.mjs`. Inspect its
 README, run the project, and run:
 
 ```sh

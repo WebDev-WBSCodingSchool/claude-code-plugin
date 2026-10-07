@@ -20,6 +20,8 @@ import { problems } from "./verify.mjs";
 const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const exercisesRoot = join(pluginRoot, "exercises");
 const runtimeRoot = join(pluginRoot, "runtime");
+// Exercise IDs in the order the curriculum teaches them.
+const curriculum = JSON.parse(readFileSync(join(exercisesRoot, "curriculum.json"), "utf8"));
 const plugin = JSON.parse(
   readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"),
 );
@@ -32,7 +34,14 @@ function catalog() {
       const manifest = JSON.parse(readFileSync(join(directory, "exercise.json"), "utf8"));
       return { ...manifest, directory };
     })
-    .sort((a, b) => a.id.localeCompare(b.id));
+    // An exercise missing from the curriculum list (for example one just packed)
+    // sorts last rather than breaking the catalog; test/setup.test.mjs flags it.
+    .sort((a, b) => rank(a.id) - rank(b.id) || a.id.localeCompare(b.id));
+}
+
+function rank(id) {
+  const index = curriculum.indexOf(id);
+  return index === -1 ? Infinity : index;
 }
 
 function usage() {

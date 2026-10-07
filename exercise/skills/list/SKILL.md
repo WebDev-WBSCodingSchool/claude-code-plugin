@@ -11,5 +11,6 @@ Read the current catalog with:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.mjs" list
 ```
 
-Show the result as a table with the exercise ID and title. Then tell the user
+Show the result as a table with the exercise ID and title, in the order the
+script prints them (the curriculum order). Then tell the user
 they can start one with `/exercise:setup <exercise-id> [target-directory]`.

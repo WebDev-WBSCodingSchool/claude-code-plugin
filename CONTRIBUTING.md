@@ -69,12 +69,18 @@ Turns a project assessment into a new exercise.
 /instructor:add-exercise /path/to/assessment.md
 ```
 
-You need the assessment as a Markdown file and a clean working tree. The command
-reads the assessment but never changes it. It runs in these steps:
+You need a clean working tree and the assessment as a Markdown file inside a local
+checkout of one of the curriculum repositories:
+[software-ai-engineering](https://github.com/WBSCodingSchool/software-ai-engineering)
+for the short course, or
+[se-curriculum](https://github.com/WBSCodingSchool/se-curriculum) for the long
+course. The command reads the assessment but never changes it. It runs in these steps:
 
-1. **Checks.** It confirms that it runs in a clean checkout of this repository
-   and that the assessment file is readable. If either check fails, it stops
-   and names the problem.
+1. **Checks.** It confirms that it runs in a clean checkout of this repository,
+   that the assessment file is readable, and that the assessment's curriculum
+   checkout has the right `origin`, no local changes, and is level with its
+   upstream branch after a fetch. If any check fails, it stops and names the
+   problem.
 2. **Interview.** It asks ten questions, one at a time: what the project is built
    with, which code students must write themselves, which requirements practise
    that code, which files students create locally, and so on. If you get stuck,
@@ -102,7 +108,9 @@ requires a clean working tree.
 Then:
 
 1. Open the generated project and run it.
-2. Add the exercise to the table in the [README](README.md).
+2. Add the exercise ID to `exercise/exercises/curriculum.json` and to the table in the
+   [README](README.md), both at its place in the curriculum. The catalog lists
+   exercises in that order.
 3. Commit on a branch and open a Pull Request.
 
 The exercise reaches students with the next release.

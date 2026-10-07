@@ -29,10 +29,28 @@ Before the interview:
    the changed paths. Do not stash or commit them.
 5. Confirm that `$ARGUMENTS` points to a readable Markdown file. Read it without
    editing it.
+6. Resolve the assessment's own Git root, `<curriculum-root>`, with
+   `git -C "$(dirname "$ARGUMENTS")" rev-parse --show-toplevel`. Its
+   `git remote get-url origin` must name one of the two curriculum repositories,
+   over SSH or HTTPS, with or without `.git`:
+   - `WBSCodingSchool/software-ai-engineering`, the short course and the source
+     of every current exercise;
+   - `WBSCodingSchool/se-curriculum`, the long course, which adds Python and C#.
+7. Require an empty `git -C "<curriculum-root>" status --porcelain`. If it is not
+   empty, stop and name the changed paths.
+8. Run `git -C "<curriculum-root>" fetch origin`, then require
+   `git -C "<curriculum-root>" rev-list --left-right --count HEAD...@{u}` to
+   print two zeros: commits ahead, then commits behind. If the branch has no
+   upstream, is behind, or is ahead, stop and say which. Do not pull, push, or
+   switch branches for the instructor.
 
 An installed plugin cache is not an authoring repository. If the current Git
 root fails these checks, explain that the instructor must open a checkout of the
 plugin repository and run Claude Code there with `claude --plugin-dir instructor`.
+
+If the assessment fails checks 6 to 8, explain that it must come from an
+up-to-date, unmodified checkout of one of the two curriculum repositories, so
+that the exercise matches what students are taught.
 
 ## Interview
 

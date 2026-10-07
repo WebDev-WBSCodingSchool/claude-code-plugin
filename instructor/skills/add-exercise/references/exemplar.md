@@ -1,13 +1,13 @@
 # Worked example: movie-diary
 
 How the one hand-built repo, `task-harness/movie-diary-harness`, for
-`sd-curriculum`'s 005-js-modules module project, answered each of the ten
+`software-ai-engineering`'s 005-js-modules module project, answered each of the ten
 interview questions. Use it to see what a good answer looks like, not to copy
 it. A different assignment will answer most of these differently.
 
 ## 1. Point me at the exercise.
 
-`sd-curriculum/005-js-modules/module-project-movie-diary-or-pokedex/movie-diary-or-pokedex.md`.
+`software-ai-engineering/005-js-modules/module-project-movie-diary-or-pokedex/movie-diary-or-pokedex.md`.
 The curriculum source is one document with two variants, Movie Diary (TMDB API)
 and Pokédex (PokéAPI), sharing every requirement through FR006 and differing only
 in which API they call and what the second page is named (`journal.*` or

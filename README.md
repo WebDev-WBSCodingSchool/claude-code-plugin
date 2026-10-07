@@ -46,12 +46,12 @@ Set up the movie-diary exercise
 
 | Exercise             | Title                      |
 | -------------------- | -------------------------- |
-| `art-explorer`       | Art Institute Explorer     |
-| `event-scheduler-js` | Event Scheduler            |
 | `html`               | From concept to deployment |
+| `tailwind`           | Figma and Tailwind CSS     |
 | `movie-diary`        | Movie Diary                |
 | `personal-diary`     | Personal Diary             |
-| `tailwind`           | Figma and Tailwind CSS     |
+| `event-scheduler-js` | Event Scheduler            |
+| `art-explorer`       | Art Institute Explorer     |
 
 Then open Claude Code in the new folder and run `/onboard`. It puts the project
 on GitHub and walks you through the start of the assignment.
