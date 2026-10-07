@@ -200,8 +200,7 @@ create them by hand. Nothing syncs them back to `PLAN.md`.
 
 Write the issues yourselves. The agent won't break the work down for you. Once you
 have a draft, it tells you if one person has much more work than the others, if a
-task waits on two other people, or if two of you are about to edit the same
-function.
+task waits on two other people, or if two of you are about to edit the same code.
 
 <FILL: one sentence naming the files or requirements where everyone's work meets,
 so the group knows where merge conflicts will happen. Delete the sentence if
