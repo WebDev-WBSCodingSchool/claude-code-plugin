@@ -1,256 +1,238 @@
-# <FILL: project name — module>
+# <FILL: project name>
 
-<FILL: duration, one line. "Five days (full time) / ten days (part time). Group
-project, mandatory presentation at the end.">
+<FILL: module and duration, one line. "Module 021, Advanced React II: Next.js.
+Solo project, two days." or "Five days full time, ten days part time. Group
+project with a presentation at the end.">
 
-This repo is your starting point. **Put it on GitHub once<FILL: " for your group" if
-this is a group project>**, and `/onboard` walks you through that. <FILL: for a
-group project, "One of you does this and adds the others as collaborators; they
-clone that repo instead of setting the project up again. One repo, everyone works
-in it, and" — for a solo project, "From then on"> every change merges to `main`
-through a Pull Request.
+<FILL: what students build, in two to four sentences. Name the data source and
+link a demo if the assessment has one.>
 
-<FILL: variant-rename note, or delete this paragraph if the project has no variants>
+<FILL: variant note, or delete this paragraph if the project has no variants.>
 
-## Where you are
+## How you work
 
-<If onboarding is false, delete stage 2 and renumber; the other four are true of
-every assignment. (This is also the solo case: working alone is `onboarding:
-false`, and there is no one to meet or split the plan with.)>
+<For a solo project (onboarding false), delete step 2, renumber, and replace the
+last step with a local merge: "Merge the branch into `main` and push it", the
+three commands, and one sentence saying a Pull Request is optional because there
+is nobody to review it.>
 
-<If unlockRoute is false, reword stage 4's ending. Nothing "opens up" task by task
-here. The stage still happens (write it, commit it, and explain it if you want the
-self-check), but no sign-off is recorded and the protected code stays assigned
-to the student. See "Write it, commit it, explain it" below. The two flags are
-independent: this repo ships both false, but neither implies the other, so check
-each on its own.>
+<If unlockRoute is false, end the "Write the code" step with "This step is done
+when you have committed and explained it." No sign-off is recorded, and nothing
+opens up task by task. The two flags are independent, so check each one.>
 
-Five stages. Each stage names what ends it, which is the part easy to lose sight
-of from the inside.
+1. Run `/onboard`. It puts this repo on GitHub and checks your setup. <FILL: for
+   a group project, "One of you runs it and adds the others as collaborators.
+   The others clone that repo instead of setting the project up again."> This
+   step is done when all checks pass<FILL: for a group project, ", except the
+   `PLAN.md` check, which step 2 fixes">.
+2. Meet as a group and write `PLAN.md` together. This step is done when the
+   `PLAN.md` check passes. Until then, the agent writes no code for anyone in
+   the group.
+3. Pick a task and create a branch for it, for example
+   `git switch -c FR001-<short-name>`.
+4. Write the code, commit it, and explain it to the agent. This step is done when
+   the agent records your sign-off. See "Write it, commit it, explain it" below.
+5. Open a Pull Request. This step is done when it is merged. Then go back to step 3.
 
-1. **Run `/onboard`, which puts this repo on GitHub, or clone your group's
-   copy if a teammate already did.** Ends when the only open item is
-   `PLAN.md`. That is stage 2, and it stays open until you get there.
-   Everything above it should pass.
-2. **Meet, and write `PLAN.md` together.** Ends when the check passes: every
-   member listed has a task line, and your own git email is one of them. Until
-   then the agent writes no code for anyone in the group.
-3. **Pick a task, cut a branch.** `git switch -c <task-id>-<short-name>`. Ends
-   when you have a branch for the work instead of committing to `main`.
-4. **Write it, commit it, explain it.** Ends when the sign-off is recorded. It
-   tells you what just opened up.
-5. **Open a Pull Request.** Ends when it is merged. Then return to stage 3 with
-   the next task.
+## Requirements
 
-## The requirements
+<FILL: the requirement table. Keep the ids. Rewrite each requirement as one or
+two full sentences. Bold the id of every requirement that appears in tasks[].>
 
-<FILL: the requirement table. Ids kept, descriptions rewritten to one readable
-line each. Bold the id of every requirement that appears in tasks[].>
+You write the bold tasks yourself. For the others, you can ask the agent for help.
 
-**Bold = you type this one yourself.** For the others, you may ask the agent to
-help you implement them.
+<If unlockRoute is false, add: "The bold tasks stay yours for the whole exercise.
+When you mark the exercise as done, the agent may help with all of them, but you
+still have to ask for each change.">
 
-<If unlockRoute is false, add a note here: bold still marks what stays yours to
-type, but nothing opens one bold item at a time. The whole set stays yours until
-you mark the exercise done (see "Write it, commit it, explain it" below), and then
-the write check opens all of it at once. You still have to ask for any change.>
+<FILL: if tasks[].file names files the student creates (preScaffold), list each
+file with its task ids and say that a task's commit must change its file.
+Otherwise delete this paragraph.>
 
-## The setup
+<FILL: things the requirements don't mention but students will run into, as a
+short list, or delete this subsection.>
 
-<FILL: the setup limit. One authored sentence saying what this project is built out
-of and what should not be added mid-project. Prose, never config. The argument is
-the cost to the teammates, never the syllabus.>
+## Setup
 
-<FILL: the local-file story, or delete this paragraph. If it is a credential, say
-plainly what the stopgap does not protect against and what to do if it lands in the
-history anyway.>
+<FILL: what the project is built with, and what students must not add during the
+project. Name the libraries. For a group project, the reason is that a new package
+can break everyone else's clone. For a solo project, the reason is that the
+package would do the work the exercise practises.>
 
-## What you type, and where the agent can help
+<FILL: how to install and run it, and which files differ from the generator's
+template, if any.>
 
-<FILL: which code is theirs and why. One paragraph, naming the topics rather than
-the API names.>
+<FILL: the local file students create and never commit, or delete this paragraph.
+If it holds a credential, say that ignoring the file does not protect a secret
+that was already committed, and what to do if that happens.>
 
-**Everything else you may ask the agent to help implement:**
+## What you write yourself
 
-<FILL: what students may ask the agent to help implement, as a list.>
+<FILL: the protected topics as a short list, named as topics, not API names.
+Then: "The agent won't write any of these for you until you have written one
+yourself, committed it, and explained it.">
 
-**The agent waits to be asked.** It will not start building because a file is empty
-or because your plan is finished. None of this is a to-do list it works through on
-its own. Ask it for what you want. Before every code edit, it asks at least one
-question about your requested change and waits for your answer.
+You can ask the agent to help with everything else:
 
-Yes, this tells you exactly what you could paste into a browser chat instead. You
-are given the rule directly rather than fenced in by it. A rule you can read is
-one you can choose to follow.
+<FILL: the open work as a list.>
+
+The agent only acts when you ask it to. An empty file or a finished task list
+doesn't count as a request. Before each code change, it asks you at least one
+question about the change and waits for your answer.
+
+This list also tells you what you could get from a browser chat instead. That's
+intentional. The rules are written down, and following them is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written one of the tasks marked in bold above:
+When you have written a bold task:
 
-```
-1. Write it.
-2. Commit it.   git add <your file> && git commit --signoff -m "<task id>: <what it does>"
-3. Explain it.  The agent asks what your commit does, then a few short questions.
-```
+1. Write the code.
+2. Commit it with
+   `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
+3. Explain it. The agent asks what your commit does, then up to three short
+   follow-up questions. A large commit gets more questions, a small one fewer.
 
-**Step 3 is the one worth having.** Explaining code you have just written is how
-you find out whether you understood it, and it works the same whether anyone is
-listening or not. Expect one question about what your commit does and up to three
-short follow-ups: more for a big commit, fewer for a small one. Nothing is graded
-and nothing you say is written down. The commit ahead of it in the history is
-already the record of who wrote what.
+Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
 
-<If unlockRoute is false, delete "What changes afterwards" and the paragraph after
-it ("Which of the tasks marked in bold..."). Neither kind of code unlocks on its
-own here, and progress is not filed per task. Replace both with one line:
-"The protected code remains yours to write throughout this assignment.">
+<If unlockRoute is false, delete the next two paragraphs and write instead: "The
+bold tasks stay yours for the whole exercise.">
 
-**What changes afterwards.** Once you have written and explained one piece of a
-given kind of code, the agent will write that kind with you for the rest of the
-project, including in features that are nowhere in the requirements.
+Once you have written and explained one piece of a kind of code, the agent may
+write that kind of code with you for the rest of the project. That includes
+features beyond the requirements.
 
-Which of the tasks marked in bold you have done is kept in a small file under
-`.claude/harness/progress/`, filed under your git email. The agent writes it once
-you have explained your commit; you commit it like anything else. Ask it where you
-stand whenever you want to know.
+The agent records each completed task in a file under
+`.claude/harness/progress/`, filed under your git email. Commit that file with your
+work. You can ask the agent at any time which tasks you have completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds one line to the commit message:
+`git commit --signoff` adds this line to the commit message:
 
 ```
 Signed-off-by: Lea Müller <lea.mueller@example.com>
 ```
 
-It means **I wrote this code**. It is an ordinary git trailer and you will meet it
-in real projects. Nothing here checks it, and it is worth doing anyway. Use it on
-all of your own work, not only on the tasks marked in bold.
+The line says that you wrote the code. Many open-source
+projects require it. Nothing in this repo checks it, but use it on all your own
+commits, not only on the bold tasks.
 
-When the agent wrote or helped write something, the commit carries a
-`Co-Authored-By: Claude …` line instead, which it adds itself. Between the two,
-`git log` shows who wrote what, which is more use to all of you than trying to
-remember in week three.
+When the agent wrote a commit or helped with it, the agent adds a
+`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+who wrote what.
 
 ### Reviewing a teammate's code counts
 
-<Delete this subsection when onboarding is false: working alone, there is no
-teammate's code to review, and the cap below has nothing to be a cap on. Delete it
-too when unlockRoute is false, even in a group, because reviewing is a second route
-to *unlocking* a task, and with no unlock route there is no unlock for the cap to
-bound. The two conditions are independent: this repo ships both false, so either
-one alone is already reason enough to cut this subsection.>
+<Delete this subsection when onboarding is false, because a solo student has no
+teammate to review. Also delete it when unlockRoute is false, because a review is
+a second way to open a topic, and nothing opens in that case.>
 
-If a teammate wrote one of their tasks, post a real review on their Pull Request
-and answer the agent's questions about their code, and the agent will write that
-kind of code with you too, even after the PR has merged. Tell it which PR; it
-records the same way.
+When a teammate has written one of their bold tasks, you can review their Pull
+Request on GitHub and then answer the agent's questions about their code. After
+that, the agent may write that kind of code with you too, even if the Pull Request
+is already merged. Tell the agent which Pull Request you reviewed.
 
-It is capped: you can never have more reviewed tasks than written ones, so your
-first task is always written by you. Nobody can skip the writing, and everyone
-reads other parts of the project rather than only their own tasks.
+You can never have more reviewed tasks than written ones. So everyone writes their
+first task themselves.
 
-## Before any of that: `PLAN.md`
+## Before you write code
 
-<Delete this whole section when onboarding is false. Replace it with a "Before you
-write code" section carrying the scoping question and whatever Q5 named as the
-thing this project gets wrong on day one. (Working alone is the onboarding-false
-case: there is no one to meet and no split to write, so the replacement section
-puts that question to the student instead of to the group.)>
+<For a group project (onboarding true), delete this section and keep "Before any
+of that: PLAN.md". For a solo project, keep this section only if the interview
+named a decision the student must make before coding. Put that decision here as
+one question with a short explanation. The onboard skill asks exactly the
+questions this section names. If there is no such decision, delete the section,
+and the onboard skill asks nothing.>
 
-**The agent writes no code for anyone in the group until `PLAN.md` exists and
-every member listed in it has at least one task.** Meet first, one call with one
-screen shared, and write it together.
+## Before any of that: PLAN.md
 
-Two halves. First, a short restatement **in your own words**: what you are
-building, who uses it, and how much of it you are actually going to build. That
-means naming which parts are in and which you are leaving out on purpose. That
-last point is where two of you find out you pictured different amounts of work,
-so write down what you agree on.
+<Delete this section when onboarding is false.>
 
-Then the split. Everyone's **git email**, the address `git config user.email`
-prints, and each of you again on the task you took:
+The agent writes no code for anyone in the group until `PLAN.md` exists and every
+member listed in it has at least one task. Meet first, in one call with one shared
+screen, and write it together.
+
+`PLAN.md` has two parts. First, describe in your own words what you are building,
+who uses it, and how much of it you will build. Name the parts you leave out on
+purpose. This is where two of you find out that you imagined different amounts of
+work, so write down what you agree on.
+
+Second, the split. List every member with their git email, which is the address
+`git config user.email` prints. Then list each task with the name of the person
+who took it:
 
 ```markdown
-## Who's in the group
+## Members
+
 - Jane Student — jane.student@mail.com
 - Mo Ahmadi — mo.ahmadi@mail.com
 
-## The split
+## Tasks
+
 - Login page (T1) — Jane
 - Settings page (T2) — Mo Ahmadi
 ```
 
-That is the whole format. Use a list, a table, or prose, in German or English.
-Each of you has to appear twice: once in the member list with your **git** email,
-and again on the task you took. On the task line your name is enough. The address
-is needed once, because progress is filed under it.
+You can use a list, a table, or prose, in German or English. Each member appears
+twice: once in the member list with their git email, and once on a task. On the
+task line, a name is enough. The agent stores progress under the email, so the
+email has to appear once.
 
-Run `/onboard` and the agent will guide the conversation, point out unassigned
-parts and places where two of you will collide, and check the file. **It will not
-write a word of it.** `PLAN.md` is what the check reads, so an agent that could
-write it would clear its own way.
+Run `/onboard`, and the agent guides the conversation. It points out work nobody
+has taken and places where two of you will edit the same code, and it checks the
+file. It won't write any of `PLAN.md`, because the check reads that file, and an
+agent that wrote it could unlock itself.
 
-**The check is live.** Edit `PLAN.md` so that someone has no task and the agent
-stops writing code for everyone until the line is fixed. There is nothing to
-re-run: it reads the file again on the next write. If someone has actually left the
-group, take them off the member list. That is the right answer, not a slight.
+The agent reads `PLAN.md` again before every code change. If you edit it so that a
+member has no task, the agent stops writing code for everyone until you fix it. If
+someone has left the group, remove them from the member list.
 
-A sketch is enough and it is allowed to change. The question is whether you have a
-plan, never whether it was any good.
+A rough plan is enough, and you can change it later.
 
 ## Splitting the work
 
-<Delete when onboarding is false: working alone, there is no one else's work to
-split against.>
+<Delete this section when onboarding is false.>
 
-`PLAN.md` is the snapshot from the kickoff. **From then on your tasks are GitHub
-Issues in your group's repo.** `/onboard` can create them from your task lines, or make
-them by hand. The issues are the live version and nothing syncs them back.
+After the kickoff, your tasks live in GitHub Issues in your group's repo, not in
+`PLAN.md`. `/onboard` can create the issues from your task lines, or you can
+create them by hand. Nothing syncs them back to `PLAN.md`.
 
-Write them yourselves either way. The agent will not give you a breakdown. Once
-you have a draft it will tell you if the load looks lopsided, if something is
-blocked on two other people, or if two of you are about to edit the same function.
+Write the issues yourselves. The agent won't break the work down for you. Once you
+have a draft, it tells you if one person has much more work than the others, if a
+task waits on two other people, or if two of you are about to edit the same
+function.
 
-That last one will happen. <FILL: one sentence naming the file(s) or requirement(s)
-that concentrate everyone's work, so the group knows where merge conflicts will
-land, or delete this sentence if nothing in this project concentrates work that
-way.> Resolve them together; that is the point.
+<FILL: one sentence naming the files or requirements where everyone's work meets,
+so the group knows where merge conflicts will happen. Delete the sentence if
+nothing in this project works that way.> Resolve merge conflicts together.
 
 Ask for help if you are stuck for more than 30 minutes. Use the daily stand-ups.
 
 ## Running it
 
-Open **this folder** in VS Code and start Claude Code from the repo root. Starting
-it from a subfolder silently drops this folder's settings, which mostly means the
-agent starts writing code it should be helping you write.
+Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
+Code loads this repo's settings only from the root folder. Without them, the agent
+may write code that you are supposed to write.
 
-Your progress is filed under your git email, so set it once and use the same one on
-every machine you work from. Otherwise the work you did in the lab and the work you
-did at home end up in two separate records, and neither counts for the other.
+Use the same git email on every computer. The agent stores your progress under that
+email, and work you do under a second email won't count.
 
-**If you want the agent to talk differently**, with simpler language, shorter
-answers, or more or less detail, say so, and ask it to save that as a personal
-skill in `~/.claude/skills/`. It travels with you to the next project, so you only
-have to ask once. It changes how the agent talks, not which code you must write
-yourself.
+To change how the agent talks to you, for example with simpler language or shorter
+answers, tell it, and ask it to save that as a personal skill in
+`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
+change which code you write yourself.
 
-Inline suggestions (Copilot-style ghost text) are turned off for this folder in
-`.vscode/settings.json`. That file is read-only, and the agent cannot write to it.
-Otherwise it could restore ghost text in a single edit, and ghost text is the one
-form of help that arrives without being asked.
+Some files in this repo are read-only for you and the agent:
 
-**This file is read-only too**, along with `CLAUDE.md`. This page is the
-requirements: it tells the agent which code you must write and where it may help
-after you ask, so it is not a page the agent gets to reword.
-`PLAN.md` is read-only to the agent as well, for a different reason: it is yours,
-and it is what the check reads. Your own writing about your project goes in files
-you make, whether that is `PLAN.md`, your Issues, or anything else you want.
+- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
+  like Copilot show while you type. Those suggestions write code without you
+  asking for it.
+- `README.md` and `CLAUDE.md` say which code you write yourself and where the
+  agent may help. The agent must not change them.
+- `PLAN.md` belongs to your group, and the `PLAN.md` check reads it. <Delete this
+  item when onboarding is false.>
 
-If you think a requirement is wrong or unclear, say so to your instructor. That is
-a conversation, not a diff.
+If you think a requirement is wrong or unclear, talk to your instructor.
 
-None of these locks is a cage, and you should know that up front. Read-only here
-means VS Code rejects typing in those buffers, there is a setting to change that,
-and you can use other editors. But none of it can happen quietly. Every file
-named above is committed, so any change lands in your PR with your name on it.
-That is the mechanism: not "you cannot", but "it is visible".
+You can get around these locks, but they are here to help you to learn.
