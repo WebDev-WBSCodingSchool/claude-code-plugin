@@ -13,9 +13,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-import { problems } from "./verify.mjs";
+import { problems } from "../../exercise/scripts/verify.mjs";
 
 // Shared runtime files; exercise-specific README and config are packaged separately.
 const MECHANICAL = [
@@ -31,7 +30,6 @@ const MECHANICAL = [
   ".github",
 ];
 
-const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const allowedMechanicalOverrides = new Set([
   ".claude/settings.json",
   ".vscode/settings.json",
@@ -76,23 +74,18 @@ function copyTrackedFile(source, relative, overlay) {
   copyFileSync(join(source, relative), destination);
 }
 
-function pack(pluginRoot, starterRoot, id) {
+function pack(repoRoot, starterRoot, id) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
     throw new Error("exercise id must contain lowercase words separated by hyphens");
   }
 
-  requireRepository(pluginRoot, "plugin source");
+  requireRepository(repoRoot, "plugin repository");
   requireRepository(starterRoot, "review starter");
 
+  const pluginRoot = join(repoRoot, "exercise");
   const sourcePlugin = manifest(pluginRoot);
-  const runningPlugin = manifest(toolRoot);
   if (sourcePlugin.name !== "exercise") {
     throw new Error(`unexpected plugin name: ${sourcePlugin.name}`);
-  }
-  if (sourcePlugin.version !== runningPlugin.version) {
-    throw new Error(
-      `plugin version mismatch: source is ${sourcePlugin.version}, running skill is ${runningPlugin.version}`,
-    );
   }
 
   const target = join(pluginRoot, "exercises", id);
@@ -155,14 +148,14 @@ function pack(pluginRoot, starterRoot, id) {
   return target;
 }
 
-const [pluginArgument, starterArgument, id, ...extra] = process.argv.slice(2);
-if (!pluginArgument || !starterArgument || !id || extra.length) {
-  console.error("usage: node scripts/pack-exercise.mjs <plugin-source> <review-starter> <exercise-id>");
+const [repoArgument, starterArgument, id, ...extra] = process.argv.slice(2);
+if (!repoArgument || !starterArgument || !id || extra.length) {
+  console.error("usage: node instructor/scripts/pack-exercise.mjs <plugin-repository> <review-starter> <exercise-id>");
   process.exit(2);
 }
 
 try {
-  const target = pack(resolve(pluginArgument), resolve(starterArgument), id);
+  const target = pack(resolve(repoArgument), resolve(starterArgument), id);
   console.log(`Packed ${id} at ${target}`);
 } catch (error) {
   console.error(`pack failed: ${error.message}`);

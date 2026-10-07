@@ -3,6 +3,15 @@
 This guide is for instructors and maintainers. Students only need the
 [README](README.md).
 
+## Repository layout
+
+The repository is a marketplace, `wbs-cs`, with two plugins. `exercise/` is the
+student plugin: its skills, the setup scripts, the shared harness in
+`exercise/runtime/`, and the packaged exercises in `exercise/exercises/`.
+`instructor/` is the instructor plugin, with its skills and the scripts only
+instructors run. The tests, the release workflow, and these docs stay at the top
+level, so neither plugin ships them.
+
 ## Install
 
 Instructor commands live in a separate `instructor` plugin in the `instructor/`
@@ -78,14 +87,15 @@ reads the assessment but never changes it. It runs in these steps:
    outside the checkout, including the student-facing README. You review the
    README before it continues.
 5. **Packaging.** It copies only the assignment-specific files into
-   `exercises/<id>/`, generates a fresh project from the new entry, and runs the
+   `exercise/exercises/<id>/`, generates a fresh project from the new entry, and runs the
    tests.
 
 It hands back the path of the new entry, the path of the generated project, and
 a list of requirements the assessment left unclear. It does not commit or push.
 
 If the exercise needs the harness to recognise a new kind of protected code, the
-command proposes a change to the shared `runtime/.claude/hooks/guard.mjs` first.
+command proposes a change to the shared `exercise/runtime/.claude/hooks/guard.mjs`
+first.
 That change must be reviewed and committed before packaging, because packaging
 requires a clean working tree.
 
@@ -99,7 +109,7 @@ The exercise reaches students with the next release.
 
 ## Change the shared harness
 
-`runtime/` holds the hooks, skills, and settings that every exercise shares. A
+`exercise/runtime/` holds the hooks, skills, and settings that every exercise shares. A
 change there reaches every project set up after the next release. Projects
 already set up never change: once setup finishes, a project is governed by the
 harness committed inside it, and teammates who clone it have no plugin at all.
@@ -108,10 +118,10 @@ Two rules follow from that, and `test/setup.test.mjs` enforces both:
 
 - **The plugin ships skills only.** Claude Code loads a plugin's hooks, agents,
   MCP servers, output styles, and settings into every session, including inside
-  a student's project. The test allows only the current top-level files and
-  `plugin.json` keys. A new one fails the test until you add it to the list
+  a student's project. The test allows only the current top-level entries of
+  `exercise/` and keys of its `plugin.json`. A new one fails the test until you add it to the list
   there, which you should only do once you know it cannot act inside a project.
-- **Nothing in `runtime/` or an exercise refers to the plugin's files**, such as
+- **Nothing in `exercise/runtime/` or an exercise refers to the plugin's files**, such as
   `${CLAUDE_PLUGIN_ROOT}`. A project has to work with the plugin uninstalled.
 
 ## Test
@@ -121,6 +131,7 @@ node test/setup.test.mjs
 node test/detectors.test.mjs
 node test/pack-exercise.test.mjs
 claude plugin validate --strict .
+claude plugin validate --strict exercise
 claude plugin validate --strict instructor
 ```
 
@@ -129,6 +140,6 @@ claude plugin validate --strict instructor
 Students install from the `stable` branch, so nothing merged to `main` reaches
 them until a release. To release, open **Actions → Release → Run workflow** on
 `main` and choose `patch`, `minor`, or `major`. The workflow runs the tests,
-bumps `version` in both `.claude-plugin/plugin.json` and
+bumps `version` in both `exercise/.claude-plugin/plugin.json` and
 `instructor/.claude-plugin/plugin.json`, tags the commit, and moves
 `stable` to it. Installed copies only update when that version changes.

@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "exercise");
 
 // New detectors add one row with at least one positive and one nearby negative.
 const CASES = [

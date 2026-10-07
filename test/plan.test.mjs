@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { checkPlan, taskLines } from "../runtime/.claude/hooks/harness.mjs";
+import { checkPlan, taskLines } from "../exercise/runtime/.claude/hooks/harness.mjs";
 
 const members = "- Jane Student — jane.student@mail.com\n- Mo Ahmadi — mo.ahmadi@mail.com\n";
 const cases = [

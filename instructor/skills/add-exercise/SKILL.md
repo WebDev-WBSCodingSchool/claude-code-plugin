@@ -8,19 +8,20 @@ disable-model-invocation: true
 # Add an exercise
 
 Run the instructor interview, build a reviewable starter repository, and package
-that repository as one new exercise in the plugin source checkout.
+that repository as one new exercise in a checkout of the plugin repository.
 
 ## Preflight
 
 This skill is public, but authoring requires the plugin's Git repository. Treat
-the current working tree as the write target and run every script from it as
-`<plugin-source-root>/scripts/`. Use `${CLAUDE_PLUGIN_ROOT}` only to read this
-skill.
+the current working tree as the write target and run every script from it, under
+`<repo-root>/instructor/scripts/` or `<repo-root>/exercise/scripts/`. Use
+`${CLAUDE_PLUGIN_ROOT}` only to read this skill.
 
 Before the interview:
 
-1. Resolve the current Git root with `git rev-parse --show-toplevel`.
-2. Confirm that its `.claude-plugin/plugin.json` names
+1. Resolve the current Git root, `<repo-root>`, with
+   `git rev-parse --show-toplevel`.
+2. Confirm that its `exercise/.claude-plugin/plugin.json` names
    `exercise`.
 3. Confirm that the version in its `instructor/.claude-plugin/plugin.json`
    equals the version in `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`.
@@ -30,8 +31,8 @@ Before the interview:
    editing it.
 
 An installed plugin cache is not an authoring repository. If the current Git
-root fails these checks, explain that the instructor must open the plugin source
-checkout and run Claude Code there with `claude --plugin-dir instructor`.
+root fails these checks, explain that the instructor must open a checkout of the
+plugin repository and run Claude Code there with `claude --plugin-dir instructor`.
 
 ## Interview
 
@@ -54,7 +55,7 @@ completely and follow it. Ask for the exercise ID before building. The ID uses
 lowercase words separated by hyphens.
 
 If the interview requires a protected category that is absent from
-`runtime/.claude/hooks/guard.mjs`, also read
+`exercise/runtime/.claude/hooks/guard.mjs`, also read
 [references/detectors.md](references/detectors.md). A shared detector change must
 be reviewed and committed before packaging the exercise, because the packer
 requires a clean plugin worktree.
@@ -62,14 +63,14 @@ requires a clean plugin worktree.
 The final packaging command is:
 
 ```sh
-node "<plugin-source-root>/scripts/pack-exercise.mjs" \
-  "<plugin-source-root>" "<review-starter-root>" "<exercise-id>"
+node "<repo-root>/instructor/scripts/pack-exercise.mjs" \
+  "<repo-root>" "<review-starter-root>" "<exercise-id>"
 ```
 
 Then generate the packaged exercise through the student interface and run it:
 
 ```sh
-node "<plugin-source-root>/scripts/setup.mjs" setup \
+node "<repo-root>/exercise/scripts/setup.mjs" setup \
   "<exercise-id>" "<fresh-review-directory>"
 ```
 

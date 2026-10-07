@@ -9,7 +9,7 @@ const policyFiles = [
   "instructor/skills/add-exercise/SKILL.md",
   "instructor/skills/add-exercise/references/interview.md",
   "instructor/skills/add-exercise/references/authoring.md",
-  "runtime/README.md",
+  "exercise/runtime/README.md",
 ];
 
 function git(cwd, args) {
@@ -28,18 +28,18 @@ function hash(value) {
   return `sha256:${createHash("sha256").update(value).digest("hex")}`;
 }
 
-function record(pluginRoot, starterRoot) {
-  const top = realpathSync(git(pluginRoot, ["rev-parse", "--show-toplevel"]).trim());
-  if (top !== realpathSync(pluginRoot)) throw new Error("plugin source must be its Git repository root");
+function record(repoRoot, starterRoot) {
+  const top = realpathSync(git(repoRoot, ["rev-parse", "--show-toplevel"]).trim());
+  if (top !== realpathSync(repoRoot)) throw new Error("plugin repository must be its Git repository root");
 
-  const manifestPath = join(pluginRoot, ".claude-plugin", "plugin.json");
-  if (!existsSync(manifestPath)) throw new Error("plugin source has no .claude-plugin/plugin.json");
+  const manifestPath = join(repoRoot, "exercise", ".claude-plugin", "plugin.json");
+  if (!existsSync(manifestPath)) throw new Error("plugin repository has no exercise/.claude-plugin/plugin.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   if (manifest.name !== "exercise") throw new Error(`unexpected plugin: ${manifest.name}`);
 
-  const commit = git(pluginRoot, ["rev-parse", "HEAD"]).trim();
-  const currentPolicy = policyFiles.map((path) => readFileSync(join(pluginRoot, path), "utf8"));
-  const committedPolicy = policyFiles.map((path) => git(pluginRoot, ["show", `${commit}:${path}`]));
+  const commit = git(repoRoot, ["rev-parse", "HEAD"]).trim();
+  const currentPolicy = policyFiles.map((path) => readFileSync(join(repoRoot, path), "utf8"));
+  const committedPolicy = policyFiles.map((path) => git(repoRoot, ["show", `${commit}:${path}`]));
   if (hash(JSON.stringify(currentPolicy)) !== hash(JSON.stringify(committedPolicy))) {
     throw new Error("README policy has uncommitted changes; review and commit them first");
   }
@@ -67,14 +67,14 @@ function record(pluginRoot, starterRoot) {
   return statePath;
 }
 
-const [pluginArgument, starterArgument, ...extra] = process.argv.slice(2);
-if (!pluginArgument || !starterArgument || extra.length) {
-  console.error("usage: node scripts/record-readme.mjs <plugin-source> <review-starter>");
+const [repoArgument, starterArgument, ...extra] = process.argv.slice(2);
+if (!repoArgument || !starterArgument || extra.length) {
+  console.error("usage: node instructor/scripts/record-readme.mjs <plugin-repository> <review-starter>");
   process.exit(2);
 }
 
 try {
-  console.log(`Recorded ${record(resolve(pluginArgument), resolve(starterArgument))}`);
+  console.log(`Recorded ${record(resolve(repoArgument), resolve(starterArgument))}`);
 } catch (error) {
   console.error(`record failed: ${error.message}`);
   process.exit(1);

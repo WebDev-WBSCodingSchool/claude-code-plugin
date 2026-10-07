@@ -11,7 +11,7 @@ help that the README promises, so it costs more than a narrow detector.
 3. List nearby code that must remain open to agent help.
 4. Show both lists to the instructor.
 
-Add the detector to `runtime/.claude/hooks/guard.mjs` under `DETECTORS`. Add a row
+Add the detector to `exercise/runtime/.claude/hooks/guard.mjs` under `DETECTORS`. Add a row
 to `CASES` in `test/detectors.test.mjs` with at least one positive and one negative
 case. Run that test and the full setup test.
 

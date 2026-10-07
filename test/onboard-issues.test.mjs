@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "exercise");
 const scratch = mkdtempSync(join(tmpdir(), "wbs-onboard-issues-test-"));
 const repo = join(scratch, "project");
 const mock = join(scratch, "mock-gh.mjs");

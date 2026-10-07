@@ -6,7 +6,7 @@ source must remain clean until the final packaging command.
 ## Build the review starter
 
 1. Create a temporary review directory.
-2. Copy `<plugin-source-root>/runtime/.` into it.
+2. Copy `<repo-root>/exercise/runtime/.` into it.
 3. Remove `SOURCE` and `.gitignore-base` from the copy.
 4. Build `.gitignore` from the runtime's `.gitignore-base` text plus the local
    files chosen in question 9.
@@ -28,7 +28,7 @@ exercise may set either to `false`, but record that as an instructor decision.
 
 ## Write the README
 
-Keep the shared runtime sections from `runtime/README.md`. Replace every fill
+Keep the shared runtime sections from `exercise/runtime/README.md`. Replace every fill
 marker with the approved assignment content. Preserve this order:
 
 1. Title, duration, description, and the put-it-on-GitHub-once instruction.
@@ -46,8 +46,8 @@ their IDs. Do not change the source assessment.
 The instructor reviews the complete README. After approval, record its state:
 
 ```sh
-node "<plugin-source-root>/scripts/record-readme.mjs" \
-  "<plugin-source-root>" "<review-starter-root>"
+node "<repo-root>/instructor/scripts/record-readme.mjs" \
+  "<repo-root>" "<review-starter-root>"
 ```
 
 ## Verify and commit the review starter
@@ -55,7 +55,7 @@ node "<plugin-source-root>/scripts/record-readme.mjs" \
 Run:
 
 ```sh
-node "<plugin-source-root>/scripts/verify.mjs" "<review-starter-root>"
+node "<repo-root>/exercise/scripts/verify.mjs" "<review-starter-root>"
 ```
 
 It must print `no problems`. Then initialize a local Git repository, configure
@@ -72,7 +72,7 @@ Run the command from the main skill. The packer:
 - permits settings overrides only for approved `writableExceptions`;
 - writes `exercise.json` and the assignment overlay atomically.
 
-After packaging, generate a fresh project through `scripts/setup.mjs`. Inspect its
+After packaging, generate a fresh project through `exercise/scripts/setup.mjs`. Inspect its
 README, run the project, and run:
 
 ```sh

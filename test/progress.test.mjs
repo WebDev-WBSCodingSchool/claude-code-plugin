@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "exercise");
 const repo = mkdtempSync(join(tmpdir(), "wbs-progress-test-"));
 const previousProjectDir = process.env.CLAUDE_PROJECT_DIR;
 const emails = ["jane@example.com", "jane@another.edu", "jane.doe@example.com", "jane-doe@example.com"];

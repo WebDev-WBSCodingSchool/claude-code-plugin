@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const scratch = mkdtempSync(join(tmpdir(), "wbs-pack-exercise-test-"));
 const pluginCopy = join(scratch, "plugin");
 const starter = join(scratch, "starter");
@@ -26,7 +26,7 @@ function git(cwd, args) {
 }
 
 try {
-  cpSync(pluginRoot, pluginCopy, {
+  cpSync(repoRoot, pluginCopy, {
     recursive: true,
     filter: (source) => basename(source) !== ".git",
   });
@@ -34,9 +34,9 @@ try {
   git(pluginCopy, ["add", "--all"]);
   git(pluginCopy, ["commit", "-m", "Plugin fixture"]);
 
-  execFileSync(process.execPath, [join(pluginRoot, "scripts", "setup.mjs"), "setup", "movie-diary", starter]);
+  execFileSync(process.execPath, [join(repoRoot, "exercise", "scripts", "setup.mjs"), "setup", "movie-diary", starter]);
   execFileSync(process.execPath, [
-    join(pluginRoot, "scripts", "record-readme.mjs"),
+    join(repoRoot, "instructor", "scripts", "record-readme.mjs"),
     pluginCopy,
     starter,
   ]);
@@ -48,13 +48,13 @@ try {
   git(starter, ["commit", "--no-verify", "-m", "Record README review"]);
 
   execFileSync(process.execPath, [
-    join(pluginRoot, "scripts", "pack-exercise.mjs"),
+    join(repoRoot, "instructor", "scripts", "pack-exercise.mjs"),
     pluginCopy,
     starter,
     id,
   ]);
 
-  const entry = join(pluginCopy, "exercises", id);
+  const entry = join(pluginCopy, "exercise", "exercises", id);
   const manifest = JSON.parse(readFileSync(join(entry, "exercise.json"), "utf8"));
   assert.equal(manifest.id, id);
   assert.equal(existsSync(join(entry, "overlay", "main.js")), true);
@@ -64,10 +64,10 @@ try {
     false,
   );
 
-  const setup = join(pluginCopy, "scripts", "setup.mjs");
+  const setup = join(pluginCopy, "exercise", "scripts", "setup.mjs");
   const catalog = execFileSync(process.execPath, [setup, "list"], { encoding: "utf8" });
   // An unfinished packaging directory must not affect listing or project setup.
-  mkdirSync(join(pluginCopy, "exercises", ".pack-interrupted"));
+  mkdirSync(join(pluginCopy, "exercise", "exercises", ".pack-interrupted"));
   assert.equal(execFileSync(process.execPath, [setup, "list"], { encoding: "utf8" }), catalog);
 
   execFileSync(process.execPath, [setup, "setup", id, regenerated]);

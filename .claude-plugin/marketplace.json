@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "exercise",
-      "source": "./",
+      "source": "./exercise",
       "description": "Set up WBS Coding School assignments as self-contained projects with their task harness."
     },
     {

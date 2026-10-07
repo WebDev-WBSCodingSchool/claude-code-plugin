@@ -43,7 +43,7 @@ jobs:
             import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
             // Both plugins share one version, so /instructor:add-exercise can
             // check that it matches the checkout it writes into.
-            const paths = [".claude-plugin/plugin.json", "instructor/.claude-plugin/plugin.json"];
+            const paths = ["exercise/.claude-plugin/plugin.json", "instructor/.claude-plugin/plugin.json"];
             const plugin = JSON.parse(readFileSync(paths[0], "utf8"));
             const parts = plugin.version.split(".").map(Number);
             if (parts.length !== 3 || parts.some(Number.isNaN)) throw new Error(`not x.y.z: ${plugin.version}`);
