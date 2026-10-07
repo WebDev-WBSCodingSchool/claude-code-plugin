@@ -212,8 +212,7 @@ create them by hand. Nothing syncs them back to `PLAN.md`.
 
 Write the issues yourselves. The agent won't break the work down for you. Once you
 have a draft, it tells you if one person has much more work than the others, if a
-task waits on two other people, or if two of you are about to edit the same
-function.
+task waits on two other people, or if two of you are about to edit the same code.
 
 Several tasks share `src/App.jsx`, `src/layouts/MainLayout.jsx`,
 `src/pages/HomePage.jsx`, `src/pages/EventDetailsPage.jsx`, and

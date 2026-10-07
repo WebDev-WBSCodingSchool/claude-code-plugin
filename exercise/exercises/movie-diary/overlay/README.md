@@ -1,386 +1,336 @@
 # Movie Diary
 
-#### Duration
+JavaScript Modules. Group project with a presentation at a time your instructor
+sets. It runs over two weeks in the same repo:
 
-- Week 1: Two days (full time) / ten days (part time)
-- Week 2 (refactor): One day (full time) / six days (part time), continuing
-  straight on in the same repo
+- Week 1: two days full time, ten days part time.
+- Week 2, the refactor: one day full time, six days part time.
 
-#### Presentation: Mandatory, at a time set by your instructor
+You build a two-page web app. The homepage loads popular movies from TMDB, lets
+users search, and lets them save movies as favourites in `localStorage`. The
+journal page lists the favourites, and users can add notes to them or remove them.
+In week 1 you build it in plain JavaScript. In week 2 you move it to Vite and ES
+modules and make the code easier to read.
 
-#### Format: Group project
+Doing the Pokédex instead? The requirements and the rules are the same. Rename
+`journal.html` and `journal.js` to `pokedex.html` and `pokedex.js`, and change the
+two matching lines in `.claude/harness/config.json`. In week 2, rename
+`src/journal.js` the same way.
 
-This repo is your starting point. **Put it on GitHub once for your group**:
-one of you runs `/onboard`, which walks you through it, and adds the others as
-collaborators. They clone that repo instead of setting the project up again.
-One repo, everyone works in it for both weeks,
-and every change merges to `main` through a Pull Request.
+## How you work
 
-Doing the Pokédex instead? Same requirements, same rules. Rename `journal.html`
-and `journal.js` to `pokedex.*` and change the two matching lines in
-`.claude/harness/config.json`. In week 2, do the same with `src/journal.js`.
+These steps repeat for every task, in both weeks.
 
-## Get started
+1. Run `/onboard`. It puts this repo on GitHub and checks your setup. One of you
+   runs it and adds the others as collaborators. The others clone that repo
+   instead of setting the project up again, and run `/onboard` in their clone.
+   This step is done when all checks pass, except the `PLAN.md` check, which step
+   2 fixes.
+2. Meet as a group and write `PLAN.md` together. This step is done when the
+   `PLAN.md` check passes. Until then, the agent writes no code for anyone in the
+   group. See "Before any of that: PLAN.md" below.
+3. Pick a task and create a branch for it, for example
+   `git switch -c FR009-popular-movies`.
+4. Write the code, commit it, and explain it to the agent. This step is done when
+   the agent records your sign-off. See "Write it, commit it, explain it" below.
+5. Open a Pull Request. This step is done when it is merged. Then go back to step 3.
 
-There are five stages. Each one names what ends it, since that's the part
-that's easy to lose sight of from the inside. They repeat for every task, in
-both week 1 and week 2.
-
-1. Run `/onboard`, which puts this repo on GitHub, or clone your group's copy
-   if a teammate already did and run `/onboard` there. This
-   ends when the only open item is `PLAN.md`. That's stage 2, and it stays
-   open until you get there. Everything above it should pass.
-2. Meet, and write `PLAN.md` together. This ends when the check passes: every
-   member listed has a task line, and your own git email is one of them.
-   Until then the agent writes no code for anyone in the group.
-3. Pick a task, and cut a branch: `git switch -c <task-id>-<short-name>`.
-   This ends when you have a branch for the work instead of committing to
-   `main`.
-4. Write it, commit it, explain it. This ends when the sign-off is recorded,
-   and it tells you what just opened up.
-5. Open a Pull Request. This ends when it is merged. Then return to stage 3
-   with the next task.
-
-## The requirements
+## Requirements
 
 ### Week 1
 
-| id        | what it asks for                                                                                               |
-| --------- | -------------------------------------------------------------------------------------------------------------- |
-| FR001     | You build it as a group, and everyone shares responsibility for it.                                            |
-| FR002     | Follow best practices for teamwork and communication.                                                          |
-| FR003     | Work in one public repo on GitHub. Do not add instructors as collaborators.                                      |
-| FR004     | All updates merge into `main` strictly through Pull Requests.                                                  |
-| FR005     | Demonstrate usage of `DOM manipulation`, `localStorage`, and `fetch`.                                          |
-| FR006     | Style UI using Tailwind CSS utilities via CDN script.                                                          |
-| FR007     | Setup dual-page app (`index.html` ↔ `main.js`, `journal.html` ↔ `journal.js`).js`.                             |
-| FR008     | A navbar on **both** pages, switching between the homepage and the journal.                                    |
-| **FR009** | **Fetch and render popular movies or Pokémon dynamically on load.**                                            |
-| **FR010** | **Provide search input; display query results or messages in a dialog modal.**                                 |
-| **FR011** | **Each movie's image, title and info, laid out as a card.**                                                    |
-| **FR012** | **An "add to favourites" button that stores the movie as an object in an array in `localStorage`.**            |
-| **FR013** | **When the films cannot be loaded, or a search finds nothing, the page says so instead of sitting empty.**     |
-| **FR014** | **A card's favourite button shows whether that film is already in your journal, and flips when you click it.** |
-| **FR015** | **The journal page lists the favourite movies from `localStorage`, with image, title and info.**               |
-| **FR016** | **Allow users to attach custom text notes to saved objects in `localStorage`.**                                |
-| **FR017** | **Delete selected objects from `localStorage` and update the view without full reload.**                       |
+| id | requirement |
+| --- | --- |
+| FR001 | You build the app as a group, and everyone shares responsibility for it. |
+| FR002 | You follow good practices for teamwork and communication. |
+| FR003 | The group works in one public repo on GitHub. Don't add instructors as collaborators. |
+| FR004 | Every change reaches `main` through a Pull Request. |
+| FR005 | The app uses DOM manipulation, `localStorage`, and `fetch`. |
+| FR006 | The UI uses Tailwind CSS utility classes, loaded from the CDN script. |
+| FR007 | The app has two pages: `index.html` with `main.js`, and `journal.html` with `journal.js`. |
+| FR008 | Both pages have a navbar that links to the homepage and the journal. |
+| **FR009** | When the homepage loads, it fetches popular movies or Pokémon and shows them. |
+| **FR010** | A search input sends a query and shows the results, or a message, in a dialog. |
+| **FR011** | Each movie appears as a card with its image, title, and information. |
+| **FR012** | An "add to favourites" button stores the movie as an object in an array in `localStorage`. |
+| **FR013** | When the movies can't be loaded, or a search finds nothing, the page says so instead of staying empty. |
+| **FR014** | A card's favourite button shows whether the movie is already in the journal, and switches when you click it. |
+| **FR015** | The journal page lists the favourites from `localStorage` with their image, title, and information. |
+| **FR016** | Users can add their own notes to saved movies. The notes are stored in `localStorage`. |
+| **FR017** | Users can delete saved movies from `localStorage`. The page updates without a full reload. |
 
-**Bold = you type this one yourself.** For the others, you may ask the agent to
-help you implement them.
+You write the bold tasks yourself. For the others, you can ask the agent for help.
 
-TMDB needs a free signup. [TMDB docs](https://developer.themoviedb.org/docs/getting-started)
-· [PokéAPI](https://pokeapi.co/) (no signup) · [Tailwind docs](https://tailwindcss.com/docs/installation)
+TMDB needs a free account. [TMDB docs](https://developer.themoviedb.org/docs/getting-started),
+[PokéAPI](https://pokeapi.co/) (no account needed),
+[Tailwind docs](https://tailwindcss.com/docs/installation).
 
-Week 1 ends with all of the above signed off, merged, and presented. **Keep
-reading, since week 2 continues right here, in the same repo.**
+Week 1 ends when all of the above is signed off, merged, and presented. Week 2
+continues in this same repo.
 
-### Week 2: refactor
+### Week 2: the refactor
 
-Same app, same requirements above still hold. This is about _how_ it's built,
-not new features. Empty-result and error handling is **FR013's job, not
-repeated here**: you already built it in week 1, and it just has to survive
-the move.
+The app and the week 1 requirements stay the same. Week 2 changes how the app is
+built, not what it does. FR013 already covers empty results and errors. That
+handling has to keep working after the move, but it isn't a new task.
 
-| id        | what it asks for                                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **FR018** | **Remove CDN references. install Vite and Tailwind as npm dependencies and wire Tailwind's Vite plugin into the build.** |
-| **FR019** | **Configure `vite.config.js` to build `index.html` and `journal.html` as separate entry points.**                        |
-| **FR020** | **Convert the homepage to native ES modules (`import`/`export`), living under `src/`.**                                  |
-| **FR021** | **Convert the journal page to native ES modules (`import`/`export`), living under `src/`.**                              |
-| **FR022** | **Break large functions down; separate data fetching, UI rendering, and storage logic.**                                 |
-| **FR023** | **Restructure journal logic into small, single-responsibility modular helper functions.**                                |
-| FR024     | Comment or JSDoc the code: what each module is responsible for, what the tricky logic does.                              |
-| FR025     | Fix bugs left over from week 1.                                                                                          |
-| FR026     | Produce a production build and deploy it as a static site on Render.                                                     |
+| id | requirement |
+| --- | --- |
+| **FR018** | Remove the CDN references. Install Vite and Tailwind as npm dependencies, and add Tailwind's Vite plugin to the build. |
+| **FR019** | `vite.config.js` builds `index.html` and `journal.html` as separate entry points. |
+| **FR020** | The homepage code uses native ES modules (`import` and `export`) and lives in `src/`. |
+| **FR021** | The journal page code uses native ES modules (`import` and `export`) and lives in `src/`. |
+| **FR022** | Large functions are split up. Fetching data, rendering the UI, and storage are separate. |
+| **FR023** | The journal code is split into small helper functions in modules, each with one job. |
+| FR024 | Comments or JSDoc explain what each module is for and what the tricky code does. |
+| FR025 | Bugs left over from week 1 are fixed. |
+| FR026 | You make a production build and deploy it to Render as a static site. |
 
-**Bold = you type this one yourself.** For the others, you may ask the agent
-to help you implement them, FR025 included, as long as the fix itself
-doesn't require writing the kind of code that's still bold above (e.g. a bug
-that's really missing DOM/fetch/localStorage handling stays yours until
-you've demonstrated it).
+You write the bold tasks yourself. For the others, you can ask the agent for help,
+including the bug fixes in FR025. The exception is a fix that needs code of a kind
+you haven't written yourself yet. For example, a bug that is really missing DOM,
+`fetch`, or `localStorage` handling stays yours until you have signed off a task
+of that kind.
 
-[Vite multi-page guide](https://v7.vite.dev/guide/build#multi-page-app) ·
-[Render](https://render.com/)
+[Vite multi-page guide](https://v7.vite.dev/guide/build#multi-page-app),
+[Render](https://render.com/).
 
-## The setup
+## Setup
 
-**Your TMDB token** goes in `config.js`, which you make by copying
-`config.example.js`. That copy is gitignored, so your token stays out of the
-history, and the template stays committed so the next person knows what to
-make. This is a stopgap and you should know it: the token is a global
-variable in a public page, readable by anyone who opens it. Keeping a
-credential properly secret needs a server holding it for you, which is
-further down the course. If a token does get committed, generate a new one.
-A token that has been public once is burned. This holds for both weeks:
-nothing about the token changes in the refactor.
+Your TMDB token goes in `config.js`. Create it by copying `config.example.js`.
+`config.js` is ignored by git, so your token stays out of the history, and
+`config.example.js` stays committed so everyone knows which file to create.
+
+This only keeps the token out of the repo. The token is still a global variable on
+a public page, and anyone who opens the page can read it. Keeping a token really
+secret needs a server that holds it for you, which comes later in the course. If a
+token gets committed anyway, create a new one in TMDB. A token that was public once
+is no longer safe. All of this applies to both weeks.
 
 ### Week 1
 
-**This project is vanilla JavaScript: two pages, plain `<script>` tags,
-Tailwind from a CDN. No build step, no npm, no imports.** Bundlers, modules
-and Vite come in week 2. They are not wrong, they are just not what week 1 is
-made of, and adding one mid-week means every teammate's clone stops working
-until they run an install step. Ask the agent about any of it. It will
-answer, and it will tell you when an answer would change how the project is
-built.
+The project is plain JavaScript: two pages, plain `<script>` tags, and Tailwind
+from the CDN. There is no build step, no npm, and no `import`. Bundlers, modules,
+and Vite come in week 2. If someone adds one of them during week 1, everyone else's
+clone stops working until they run an install step. You can ask the agent about
+any of these tools. It answers, and it tells you when an answer would change how
+the project is built.
 
 ### Week 2
 
-**Week 2 flips that rule on purpose.** The whole point of the refactor is
-adding Vite, npm and ES modules. From week 2 on, don't add a _second_
-bundler, config format, or package manager without checking with the group
-first: the same "everyone's clone breaks" cost still applies, just one layer
-up.
+In week 2, you add Vite, npm, and ES modules on purpose. Don't add a second
+bundler, another config format, or another package manager without checking with
+the group first. That would break everyone's clone in the same way.
 
-## What you type, and where the agent can help
+## What you write yourself
 
 ### Week 1
 
-**The JavaScript in the rows marked in bold is yours to type.** Asking the
-web for data, building and changing the page, and keeping things between
-visits are the three things week 1 exists to teach, and typing them is how
-you learn them. That covers both directions of each one: not only the
-request that works but the one that fails, not only building a card but
-changing one that is already there, not only saving a film but taking it
-back out.
+You write the JavaScript for the bold tasks yourself. Week 1 teaches three things:
 
-**Everything else you may ask the agent to help implement:**
+- requesting data from the web with `fetch`
+- building and changing the page through the DOM
+- keeping data between visits with `localStorage`
 
-- All markup and all Tailwind: `index.html`, `journal.html`, every class
-  string.
-- The navbar and page plumbing (FR006 to FR008).
-- Anything past the requirements: extra features, polish, ideas of your own.
-- Explaining what a requirement means, reading errors with you, and working
-  out which lines came from which branch after a messy merge. It will not
-  resolve a conflict for you, because in this project the conflicts are the
-  lesson.
+Each one includes both directions. A request can succeed or fail, a card is built
+and later changed, and a movie is saved and later removed.
+
+The agent won't write any of these for you until you have written one yourself,
+committed it, and explained it.
+
+You can ask the agent to help with everything else:
+
+- all markup and all Tailwind classes in `index.html` and `journal.html`
+- the navbar and the page setup for FR006 to FR008
+- features beyond the requirements
+- explaining what a requirement means, reading errors with you, and finding out
+  which lines came from which branch after a difficult merge. It won't resolve a
+  merge conflict for you, because resolving conflicts is part of what this project
+  teaches.
 
 ### Week 2
 
-**The same rule covers the migration and the refactor itself.** Setting up
-Vite and its config, converting the code to ES modules, and splitting it
-into smaller, better-separated functions are the three things that week
-teaches, so they're yours to type too: FR018/FR019 (Vite config), FR020/FR021
-(ES modules) and FR022/FR023 (the refactor). The refactor can't be blocked
-the way the others can (there's no syntax that marks "readable code"), so
-it's enforced by the write-it/commit-it/explain-it step below rather than by
-a write-block, but it's still yours, not the agent's, the first time.
+The same rule covers the move and the refactor. Week 2 teaches three things, and
+you write them yourself:
 
-**Everything else you may ask the agent to help implement:**
+- the Vite setup and its config, FR018 and FR019
+- the move to ES modules, FR020 and FR021
+- splitting the code into smaller functions with clearer jobs, FR022 and FR023
 
-- Comments/JSDoc (FR024), ordinary bug fixes (FR025), and the Render
-  deployment (FR026), unless a bug fix would require writing
-  DOM/fetch/localStorage/ES-module/Vite-config code you haven't demonstrated
-  yet, in which case that part is still yours until you have.
-- Anything past the requirements: extra features, polish, ideas of your own.
+The agent can't detect readable code the way it detects a `fetch` call, so it
+can't block the refactor tasks. You still write them yourself the first time, and
+the write, commit, and explain step below checks that you did.
 
-**The agent waits to be asked**, in both weeks. It will not start building
-just because a file is empty or your plan is finished. This isn't a to-do
-list it works through on its own, so ask it for what you want. Before every
-code edit, it asks at least one question about your requested change and
-waits for your answer.
+You can ask the agent to help with everything else:
 
-Yes, this tells you exactly what you could paste into a browser chat instead.
-You're given the rule directly rather than fenced in by it. A rule you can
-read is one you can choose to follow.
+- comments and JSDoc (FR024), ordinary bug fixes (FR025), and the Render
+  deployment (FR026). A fix that needs DOM, `fetch`, `localStorage`, ES module, or
+  Vite config code you haven't written yourself yet stays yours until you have.
+- features beyond the requirements
+
+The agent only acts when you ask it to. An empty file or a finished task list
+doesn't count as a request. Before each code change, it asks you at least one
+question about the change and waits for your answer. This applies in both weeks.
+
+This list also tells you what you could get from a browser chat instead. That's
+intentional. The rules are written down, and following them is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written one of the tasks marked in bold above:
+When you have written a bold task:
 
-```
-1. Write it.
-2. Commit it.   git add <your file> && git commit --signoff -m "<task id>: <what it does>"
-3. Explain it.  The agent asks what your commit does, then a few short questions.
-```
+1. Write the code.
+2. Commit it with
+   `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
+3. Explain it. The agent asks what your commit does, then up to three short
+   follow-up questions. A large commit gets more questions, a small one fewer.
 
-**Step 3 is the one worth having.** Explaining code you have just written is
-how you find out whether you understood it, and that's true whether anyone
-is listening or not. Expect one question about what your commit does and up
-to three short follow-ups: more for a big commit, fewer for a small one.
-Nothing is graded and nothing you say is written down. The commit ahead of
-it in the history is already the record of who wrote what.
+Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
 
-**What changes afterwards.** Once you have written and explained one piece
-of a given kind of code, the agent will write that kind with you for the
-rest of the project, including in features that are nowhere in the
-requirements.
+Once you have written and explained one piece of a kind of code, the agent may
+write that kind of code with you for the rest of the project. That includes
+features beyond the requirements.
 
-Which of the tasks marked in bold you have done is kept in a small file
-under `.claude/harness/progress/`, filed under your git email. The agent
-writes it once you have explained your commit, and you commit it like
-anything else. Ask it where you stand whenever you want to know.
+The agent records each completed task in a file under
+`.claude/harness/progress/`, filed under your git email. Commit that file with your
+work. You can ask the agent at any time which tasks you have completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds one line to the commit message:
+`git commit --signoff` adds this line to the commit message:
 
 ```
 Signed-off-by: Lea Müller <lea.mueller@example.com>
 ```
 
-It means **I wrote this code**. It is an ordinary git trailer and you will
-meet it in real projects. Nothing here checks it, and it is worth doing
-anyway. Use it on all of your own work, not only on the tasks marked in bold.
+The line says that you wrote the code. Many open-source projects require it.
+Nothing in this repo checks it, but use it on all your own commits, not only on the
+bold tasks.
 
-When the agent wrote or helped write something, the commit carries a
-`Co-Authored-By: Claude …` line instead, which it adds itself. Between the
-two, `git log` shows who wrote what, which is more use to all of you than
-trying to remember in week three.
+When the agent wrote a commit or helped with it, the agent adds a
+`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+who wrote what.
 
 ### Reviewing a teammate's code counts
 
-If a teammate wrote one of their tasks, post a real review on their Pull
-Request and answer the agent's questions about their code, and the agent
-will write that kind of code with you too, even after the PR has merged.
-Tell it which PR; it records the same way.
+When a teammate has written one of their bold tasks, you can review their Pull
+Request on GitHub and then answer the agent's questions about their code. After
+that, the agent may write that kind of code with you too, even if the Pull Request
+is already merged. Tell the agent which Pull Request you reviewed.
 
-It is capped: you can never have more reviewed tasks than written ones, so
-your first task is always written by you. Nobody can skip the writing, and
-everyone reads other parts of the project rather than only their own tasks.
+You can never have more reviewed tasks than written ones. So everyone writes their
+first task themselves.
 
-## Before any of that: `PLAN.md`
+## Before any of that: PLAN.md
 
-**The agent writes no code for anyone in the group until `PLAN.md` exists and
-every member listed in it has at least one task.** Meet first, one call with
-one screen shared, and write it together.
+The agent writes no code for anyone in the group until `PLAN.md` exists and every
+member listed in it has at least one task. Meet first, in one call with one shared
+screen, and write it together.
 
 ### Week 1
 
-It has two halves:
+`PLAN.md` has two parts. First, describe in your own words what you are building,
+who uses it, and how much of it you will build. Name the parts you leave out on
+purpose. This is where two of you find out that you imagined different amounts of
+work, so write down what you agree on.
 
-- A short restatement **in your own words** of what you are building, who
-  uses it, and how much of it you are actually going to build. Name which
-  parts are in and which you are leaving out on purpose. This is usually
-  where two of you find out you pictured different amounts of work, so
-  write down what you agree on.
-- The split: everyone's **git email** (the address `git config user.email`
-  prints), and each of you again on the task you took.
-
-While you are all there, settle one more thing **together**: **what is a
-favourite, once it is in `localStorage`?** That means which fields of the
-film get stored, and what "the film" means at that point. FR012 is where
-that gets decided, and three other rows depend on it: the journal reads
-those fields back (FR015), the button on a card has to recognise a film it
-has seen before (FR014), and removing one means finding it again (FR017).
-It's exactly the decision two of you can each assume differently and only
-discover in a merge conflict on day four. Write down what you land on. It
-does not have to be right, it has to be shared.
-
-Here's what the split looks like written out:
+Second, the split. List every member with their git email, which is the address
+`git config user.email` prints. Then list each task with the name of the person
+who took it:
 
 ```markdown
-## Who's in the group
+## Members
 
 - Jane Student — jane.student@mail.com
 - Mo Ahmadi — mo.ahmadi@mail.com
 
-## The split
+## Tasks
 
 - Fetch popular movies (FR009) — Jane
-- Search bar + dialog (FR010) — Mo Ahmadi
+- Search bar and dialog (FR010) — Mo Ahmadi
 ```
 
-That's the whole format. Use a list, a table, or prose, in German or English.
-Each of you has to appear twice: once in the member list with your **git**
-email, and again on the task you took. On the task line your name is
-enough. The address is needed once, because progress is filed under it.
+You can use a list, a table, or prose, in German or English. Each member appears
+twice: once in the member list with their git email, and once on a task. On the
+task line, a name is enough. The agent stores progress under the email, so the
+email has to appear once.
 
-Run `/onboard` and the agent will guide the conversation, point out
-unassigned parts and places where two of you will collide, and check the
-file. **It will not write a word of it.** `PLAN.md` is what the check
-reads, so an agent that could write it would clear its own way.
+While you are all together, decide one more thing: **what does a favourite look
+like in `localStorage`?** Decide which fields of the movie you store. FR012 stores
+them, and three other tasks depend on that choice. FR015 reads the fields back,
+FR014 has to recognise a movie that is already saved, and FR017 has to find a
+movie again to remove it. If two of you assume different answers, you find out in
+a merge conflict on day four. Write down what you agree on. It doesn't have to be
+perfect, but everyone has to use the same answer.
 
-**The check is live.** Edit `PLAN.md` so that someone has no task, and the
-agent stops writing code for everyone until the line is fixed. There is
-nothing to re-run: it reads the file again on the next write. If someone
-has actually left the group, take them off the member list. That's the
-right answer, not a slight.
+Run `/onboard`, and the agent guides the conversation. It points out work nobody
+has taken and places where two of you will edit the same code, and it checks the
+file. It won't write any of `PLAN.md`, because the check reads that file, and an
+agent that wrote it could unlock itself.
 
-A sketch is enough, and it is allowed to change. The question is whether
-you have a plan, never whether it was any good.
+The agent reads `PLAN.md` again before every code change. If you edit it so that a
+member has no task, the agent stops writing code for everyone until you fix it. If
+someone has left the group, remove them from the member list.
+
+A rough plan is enough, and you can change it later.
 
 ### Week 2
 
-Same repo, same file, new tasks. Add the week 2 rows to the split, since the
-check still just wants everyone listed with a task, so this is an edit, not
-a re-write.
+Keep using the same `PLAN.md` and add the week 2 tasks to it. The check still only
+needs every member listed with a task.
 
-Before anyone starts the migration, settle one more thing **together**:
-**how does the code split into modules?** That means who owns fetching, who
-owns rendering the cards, who owns the favourites/journal storage logic.
-Two people restructuring `main.js`/`journal.js` into `src/` at the same
-time, with different ideas about where the boundaries go, is the week 2
-version of the `localStorage` shape question above: exactly the kind of
-thing that's fine to disagree about in a five-minute conversation and
-expensive to discover in a merge conflict on day two.
+Before anyone starts the move, decide together **how the code splits into
+modules**. Decide who owns fetching, who owns rendering the cards, and who owns
+the storage code for the favourites and the journal. If two people move
+`main.js` and `journal.js` into `src/` at the same time with different ideas about
+the boundaries, you find out in a merge conflict on day two. A five-minute
+conversation now avoids that.
 
 ## Splitting the work
 
-`PLAN.md` is the snapshot from the kickoff. **From then on your tasks are
-GitHub Issues on your repo.** `/onboard` can create them from your task
-lines, or you can make them by hand. The issues are the live version, and
-nothing syncs them back.
+After the kickoff, your tasks live in GitHub Issues in your group's repo, not in
+`PLAN.md`. `/onboard` can create the issues from your task lines, or you can
+create them by hand. Nothing syncs them back to `PLAN.md`.
 
-Write them yourselves either way. The agent will not give you a breakdown.
-Once you have a draft, it will tell you if:
+Write the issues yourselves. The agent won't break the work down for you. Once you
+have a draft, it tells you if one person has much more work than the others, if a
+task waits on two other people, or if two of you are about to edit the same code.
 
-- the load looks lopsided
-- something is blocked on two other people
-- two of you are about to edit the same function
+In week 1, six of the nine bold tasks live in `main.js`, and three live in
+`journal.js`. Expect to edit `main.js` at the same time as your teammates. Keep
+branches small and merge them early, instead of merging four days of separate work
+at once.
 
-### Week 1
+In week 2, the same happens in `vite.config.js`, where FR018 and FR019 both live,
+and in `src/home.js` and `src/journal.js`, which each carry an ES modules task and
+a refactor task. Keep branches small and merge them early here too.
 
-That last one will happen, and it will happen in `main.js`: six of the nine
-tasks you type yourself live in that one file, against three in
-`journal.js`. Expect the homepage to be where you meet each other, and plan
-around it: small branches, merged early, rather than four days of separate
-work landing at once. Resolve the conflicts together; that's the point.
-
-### Week 2
-
-The same collision moves to `vite.config.js` (FR018 and FR019 both live
-there) and to `src/home.js` / `src/journal.js` (each carries both an
-ES-modules task and a refactor task). Same advice: small branches, merged
-early.
-
-Ask for help if you are stuck for more than 30 minutes. Use the daily
-stand-ups.
+Resolve merge conflicts together. Ask for help if you are stuck for more than 30
+minutes. Use the daily stand-ups.
 
 ## Running it
 
-- Open **this folder** in VS Code and start Claude Code from the repo root.
-  Starting it from a subfolder silently drops this folder's settings, which
-  mostly means the agent starts writing code it should be helping you write.
-- Your progress is filed under your git email, so set it once and use the
-  same one on every machine you work from. Otherwise the work you did in the
-  lab and the work you did at home end up in two separate records, and
-  neither counts for the other.
-- **If you want the agent to talk differently**, with simpler language,
-  shorter answers, or more or less detail, say so, and ask it to save that
-  as a personal skill in `~/.claude/skills/`. It travels with you to the
-  next project, so you only have to ask once. It changes how the agent
-  talks, not which code you must write yourself.
-- Inline suggestions (Copilot-style ghost text) are turned off for this
-  folder in `.vscode/settings.json`. That file is read-only, and the agent
-  cannot write to it. Otherwise it could restore ghost text in a single
-  edit, and ghost text is the one form of help that arrives without being
-  asked.
+Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
+Code loads this repo's settings only from the root folder. Without them, the agent
+may write code that you are supposed to write.
 
-**This file is read-only too**, along with `CLAUDE.md`. This page is the
-requirements: it tells the agent which code you must write and where it may
-help after you ask, so it is not a page the agent gets to reword. `PLAN.md`
-is read-only to the agent as well, for a different reason: it is yours, and
-it is what the check reads. Your own writing about your project goes in
-files you make, whether that's `PLAN.md`, your Issues, or anything else you
-want.
+Use the same git email on every computer. The agent stores your progress under that
+email, and work you do under a second email won't count.
 
-If you think a requirement is wrong or unclear, say so to your instructor.
-That's a conversation, not a diff.
+To change how the agent talks to you, for example with simpler language or shorter
+answers, tell it, and ask it to save that as a personal skill in
+`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
+change which code you write yourself.
 
-None of these locks is a cage, and you should know that up front. Read-only
-here means VS Code rejects typing in those buffers, there is a setting to
-change that, and you can use other editors. But none of it can happen
-quietly. Every file named above is committed, so any change lands in your PR
-with your name on it. That's the mechanism: not "you cannot", but "it is
-visible".
+Some files in this repo are read-only for you and the agent:
+
+- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
+  like Copilot show while you type. Those suggestions write code without you
+  asking for it.
+- `README.md` and `CLAUDE.md` say which code you write yourself and where the
+  agent may help. The agent must not change them.
+- `PLAN.md` belongs to your group, and the `PLAN.md` check reads it.
+
+If you think a requirement is wrong or unclear, talk to your instructor.
+
+You can get around these locks, but they are here to help you to learn.
