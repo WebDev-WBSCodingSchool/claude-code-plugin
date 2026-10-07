@@ -284,4 +284,9 @@ console.log(
 );
 console.log(`Commit that file along with your work.\n`);
 for (const p of bs.problems) console.log(`  ${p.text}\n`);
-console.log(`Next: open a Pull Request for this branch, then cut a new one for your next task.\n`);
+// A solo student has nobody to review a Pull Request, so merging locally is enough.
+console.log(
+  config.onboarding
+    ? `Next: open a Pull Request for this branch, then cut a new one for your next task.\n`
+    : `Next: merge this branch into ${config.integrationBranch ?? "main"} (locally or through a Pull Request), then cut a new one for your next task.\n`,
+);

@@ -106,6 +106,26 @@ const DETECTORS = {
     // initializer rather than somewhere further down the file.
     /useState\s*\(\s*(\(\s*\)\s*=>|function\s*\(\s*\))[\s\S]{0,200}?(localStorage|sessionStorage|getItem)/,
   ],
+  // The Next.js server/client boundary: the directive that turns a file into a
+  // Client Component. Note what is NOT here: `"use server"`, hooks, and prose
+  // about the directive. A comment explaining why a page stays on the server
+  // starts with `//`, so the line anchor keeps it open.
+  clientComponents: [
+    /^\s*["']use client["']/m,
+  ],
+  // React Context: creating one, providing a value, reading it. Note what is NOT
+  // here: rendering the student's own provider component (`<CartContextProvider>`
+  // in a layout) or calling their custom hook (`useCart()`). Both are wiring
+  // around Context code already written, and matching them would close the
+  // layout and every consumer for open work like nav links.
+  reactContext: [
+    /\bcreateContext\s*[<(]/,
+    /\buseContext\s*\(/,
+    /\buse\s*\(\s*\w*Context\s*\)/,
+    // `<CartContext value={…}>` (React 19) or `<CartContext.Provider …>`. The
+    // lookahead after `Context` is what keeps `<CartContextProvider>` out.
+    /<\/?\w*Context(\.Provider)?(?=[\s/>])/,
+  ],
   // Declarative React Router. Imports and route-shaped data are open; these are
   // the rendered router components and hooks that make navigation work.
   reactRouting: [

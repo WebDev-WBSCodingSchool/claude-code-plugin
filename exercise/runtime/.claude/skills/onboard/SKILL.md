@@ -66,7 +66,8 @@ Cover:
 2. Which parts students write and which parts they may ask the agent to help
    implement.
 3. The working cycle: choose a task, create a branch, write, commit, explain the
-   code, open a pull request, and merge.
+   code, open a pull request, and merge. In a solo assignment the student may
+   skip the pull request and merge the branch locally.
 4. The student's current point in that cycle.
 
 End with one next action. Do not attach the full setup checklist to the same
@@ -150,15 +151,10 @@ The group works in one repo, published once from one member's setup:
 When `onboarding` is `false`, skip the plan, group kickoff, and issue creation.
 The other setup checks still apply.
 
-Ask two kinds of opening questions, one at a time:
-
-- What is the smallest version of the project worth finishing? Use concrete
-  alternatives from this assignment when the scope is unclear.
-- What decision does the README say must be settled before coding starts?
-
-Skip the second question when the README names no such decision. Ask at most one
-follow-up about each point. Then complete setup and move to the student's task
-branch.
+Ask the opening questions that the README's "Before you write code" section
+names, one at a time. Ask at most one follow-up about each point. When the README
+has no such section, ask no opening questions. Then complete setup and move to the
+student's task branch.
 
 ## Guide the group kickoff
 
@@ -255,7 +251,8 @@ git switch -c <task-id>-<short-name>
 ```
 
 Explain that their work belongs on this branch and reaches the integration branch
-through a pull request. Then end the setup discussion.
+through a pull request. In a solo assignment, they may instead merge it locally
+and push. Then end the setup discussion.
 
 ## Respond when the plan blocks a write
 
