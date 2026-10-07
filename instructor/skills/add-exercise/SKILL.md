@@ -33,8 +33,7 @@ Before the interview:
    `git -C "$(dirname "$ARGUMENTS")" rev-parse --show-toplevel`. Its
    `git remote get-url origin` must name one of the two curriculum repositories,
    over SSH or HTTPS, with or without `.git`:
-   - `WBSCodingSchool/software-ai-engineering`, the short course and the source
-     of every current exercise;
+   - `WBSCodingSchool/software-ai-engineering`, the short course;
    - `WBSCodingSchool/se-curriculum`, the long course, which adds Python and C#.
 7. Require an empty `git -C "<curriculum-root>" status --porcelain`. If it is not
    empty, stop and name the changed paths.

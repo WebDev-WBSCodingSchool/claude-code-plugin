@@ -17,9 +17,11 @@ This produces the README title, duration, description, and variant note.
 
 ## 2. What is the project built with, and what should students avoid adding halfway through?
 
-Frame the limit around coordination cost. A new package, build tool, or framework
-can stop teammates' clones from working until everyone changes their setup. It is
-not a judgment about what students are allowed to learn.
+In a group project, give the cost to teammates as the reason. A new package, build
+tool, or framework can stop teammates' clones from working until everyone changes
+their setup. In a solo project, the reason is usually that a package would do the
+work the exercise practises. Neither reason is a judgment about what students are
+allowed to learn.
 
 Draft one setup-limit sentence and read it back. This belongs in README prose,
 not config.
@@ -76,8 +78,10 @@ the agent, and the student's answer before an edit. Opening a protected topic
 after sign-off does not itself request work.
 
 Then ask which shared decision is likely to cause disagreement after coding
-starts. Record the decision itself in the README kickoff section, not an abstract
-instruction to discuss the project.
+starts. Record the decision itself in the README kickoff section, not a general
+instruction to discuss the project. In a solo project, ask whether the student must
+make a decision before coding. If so, it becomes the README's "Before you write
+code" section, and `/onboard` asks it. If not, the README has no such section.
 
 ## 7. Which files and folders should exist, and which file types can contain protected work?
 
@@ -87,6 +91,11 @@ protected JavaScript could be written in an inline script.
 Create one marked starter file for every distinct `tasks[].file`. Mark the
 requirements in plain language, but do not add empty functions, signatures, or
 solution structure.
+
+If students create the task files themselves, for example because the file
+structure is part of the topic, ship no marked starter files and set `preScaffold`
+to `true` in the config. The README then names each task file, because signoff
+requires the file at that exact path.
 
 ## 8. Which command checks one source file?
 

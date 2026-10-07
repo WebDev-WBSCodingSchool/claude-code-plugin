@@ -1,58 +1,64 @@
 # Worked example: movie-diary
 
-How the one hand-built repo, `task-harness/movie-diary-harness`, for
-`software-ai-engineering`'s 005-js-modules module project, answered each of the ten
-interview questions. Use it to see what a good answer looks like, not to copy
-it. A different assignment will answer most of these differently.
+This file shows how the `movie-diary` exercise answered the ten interview
+questions. The exercise comes from the 005-js-modules module project in
+`software-ai-engineering`. Use it to see what a good answer looks like. A
+different assignment will answer most questions differently, so don't copy the
+answers.
 
-## 1. Point me at the exercise.
+The exercise runs over two weeks. Week 1 builds the app in plain JavaScript, and
+week 2 moves it to Vite and ES modules. The answers below describe week 1 unless
+they say otherwise.
 
+## 1. Point me at the exercise
+
+The source is
 `software-ai-engineering/005-js-modules/module-project-movie-diary-or-pokedex/movie-diary-or-pokedex.md`.
-The curriculum source is one document with two variants, Movie Diary (TMDB API)
-and Pokédex (PokéAPI), sharing every requirement through FR006 and differing only
-in which API they call and what the second page is named (`journal.*` or
-`pokedex.*`). The exemplar repo picks one, Movie Diary, and the README says how to
-switch to the other:
+It describes two variants. Movie Diary uses the TMDB API, and Pokédex uses
+PokéAPI. Both share every requirement. They differ only in the API they call and
+in the name of the second page, `journal.*` or `pokedex.*`.
 
-> Doing the Pokédex instead? Same requirements, same rules. Rename
-> `journal.html` and `journal.js` to `pokedex.*` and change the two matching
-> lines in `.claude/harness/config.json`.
+The exercise picks Movie Diary, and the README says how to switch:
 
-## 2. What is this project built with, and what should students avoid adding halfway through?
+> Doing the Pokédex instead? The requirements and the rules are the same. Rename
+> `journal.html` and `journal.js` to `pokedex.html` and `pokedex.js`, and change
+> the two matching lines in `.claude/harness/config.json`.
 
-"Vanilla JavaScript: two pages, plain `<script>` tags, Tailwind from a CDN. No
-build step, no npm, no imports." (`README.md`, "The setup".)
+## 2. What is the project built with, and what should students avoid adding halfway through?
 
-The second half of that section is the part worth reading closely. Vite, bundlers
-and ES modules are not wrong, and they are not far off: they arrive later **in the
-same curriculum unit**. The README does not tell the student those tools are
-premature or above their level. The argument it makes is about cost:
+Week 1 is plain JavaScript: two pages, plain `<script>` tags, and Tailwind from
+the CDN. There is no build step, no npm, and no `import`.
 
-> adding one mid-project means every teammate's clone stops working until
-> they run an install step
+Vite, bundlers, and ES modules come in week 2 of the same project. The README
+doesn't tell students that these tools are too advanced for them. It gives the
+cost instead:
 
-That is the tutor's whole case against a mid-project switch. It is a
-coordination cost for the group, not a judgment about what has or has not been
-taught. Keep this distinction clear in a new assignment, because the reason to
-hold a line is almost never "you do not know this yet."
+> If someone adds one of them during week 1, everyone else's clone stops working
+> until they run an install step.
 
-## 3. Which parts of the code must students write themselves to learn the module topic?
+This is a group project, so the reason is the cost to teammates. In a solo
+project, the reason is usually that a package would do the work the exercise
+practises. Neither reason is a judgment about what students are allowed to learn.
 
-DOM, Web Storage and Fetch, the three APIs FR005 names and the only reason this
-module exists ("Core Web APIs Usage … Demonstrate DOM, Web Storage, and Fetch
-APIs"). That maps directly onto `.claude/harness/config.json`:
+## 3. Which code must students write themselves to learn the module topic?
+
+Requirement FR005 names three APIs: DOM manipulation, `localStorage`, and
+`fetch`. They are the reason this module exists, and they map directly onto the
+config:
 
 ```json
 "gated": ["fetch", "dom", "localStorage"]
 ```
 
-Three protected topics, three `gated` entries, three detectors in `guard.mjs`.
-No more, no fewer. An entry with no counterpart in either direction is a config
-and detector mismatch. See `references/detectors.md`.
+Week 2 adds two more topics, `esModules` and `viteConfig`, for the move to Vite.
+
+Each protected topic needs a detector in `guard.mjs`, and each detector belongs
+to a protected topic. An entry on one side without a match on the other is an
+error. See `references/detectors.md`.
 
 ## 4. Which requirements make students practise each protected topic?
 
-The six-row `tasks[]` table, quoted whole from `.claude/harness/config.json`:
+The first version of the exercise had six week 1 tasks:
 
 | id | title | file | categories |
 | --- | --- | --- | --- |
@@ -60,138 +66,116 @@ The six-row `tasks[]` table, quoted whole from `.claude/harness/config.json`:
 | FR010 | Search with dialog | `main.js` | `fetch`, `dom` |
 | FR011 | Movie cards | `main.js` | `dom` |
 | FR012 | Add to favourites | `main.js` | `localStorage` |
-| FR013 | Journal page display | `journal.js` | `localStorage`, `dom` |
-| FR014 | Personal notes | `journal.js` | `localStorage`, `dom` |
+| FR015 | Journal page display | `journal.js` | `localStorage`, `dom` |
+| FR016 | Personal notes | `journal.js` | `localStorage`, `dom` |
 
-`file` is where `signoff.mjs` looks for the student's work: the file that task's
-commit has to touch, not the whole tree. After signoff, the write check stops
-refusing the code in `categories`, everywhere, not just in that file. The student
-must still ask for a change, and the agent must ask a project-specific question
-before editing.
+`file` is the file that the task's commit must change. `signoff.mjs` checks that
+file, not the whole project. After a sign-off, the guard stops blocking the
+task's `categories` everywhere in the project, not only in that file. The student
+still has to ask for each change, and the agent still asks a project-specific
+question before it edits.
 
-## 5. Which important parts of those topics do the requirements fail to practise?
+## 5. Which important practice is missing?
 
-**The exemplar repo predates this question**, so nothing below is in its
-`config.json`. This is what the walk turns up when you run it against that
-six-row table, and it is here to show the shape of the walk rather than to be
-copied in.
+Go through the protected topics one at a time. For each one, say what the tasks
+make students practise, then name what they don't.
 
-Three protected topics, so three passes.
+**`fetch`.** FR009 and FR010 both make a successful GET request to TMDB. No task
+covers a failed request. With one shared key in a class of thirty students, TMDB
+refuses requests on the first afternoon. Two candidates:
 
-**`fetch`** is exercised twice, in FR009 and FR010, and both times as a happy-path
-GET against TMDB: one list endpoint, one search. What the tasks never touch is
-either end of that request. Nothing asks what the page shows while the films are
-still coming, and nothing asks what it shows when TMDB is unreachable or the key
-is refused, which on a class of thirty students with one shared key happens on the
-first afternoon. Two candidates, written the way a student would read them:
-
-> **X1** Say something useful when the films cannot be loaded, instead of an empty
-> page.
+> **X1** When the movies can't be loaded, the page says so instead of staying
+> empty.
 >
-> **X2** Show that something is happening while they load.
+> **X2** While the movies load, the page shows that it is working.
 
-**`dom`** is exercised as building markup that was not there before: cards in
-FR011, a dialog in FR010. What it never touches is changing something already on
-the page. Every current task can be satisfied by throwing the list away and
-rendering it again. One candidate:
+**`dom`.** FR010 and FR011 build markup that wasn't on the page before. No task
+changes markup that is already there. Every task works if the student throws the
+list away and renders it again. One candidate:
 
-> **X3** The favourite button on a card shows whether that film is already a
-> favourite, and flips when clicked without the list being redrawn.
+> **X3** A card's favourite button shows whether the movie is already in the
+> journal, and switches when you click it, without redrawing the list.
 
-**`localStorage`** is written to in FR012, FR013 and FR014 and, in the strict
-sense, never read back from a state the student did not just put there. Nothing
-covers a first visit with nothing stored, and nothing covers taking something out
-again. One candidate:
+**`localStorage`.** The tasks write to storage, but none of them reads back data
+that the student didn't just save, and none of them removes anything. One
+candidate:
 
-> **X4** Remove a film from your journal.
+> **X4** Users can remove a movie from the journal.
 
-A plausible instructor takes X1, X3 and X4 and declines X2 as polish, which is a
-good outcome: four gated tasks become seven, all three categories get a second
-angle, no new category is introduced, and every one of the new rows lives in
-`main.js` or `journal.js` alongside the tasks already there.
+The instructor accepted X1, X3, and X4 and declined X2. The exercise now has them
+as FR013, FR014, and FR017. All three topics got a second kind of practice, and
+no new topic was needed.
 
-That last part carries a consequence. Three of the four additions land in
-`main.js`, which already held three of the six original tasks, so the README
-sentence about where merge conflicts will land needs rewriting: it is now
-emphatically `main.js`, and the group should be told so rather than finding out.
+The additions changed the merge-conflict note in the README. Two of the three
+landed in `main.js`, which already held four of the six tasks. The README now
+tells the group that most conflicts will happen in `main.js`.
 
 ## 6. Which remaining requirements may the agent help implement after a student asks?
 
-Students may ask for implementation help with everything that is not one of the
-six tasks above:
+Students may ask the agent to help with everything outside the protected tasks:
 
-- All markup and all Tailwind: `index.html`, `journal.html`, every class string.
-- The navbar and page plumbing (FR006 to FR008).
-- Anything past the requirements: extra features, polish, ideas of the student's
-  own.
-- Explaining what a requirement means, reading errors with the student, and
-  working out which lines came from which branch after a messy merge. Not
-  resolving the conflict itself, though; in this project the conflicts are the
-  lesson.
+- all markup and all Tailwind classes in `index.html` and `journal.html`
+- the navbar and the page setup, FR006 to FR008
+- features beyond the requirements
+- explaining requirements, reading errors, and finding out which lines came from
+  which branch after a difficult merge. The agent doesn't resolve merge conflicts,
+  because resolving them is part of what the project teaches.
 
-This is not a list for the agent to work through. The student must request a
-change in the current chat. The agent then asks at least one project-specific
-question and waits for the answer before editing code.
+This list isn't a to-do list for the agent. The student has to ask for a change.
+The agent then asks at least one project-specific question and waits for the
+answer before it edits code.
 
-The thing this group has to settle at the kickoff, written into `README.md` as the
-thing itself rather than as a question to go round the room with, is **what a
-favourite actually is once it is in `localStorage`**: which fields of the movie
-get stored, and what "the movie" means at that point. It sits in FR012, and it is
-exactly the kind of decision two teammates each assume silently and only discover
-in a merge conflict three days later.
+The decision this group has to make at the kickoff is **what a favourite looks
+like in `localStorage`**: which fields of the movie get stored. The README states
+the decision itself, not a general instruction to discuss the project. FR012
+stores the fields, and FR014, FR015, and FR017 depend on them. Two teammates who
+assume different answers find out in a merge conflict a few days later.
 
-## 7. Which files and folders should the project contain, and which file types can hold protected work?
+## 7. Which files and folders should exist, and which file types can contain protected work?
 
-`index.html ↔ main.js`, `journal.html ↔ journal.js` (FR007). In
-`.claude/harness/config.json`, `guardedExtensions` is `[".js", ".mjs", ".cjs",
-".html"]`. `.html` is in that list on purpose, so that pasting gated content into
-an inline `<script>` block is not a way around the guard.
+FR007 asks for two pages, `index.html` with `main.js` and `journal.html` with
+`journal.js`. The config sets `guardedExtensions` to
+`[".js", ".mjs", ".cjs", ".html"]`. `.html` is in the list so that a student
+can't get around the guard by putting protected code in an inline `<script>`.
 
-## 8. Which command can check one source file for syntax errors?
+The week 2 files, `src/home.js` and `src/journal.js`, don't exist in the starter.
+Students create them during the refactor, so the config sets `preScaffold` to
+`true`.
 
-`node --check`, plain, no flags. `.claude/harness/config.json`'s `syntaxCheck` key
-carries it as data because it's language-specific. The field is absent, and the
-step skipped, on an assignment with no single-file syntax check.
+## 8. Which command checks one source file?
+
+`node --check`, with no flags. The config stores it in `syntaxCheck` because the
+right command depends on the language. When no single-file check exists, the key
+is left out and the tutor skips the step.
 
 ## 9. Which local files must students create but never commit?
 
-`config.example.js` is the committed template. The student copies it to
-`config.js`, which is gitignored, and pastes their own TMDB token into the copy.
-`index.html` loads it with a third `<script>` tag, before `main.js` and after the
-Tailwind CDN tag, so the token is a plain global variable by the time `main.js`
-runs, with no import to write.
+`config.example.js` is committed. Each student copies it to `config.js`, which is
+in `.gitignore`, and puts their own TMDB token in the copy. `index.html` loads
+`config.js` with its own `<script>` tag before `main.js`, so the token is a global
+variable by the time `main.js` runs.
 
-That "plain global, no import" choice is the point. It removes `type="module"`
-from the picture, and with it the dev-server requirement and the `file://` CORS
-warning a `<script type="module">` throws when opened directly, all in the one
-move of keeping `config.js` a non-ESM script. The harness doesn't have to explain
-module loading to explain how to keep a token out of git.
+Keeping `config.js` a plain script avoids `type="module"`. A module script needs a
+dev server and fails with a CORS error when the page is opened directly from the
+file system. With a plain script, the README doesn't have to explain module
+loading in week 1.
 
-This answer is **this assignment's**, not a template. A different module's answer
-to "what does a student create locally and never commit" might be a `.env` file, a
-seeded local database, an API key in a different shape entirely, or nothing at
-all. The config generator has to ask the question fresh each time, not default to
-this one.
+This answer belongs to this assignment. Another module might need a `.env` file,
+a local database, or no local file at all. Ask the question every time.
 
-## 10. Does this exercise require students to edit the normally read-only `.claude/skills/` or `.vscode/` files?
+## 10. Must students edit normally read-only Claude or VS Code files?
 
-No. `writableExceptions` is `[]`. Nothing in this module is *about* writing a
-Claude Code skill or changing editor settings, so the two paths that are locked
-mechanically in every generated repo stay locked here with nothing carved out.
+No. `writableExceptions` is `[]`. The module doesn't teach agent configuration or
+editor settings, so both stay read-only.
 
 ---
 
-One thing the exemplar's README does that no config key expresses, and that every
-generated README should keep doing: it tells the student the rule instead of just
-fencing them in by it.
+The README also does something no config key can. It tells students the rules
+directly:
 
-> Yes, this tells you exactly what you could paste into a browser chat
-> instead. You are being told the rule rather than fenced in by it, because
-> a rule you can read is one you can decide to keep.
+> This list also tells you what you could get from a browser chat instead. That's
+> intentional. The rules are written down, and following them is your choice.
 
-A `neverWritable` path and a gated category stop a *write*. They say nothing to
-the student about why, and they do not have to, because the guard's refusal
-message carries that. But the README is read before any of that fires, and it is
-the one place that can say what is locked, why, and what it would take to get
-around it anyway. That is a deliberate choice about how much respect the
-document extends to the student reading it, and it costs nothing to keep.
+The guard blocks writes, and its refusal messages explain each block. Students
+read the README before any of that happens, so it is the place to say what is
+protected and why. Keep this paragraph in every README.

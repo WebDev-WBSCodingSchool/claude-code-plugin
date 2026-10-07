@@ -24,24 +24,30 @@ Keep these config defaults unless an interview answer changes them:
 - `neverWritable` and `canonical` remain as shipped.
 
 Group projects normally set both `unlockRoute` and `onboarding` to `true`. A solo
-exercise may set either to `false`, but record that as an instructor decision.
+exercise sets `onboarding` to `false`, because there is no group to plan with. Set
+`unlockRoute` to `false` only when the instructor decides that the protected code
+stays with the students for the whole exercise.
 
 ## Write the README
 
-Keep the shared runtime sections from `exercise/runtime/README.md`. Replace every fill
-marker with the approved assignment content. Preserve this order:
+Start from `exercise/runtime/README.md`. Keep its shared paragraphs word for word,
+replace every fill marker with the approved content, and follow its notes for solo
+projects and for `unlockRoute: false`. Keep the template's section order:
 
-1. Title, duration, description, and the put-it-on-GitHub-once instruction.
-2. Requirement table.
-3. Setup limit and local-file instructions.
-4. What students type and where agent help is available.
-5. The existing write, commit, explain, sign-off, and review instructions.
-6. The plan and kickoff decision when onboarding is enabled.
-7. Work splitting guidance when onboarding is enabled.
-8. Running instructions and the read-only explanation.
+1. Title, module name without the module number, duration, description, and
+   variant note.
+2. "How you work". A solo project merges locally, and a Pull Request is optional.
+3. "Requirements", with the task files when `preScaffold` is `true`.
+4. "Setup", with the setup limit and any local file.
+5. "What you write yourself", with the open work.
+6. "Write it, commit it, explain it".
+7. For a group project, "Before any of that: PLAN.md" and "Splitting the work".
+   For a solo project, "Before you write code", only when question 6 named a
+   decision.
+8. "Running it".
 
-Rewrite assessment requirements into concise student-facing rows while keeping
-their IDs. Do not change the source assessment.
+Rewrite each assessment requirement as one or two full sentences and keep its ID.
+Do not change the source assessment.
 
 The instructor reviews the complete README. After approval, record its state:
 

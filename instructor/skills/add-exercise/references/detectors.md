@@ -1,7 +1,7 @@
 # Add a protected-topic detector
 
 A detector recognizes code that students must write themselves. It is a
-conservative floor, not complete plagiarism prevention. A false positive blocks
+minimum check, not complete plagiarism prevention. A false positive blocks
 help that the README promises, so it costs more than a narrow detector.
 
 ## Before writing a pattern
