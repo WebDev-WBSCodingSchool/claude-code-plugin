@@ -1,81 +1,72 @@
 # Event Scheduler
 
-#### Duration: Five days (full time) / ten days (part time)
+Advanced React I: React Router. Group project with a presentation at a
+time your instructor sets. Five days full time, ten days part time.
 
-#### Presentation: Mandatory, at a time set by your instructor
+You build the frontend of an event scheduler. Users browse upcoming events, sign
+up, and sign in. Signed-in users create, edit, and delete events. The data comes
+from the Events API, which you run on your own computer.
 
-#### Format: Group project
+## How you work
 
-This repo is your starting point. **Put it on GitHub once for your group**:
-one of you runs `/onboard`, which walks you through it, and adds the others as
-collaborators. They clone that repo instead of setting the project up again.
-One repo, everyone works in it, and every change merges to `main`
-through a Pull Request.
+1. Run `/onboard`. It puts this repo on GitHub and checks your setup. One of you
+   runs it and adds the others as collaborators. The others clone that repo
+   instead of setting the project up again, and run `/onboard` in their clone.
+   This step is done when all checks pass, except the `PLAN.md` check, which step
+   2 fixes.
+2. Meet as a group and write `PLAN.md` together. This step is done when the
+   `PLAN.md` check passes. Until then, the agent writes no code for anyone in the
+   group. See "Before any of that: PLAN.md" below.
+3. Pick a task and create a branch for it, for example
+   `git switch -c FR011-home-page`.
+4. Write the code, commit it, and explain it to the agent. This step is done when
+   the agent records your sign-off. See "Write it, commit it, explain it" below.
+5. Open a Pull Request. This step is done when it is merged. Then go back to step 3.
 
-## Get started
+## Requirements
 
-There are five stages. Each one names what ends it, since that's the part
-that's easy to lose sight of from the inside.
+| id | requirement |
+| --- | --- |
+| FR003 | The group works in one public repo on GitHub. Every member is a collaborator. |
+| FR004 | You work on task branches and merge every code change into `main` through a Pull Request. |
+| FR005 | You build on the React and Vite starter in this repo. |
+| FR006 | The group agrees on one styling solution at the kickoff and uses it everywhere. |
+| **FR007** | The app's route tree uses React Router in Declarative Mode, including its layouts and outlets. |
+| FR008 | The protected tasks below use React state and effects. |
+| **FR009** | The app stores the authentication token in `localStorage` and reads it from there. |
+| FR010 | The Events API runs locally, preferably at `http://localhost:3001`. |
+| **FR011** | The home page fetches the events and shows them as cards in chronological order. It shows the user when the request fails. |
+| **FR012** | Each event card links to `/events/:id` through React Router. |
+| **FR013** | The details page reads the event id from the route and fetches that event. It shows the user when the request fails. |
+| **FR014** | The sign-up page registers a user and shows whether it worked. After a successful sign-up, it navigates to the sign-in page. |
+| **FR015** | The sign-in page signs a user in and shows whether it worked. After a successful sign-in, it stores the returned token and navigates home. |
+| **FR016** | A protected layout guards the routes that need a signed-in user. It redirects signed-out users to the sign-in page. |
+| **FR017** | A signed-in user can create an event through an authenticated request and sees the result. |
+| FR018 | Every request that needs authentication sends the stored token. |
+| FR019 | Users get clear feedback for API errors, network errors, authentication errors, and missing resources. |
+| FR020 | The interface works on mobile and desktop. |
+| FR021 | You build the frontend and deploy the static output to Render. |
+| **FR022** | A signed-in user can edit an event. The form loads with the event's current data, and after saving, the page shows the updated event. |
+| **FR023** | The details page cancels or ignores stale requests, so fast navigation never shows the wrong event. |
+| **FR024** | The shared header shows the signed-in user, and the layout passes that user to nested pages. |
+| **FR025** | Users can move through every page of events with previous and next buttons. |
+| **FR026** | While an event is being created, the page shows that it is working and disables the submit button. |
+| **FR027** | A signed-in user can delete an event after confirming. Afterwards, the event list no longer shows it. |
+| **FR028** | Unknown URLs and missing events show a Not Found page. |
+| **FR029** | Users can sign out from the shared header. Signing out clears the session and leaves protected pages. |
 
-1. Run `/onboard`, which puts this repo on GitHub, or clone your group's copy
-   if a teammate already did and run `/onboard` there. This
-   ends when the only open item is `PLAN.md`. That's stage 2, and it stays
-   open until you get there. Everything above it should pass.
-2. Meet, and write `PLAN.md` together. This ends when the check passes: every
-   member listed has a task line, and your own git email is one of them. Until
-   then the agent writes no code for anyone in the group. Refer [below](#before-any-of-that-planmd) for more details on PLAN.md
-3. Pick a task, and cut a branch: `git switch -c <task-id>-<short-name>`. This
-   ends when you have a branch for the work instead of committing to `main`.
-4. Write it, commit it, explain it. This ends when the sign-off is recorded,
-   and it tells you what just opened up.
-5. Open a Pull Request. This ends when it is merged. Then return to stage 3
-   with the next task.
+You write the bold tasks yourself. For the others, you can ask the agent for help.
 
-## The requirements
+## Setup
 
-| ID        | Requirement                                                                                                               |
-| --------- | ------------------------------------------------------------------------------------------------------------------------- |
-| FR003     | Work in one public repo on GitHub, and add every teammate as a collaborator.                                               |
-| FR004     | Work on task branches and merge every code change into `main` through a Pull Request.                                     |
-| FR005     | Build on the provided React and Vite starter.                                                                             |
-| FR006     | Agree on one styling solution at kickoff and use it consistently.                                                         |
-| **FR007** | **Configure the app's route tree with React Router in Declarative Mode, including its layouts and outlets.**              |
-| FR008     | Use React state and effects in the protected feature work below.                                                          |
-| **FR009** | **Store and retrieve the authentication token in `localStorage`.**                                                        |
-| FR010     | Run the provided Events API locally, preferably at `http://localhost:3001`.                                               |
-| **FR011** | **Fetch the events for the home page, show failures, and display the results as chronological cards.**                    |
-| **FR012** | **Make each event card navigate to `/events/:id` through React Router.**                                                  |
-| **FR013** | **Read the route ID, fetch that event on the details page, and show failures to the user.**                               |
-| **FR014** | **Register a user, show success or failure, and navigate to Sign-In after success.**                                      |
-| **FR015** | **Sign a user in, show success or failure, store the returned token, and navigate home.**                                 |
-| **FR016** | **Guard authenticated routes with a protected layout and redirect signed-out users to Sign-In.**                          |
-| **FR017** | **Let a signed-in user create an event through an authenticated request and show the result.**                            |
-| FR018     | Attach the stored token to every request that needs authentication.                                                       |
-| FR019     | Give users clear feedback for API, network, authentication, and missing-resource errors.                                  |
-| FR020     | Keep the interface usable on mobile and desktop.                                                                          |
-| FR021     | Build the frontend and deploy the static output to Render.                                                                |
-| **FR022** | **Editing Events: Load an event into a prefilled form, save edits, and show the updated event.**                          |
-| **FR023** | **Fetch: Cancel or ignore stale requests so fast navigation never shows the wrong event details.**                        |
-| **FR024** | **Layout: Show the signed-in user in the shared header and pass that user to nested pages.**                              |
-| **FR025** | **Pagination: Let users move through every page of events with previous and next controls.**                              |
-| **FR026** | **Create Event User Feedback: Show when event creation is in progress and disable submission until it finishes.**         |
-| **FR027** | **Signed in users can delete events: Confirm and delete an event, then return to an event list that no longer shows it.** |
-| **FR028** | **404 page: Show a clear Not Found page for unknown app URLs and missing events.**                                        |
-| **FR029** | **Logout: Let users sign out from the shared header, clear their session, and leave protected pages.**                    |
+- Agree on one styling solution at the kickoff and keep it.
+- Keep the committed versions of Vite and React Router, and stay in React Router
+  Declarative Mode.
+- Run the Events API at `http://localhost:3001` if you can, so every clone works
+  with the same setup.
+- You need Node.js 22.22 or newer.
 
-**Bold = you type this one yourself.** For the others, you may ask the agent to
-help you implement them.
-
-## The setup
-
-- Agree on one styling solution at kickoff, and stick with it.
-- Keep the committed versions of Vite and React Router stable, and stay in
-  React Router Declarative Mode.
-- Keep the Events API at `http://localhost:3001` when practical, so every
-  teammate's clone runs with the same setup.
-- Requires Node.js 22.22 or newer.
-
-Install and run it with:
+Install and start the app with:
 
 ```bash
 npm ci
@@ -83,200 +74,177 @@ npm run dev
 ```
 
 The backend is a separate repository. Clone the
-[Events API](https://github.com/WebDev-WBSCodingSchool/events-api) wherever you
-keep local projects, then follow its README to run it with npm or Docker. You
-can ask an agent for help.
+[Events API](https://github.com/WebDev-WBSCodingSchool/events-api) into the folder
+where you keep your projects, then follow its README to run it with npm or Docker.
+You can ask the agent for help with that.
 
-## What you type, and where the agent can help
+## What you write yourself
 
-You write these yourself, since they are the module topics this project exists
-to practise. Each one stays yours until you have written and explained one
-matching task:
+These are the topics of this module. You write them yourself:
 
 - React state and effects
-- Declarative routing
-- GET, POST, PUT and DELETE requests
-- Request error handling and feedback
-- The complete frontend authentication flow
+- declarative routing
+- GET, POST, PUT, and DELETE requests
+- error handling for requests, and the feedback the user sees
+- the frontend authentication flow
 
-**Everything else you may ask the agent to help implement:**
+The agent won't write any of these for you until you have written one yourself,
+committed it, and explained it.
 
-- Git, branches, Pull Requests and reasonable dependency updates during kickoff
-- Setting up or running the separate Events API with npm or Docker
-- Page and component markup, chronological sorting, and the styling solution your group chose
-- Responsive layout and other UI work that does not write a protected topic for you
-- Render deployment guidance and required redirect files, but not installing hosting CLIs
-- Optional features such as profile editing, once their protected topics have opened
+You can ask the agent to help with everything else:
 
-**The agent waits to be asked.** It will not start building just because a file
-is empty or your plan is finished. This isn't a to-do list it works through on
-its own, so ask it for what you want. Before every code edit, it asks at least
-one question about your requested change and waits for your answer.
+- Git, branches, Pull Requests, and reasonable dependency updates during the
+  kickoff
+- setting up and running the Events API with npm or Docker
+- page and component markup, sorting events by date, and the styling solution
+  your group chose
+- the responsive layout, and other UI work that doesn't touch a protected topic
+- deploying to Render, including the redirect files Render needs, but not
+  installing hosting CLIs
+- optional features such as editing a profile, once their protected topics are
+  open
 
-Yes, this tells you exactly what you could paste into a browser chat instead.
-You're given the rule directly rather than fenced in by it. A rule you can read
-is one you can choose to follow.
+The agent only acts when you ask it to. An empty file or a finished task list
+doesn't count as a request. Before each code change, it asks you at least one
+question about the change and waits for your answer.
+
+This list also tells you what you could get from a browser chat instead. That's
+intentional. The rules are written down, and following them is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written one of the tasks marked in bold above:
+When you have written a bold task:
 
-```
-1. Write it.
-2. Commit it.   git add <your file> && git commit --signoff -m "<task id>: <what it does>"
-3. Explain it.  The agent asks what your commit does, then a few short questions.
-```
+1. Write the code.
+2. Commit it with
+   `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
+3. Explain it. The agent asks what your commit does, then up to three short
+   follow-up questions. A large commit gets more questions, a small one fewer.
 
-**Step 3 is the one worth having.** Explaining code you have just written is
-how you find out whether you understood it, and that's true whether anyone is
-listening or not. Expect one question about what your commit does and up to
-three short follow-ups: more for a big commit, fewer for a small one. Nothing
-is graded and nothing you say is written down. The commit ahead of it in the
-history is already the record of who wrote what.
+Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
 
-**What changes afterwards.** Once you have written and explained one piece of
-a given kind of code, the agent will write that kind with you for the rest of
-the project, including in features that are nowhere in the requirements.
+Once you have written and explained one piece of a kind of code, the agent may
+write that kind of code with you for the rest of the project. That includes
+features beyond the requirements.
 
-Which of the tasks marked in bold you have done is kept in a small file under
-`.claude/harness/progress/`, filed under your git email. The agent writes it
-once you have explained your commit, and you commit it like anything else. Ask
-it where you stand whenever you want to know.
+The agent records each completed task in a file under
+`.claude/harness/progress/`, filed under your git email. Commit that file with your
+work. You can ask the agent at any time which tasks you have completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds one line to the commit message:
+`git commit --signoff` adds this line to the commit message:
 
 ```
 Signed-off-by: Lea Müller <lea.mueller@example.com>
 ```
 
-It means **I wrote this code**. It is an ordinary git trailer and you will meet it
-in real projects. Nothing here checks it, and it is worth doing anyway. Use it on
-all of your own work, not only on the tasks marked in bold.
+The line says that you wrote the code. Many open-source projects require it.
+Nothing in this repo checks it, but use it on all your own commits, not only on the
+bold tasks.
 
-When the agent wrote or helped write something, the commit carries a
-`Co-Authored-By: Claude …` line instead, which it adds itself. Between the two,
-`git log` shows who wrote what, which is more use to all of you than trying to
-remember in week three.
+When the agent wrote a commit or helped with it, the agent adds a
+`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+who wrote what.
 
 ### Reviewing a teammate's code counts
 
-If a teammate wrote one of their tasks, post a real review on their Pull Request
-and answer the agent's questions about their code, and the agent will write that
-kind of code with you too, even after the PR has merged. Tell it which PR; it
-records the same way.
+When a teammate has written one of their bold tasks, you can review their Pull
+Request on GitHub and then answer the agent's questions about their code. After
+that, the agent may write that kind of code with you too, even if the Pull Request
+is already merged. Tell the agent which Pull Request you reviewed.
 
-It is capped: you can never have more reviewed tasks than written ones, so your
-first task is always written by you. Nobody can skip the writing, and everyone
-reads other parts of the project rather than only their own tasks.
+You can never have more reviewed tasks than written ones. So everyone writes their
+first task themselves.
 
-## Before any of that: `PLAN.md`
+## Before any of that: PLAN.md
 
-**The agent writes no code for anyone in the group until `PLAN.md` exists and
-every member listed in it has at least one task.** Meet first, one call with
-one screen shared, and write it together.
+The agent writes no code for anyone in the group until `PLAN.md` exists and every
+member listed in it has at least one task. Meet first, in one call with one shared
+screen, and write it together.
 
-It has two halves:
+`PLAN.md` has two parts. First, describe in your own words what you are building,
+who uses it, and how much of it you will build. Name the parts you leave out on
+purpose. This is where two of you find out that you imagined different amounts of
+work, so write down what you agree on.
 
-- A short restatement **in your own words** of what you are building, who
-  uses it, and how much of it you are actually going to build. Name which
-  parts are in and which you are leaving out on purpose. This is usually
-  where two of you find out you pictured different amounts of work, so write
-  down what you agree on.
-- The split: everyone's **git email** (the address `git config user.email`
-  prints), and each of you again on the task you took.
-
-Before you split the tasks, settle which layout owns the signed-in user and
-token, and what the outlet context exposes to nested pages. The login,
-protected layout, shared header and sign-out work all depend on that contract.
+Second, the split. List every member with their git email, which is the address
+`git config user.email` prints. Then list each task with the name of the person
+who took it:
 
 ```markdown
-## Who's in the group
+## Members
 
 - Jane Student — jane.student@mail.com
 - Mo Ahmadi — mo.ahmadi@mail.com
 
-## The split
+## Tasks
 
 - Login page (T1) — Jane
 - Settings page (T2) — Mo Ahmadi
 ```
 
-That's the whole format. Use a list, a table, or prose, in German or English.
-Each of you has to appear twice: once in the member list with your **git**
-email, and again on the task you took. On the task line your name is enough.
-The address is needed once, because progress is filed under it.
+You can use a list, a table, or prose, in German or English. Each member appears
+twice: once in the member list with their git email, and once on a task. On the
+task line, a name is enough. The agent stores progress under the email, so the
+email has to appear once.
 
-Run `/onboard` and the agent will guide the conversation, point out unassigned
-parts and places where two of you will collide, and check the file. **It will
-not write a word of it.** `PLAN.md` is what the check reads, so an agent that
-could write it would clear its own way.
+Before you split the tasks, decide which layout holds the signed-in user and the
+token, and what the outlet context passes to nested pages. Sign-in, the protected
+layout, the shared header, and sign-out all depend on that decision.
 
-**The check is live.** Edit `PLAN.md` so that someone has no task, and the
-agent stops writing code for everyone until the line is fixed. There is
-nothing to re-run: it reads the file again on the next write. If someone has
-actually left the group, take them off the member list. That's the right
-answer, not a slight.
+Run `/onboard`, and the agent guides the conversation. It points out work nobody
+has taken and places where two of you will edit the same code, and it checks the
+file. It won't write any of `PLAN.md`, because the check reads that file, and an
+agent that wrote it could unlock itself.
 
-A sketch is enough, and it is allowed to change. The question is whether you
-have a plan, never whether it was any good.
+The agent reads `PLAN.md` again before every code change. If you edit it so that a
+member has no task, the agent stops writing code for everyone until you fix it. If
+someone has left the group, remove them from the member list.
+
+A rough plan is enough, and you can change it later.
 
 ## Splitting the work
 
-`PLAN.md` is the snapshot from the kickoff. **From then on your tasks are
-GitHub Issues on your repo.** `/onboard` can create them from your task lines,
-or you can make them by hand. The issues are the live version, and nothing
-syncs them back.
+After the kickoff, your tasks live in GitHub Issues in your group's repo, not in
+`PLAN.md`. `/onboard` can create the issues from your task lines, or you can
+create them by hand. Nothing syncs them back to `PLAN.md`.
 
-Write them yourselves either way. The agent will not give you a breakdown.
-Once you have a draft, it will tell you if:
+Write the issues yourselves. The agent won't break the work down for you. Once you
+have a draft, it tells you if one person has much more work than the others, if a
+task waits on two other people, or if two of you are about to edit the same
+function.
 
-- the load looks lopsided
-- something is blocked on two other people
-- two of you are about to edit the same function
+Several tasks share `src/App.jsx`, `src/layouts/MainLayout.jsx`,
+`src/pages/HomePage.jsx`, `src/pages/EventDetailsPage.jsx`, and
+`src/pages/CreateEventPage.jsx`. Give each of these files one owner, or agree on
+the order of the changes. Resolve merge conflicts together.
 
-That last one will happen. Keep tasks that share `src/App.jsx`,
-`src/layouts/MainLayout.jsx`, `src/pages/HomePage.jsx`,
-`src/pages/EventDetailsPage.jsx` or `src/pages/CreateEventPage.jsx` with one
-owner, or sequence those changes deliberately. Resolve conflicts together;
-that's the point.
-
-Ask for help if you are stuck for more than 30 minutes. Use the daily
-stand-ups.
+Ask for help if you are stuck for more than 30 minutes. Use the daily stand-ups.
 
 ## Running it
 
-- Open **this folder** in VS Code and start Claude Code from the repo root.
-  Starting it from a subfolder silently drops this folder's settings, which
-  mostly means the agent starts writing code it should be helping you write.
-- Your progress is filed under your git email, so set it once and use the
-  same one on every machine you work from. Otherwise the work you did in the
-  lab and the work you did at home end up in two separate records, and
-  neither counts for the other.
-- **If you want the agent to talk differently**, with simpler language,
-  shorter answers, or more or less detail, say so, and ask it to save that as
-  a personal skill in `~/.claude/skills/`. It travels with you to the next
-  project, so you only have to ask once. It changes how the agent talks, not
-  which code you must write yourself.
-- Inline suggestions (Copilot-style ghost text) are turned off for this
-  folder in `.vscode/settings.json`. That file is read-only, and the agent
-  cannot write to it. Otherwise it could restore ghost text in a single edit,
-  and ghost text is the one form of help that arrives without being asked.
+Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
+Code loads this repo's settings only from the root folder. Without them, the agent
+may write code that you are supposed to write.
 
-**This file is read-only too**, along with `CLAUDE.md`. This page is the
-requirements: it tells the agent which code you must write and where it may
-help after you ask, so it is not a page the agent gets to reword. `PLAN.md` is
-read-only to the agent as well, for a different reason: it is yours, and it is
-what the check reads. Your own writing about your project goes in files you
-make, whether that's `PLAN.md`, your Issues, or anything else you want.
+Use the same git email on every computer. The agent stores your progress under that
+email, and work you do under a second email won't count.
 
-If you think a requirement is wrong or unclear, say so to your instructor.
-That's a conversation, not a diff.
+To change how the agent talks to you, for example with simpler language or shorter
+answers, tell it, and ask it to save that as a personal skill in
+`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
+change which code you write yourself.
 
-None of these locks is a cage, and you should know that up front. Read-only
-here means VS Code rejects typing in those buffers, there is a setting to
-change that, and you can use other editors. But none of it can happen
-quietly. Every file named above is committed, so any change lands in your PR
-with your name on it. That's the mechanism: not "you cannot", but "it is
-visible".
+Some files in this repo are read-only for you and the agent:
+
+- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
+  like Copilot show while you type. Those suggestions write code without you
+  asking for it.
+- `README.md` and `CLAUDE.md` say which code you write yourself and where the
+  agent may help. The agent must not change them.
+- `PLAN.md` belongs to your group, and the `PLAN.md` check reads it.
+
+If you think a requirement is wrong or unclear, talk to your instructor.
+
+You can get around these locks, but they are here to help you to learn.

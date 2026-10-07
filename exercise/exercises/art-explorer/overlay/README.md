@@ -1,200 +1,164 @@
-# Art Institute Explorer — 023 TypeScript II
+# Art Institute Explorer
 
-Two days (full time) / five days (part time). Solo project, mandatory
-presentation at the end.
+TypeScript II. Solo project with a presentation at the end. Two days
+full time, five days part time.
 
-This repo is your starting point. **Put it on GitHub as your own repo**, and
-`/onboard` walks you through that. Every change merges to `main` through a Pull
-Request.
+You build a search for the collection of the Art Institute of Chicago. The user
+searches for artworks, saves them to a gallery that survives a reload, and adds a
+note to each saved artwork. Every piece of data from the API goes through a Zod
+schema before the app uses it.
 
-## Where you are
+## How you work
 
-Four stages. Each stage names what ends it, which is the part easy to lose sight
-of from the inside.
+1. Run `/onboard`. It puts this repo on GitHub and checks your setup. This step is
+   done when all checks pass.
+2. Pick a task and create a branch for it, for example
+   `git switch -c FR003-artwork-schema`.
+3. Write the code, commit it, and explain it to the agent. This step is done when
+   the agent records your sign-off. See "Write it, commit it, explain it" below.
+4. Merge the branch into `main` and push it:
 
-1. **Run `/onboard`, which puts this repo on GitHub.** Ends
-   when the setup checks pass and you have answered the two questions in
-   "Before you write code" below.
-2. **Pick a task, cut a branch.** `git switch -c <task-id>-<short-name>`. Ends
-   when you have a branch for the work instead of committing to `main`.
-3. **Write it, commit it, explain it.** Ends when the sign-off is recorded. It
-   tells you what just opened up.
-4. **Open a Pull Request.** Ends when it is merged. Then return to stage 2 with
-   the next task.
+   ```
+   git switch main
+   git merge FR003-artwork-schema
+   git push
+   ```
 
-## The requirements
+   You work alone, so you don't need a Pull Request. Open one anyway if you want to
+   read the diff on GitHub before you merge. Then go back to step 2.
 
-| id | what it asks for |
+## Requirements
+
+| id | requirement |
 | --- | --- |
-| FR001 | React and Vite in TypeScript. Already scaffolded in this repo, see "The setup". |
-| FR002 | Add Zod. It is deliberately missing from `package.json`. |
-| **FR003** | `ArtworkSchema`, with id, title, artist and image at least, and sensible defaults where the API leaves a field out. |
-| **FR004** | A helper that queries the Art Institute's search endpoint and validates what comes back. Bad data gets handled, not passed on. |
-| FR005 | A search interface: type a query, get results. |
-| **FR006** | `ArtworkCard`, showing one artwork's image, title and artist. Both the results and the gallery use it. |
-| **FR007** | `Gallery`, showing the artworks that have been saved. |
-| FR008 | Add to Gallery: a saved artwork survives a reload, in `localStorage`. |
-| FR009 | The gallery shows every saved artwork, through `ArtworkCard`. |
-| **FR010** | A short note per saved artwork, added and edited by the user, validated by its own small schema. |
-| FR011 | Delete an artwork, and its note with it. |
-| **FR012** | Types threaded through components and state, taken from the schemas rather than written a second time. |
+| FR001 | The project uses React and Vite with TypeScript. This repo already has that setup, see "Setup". |
+| FR002 | Add Zod to the project. It is missing from `package.json` on purpose. |
+| **FR003** | `ArtworkSchema` describes an artwork with at least its id, title, artist, and image. It sets defaults for fields the API leaves out. |
+| **FR004** | A helper function queries the Art Institute's search endpoint and validates the response. It handles bad data instead of passing it on. |
+| FR005 | A search interface lets the user type a query and see the results. |
+| **FR006** | `ArtworkCard` shows one artwork's image, title, and artist. The search results and the gallery both use it. |
+| **FR007** | `Gallery` shows the saved artworks. |
+| FR008 | "Add to Gallery" saves an artwork to `localStorage`, so it survives a reload. |
+| FR009 | The gallery shows every saved artwork through `ArtworkCard`. |
+| **FR010** | The user can add and edit a short note for each saved artwork. A small schema of its own validates the note. |
+| FR011 | The user can delete a saved artwork, which also deletes its note. |
+| **FR012** | Components and state use types derived from the schemas. You don't write those types a second time by hand. |
 
-**Bold = you type this one yourself.** For the others, you may ask the agent to
-help you implement them.
+You write the bold tasks yourself. For the others, you can ask the agent for help.
 
-## The setup
+## Setup
 
-This project is React, TypeScript, Zod and Vite, and that is the whole toolchain.
-The reason to keep it there is the clock: you have two days, and an hour spent
-wiring up a fourth library is an hour not spent on the typing and the validation
-this module exists to teach.
+The project uses React, TypeScript, Zod, and Vite. You don't need any other
+libraries.
 
-**FR001 is already done for you.** This repo is what the `react-ts` template of
-`npm create vite@latest` produces, meaning Vite 8, React 19, TypeScript 6 and
-oxlint. It arrives that way because that command refuses to run in a folder that
-already has files in it, and this one arrives with a harness in it. Run `npm
-install`, then `npm run dev`, and the app is on localhost. Read `package.json`,
-`vite.config.ts` and `tsconfig.app.json` once before you start: you are expected to
-know what is in the project you are working in.
+FR001 is already done. This repo is the output of `npm create vite@latest` with the
+`react-ts` template: Vite 8, React 19, TypeScript 6, and oxlint. The repo ships
+that way because `npm create vite` refuses to run in a folder that already
+contains files, and this folder contains the course files. Run `npm install`, then
+`npm run dev`. Read `package.json`, `vite.config.ts`, and `tsconfig.app.json`
+before you start.
 
-**FR002 is not done for you.** Zod is missing from `package.json` on purpose. `npm
-install zod` is yours to run, and it is the first thing you will need.
+FR002 is not done. Zod is missing from `package.json` on purpose. Install it
+yourself with `npm install zod`. You need it before any other task.
 
-Nothing here needs an API key. The Art Institute's API is open, with no token, no
-header and no account, so there is no credential to keep out of this repo. Read
-their docs at <https://api.artic.edu/docs/> before you write your first URL,
-particularly the part about which fields come back by default and which you have to
-ask for.
+The Art Institute's API needs no API key, no header, and no account, so you don't
+need a `.env` file. Read the API docs at <https://api.artic.edu/docs/> before you
+write your first URL. They explain which fields the API returns by default and
+which ones you have to request.
 
-## What you type, and where the agent can help
+## What you write yourself
 
-Two topics, and they are why this module exists: **typing a React app** and
-**runtime validation**. Every type annotation in this project is yours: the props a
-component takes, the shape of your state, what a helper returns, the type that
-comes out of a schema. So is every schema: the object, its fields, its defaults,
-and the parse that runs data through it. The agent will not write either of those
-for you until you have written that kind of code yourself and explained it.
+You write two kinds of code yourself:
 
-What that leaves the agent is most of the code and none of the types. It can write
-a whole component in JSX with nothing annotated, and you thread the types through
-it afterwards. That is an odd way to write TypeScript and it is deliberate: the
-annotation is the part that is hard to get right, and it is the part you will be
-asked about in the presentation.
+- type annotations: the props a component takes, the shape of your state, what a
+  helper returns, and the type you derive from a schema
+- schemas: the object, its fields, its defaults, and the parse call that runs data
+  through it
 
-**Everything else you may ask the agent to help implement:**
+The agent won't write any of these for you until you have written one yourself,
+committed it, and explained it.
 
-- All JSX and all styling: the search form, the card markup, the gallery layout,
-  the CSS.
-- The fetch call itself: building the URL, calling it, handling the failure.
-- Reading and writing `localStorage`, and the add and delete plumbing around it.
-- State wiring and effects, as long as nothing in them is annotated.
-- Anything past the twelve requirements: extra features, polish, ideas of your own.
-- Explaining an error, reading the API docs with you, and working out why a parse
-  you wrote is throwing.
+This means the agent can write a whole component in JSX without any annotations,
+and you add the types afterwards. That's an unusual way to write TypeScript, and
+it's on purpose. The annotations are the hard part, and you will be asked about
+them in the presentation.
 
-**The agent waits to be asked.** It will not start building because a file is empty
-or because your plan is finished. None of this is a to-do list it works through on
-its own. Ask it for what you want. Before every code edit, it asks at least one
-question about your requested change and waits for your answer.
+You can ask the agent to help with everything else:
 
-Yes, this tells you exactly what you could paste into a browser chat instead. You
-are given the rule directly rather than fenced in by it. A rule you can read is
-one you can choose to follow.
+- all JSX and all styling: the search form, the card markup, the gallery layout,
+  and the CSS
+- the fetch call: building the URL, calling it, and handling a failed request
+- reading and writing `localStorage`, and the code that adds and deletes artworks
+- state and effects, as long as they contain no type annotations
+- features beyond the twelve requirements
+- explaining errors, reading the API docs with you, and finding out why one of your
+  schemas throws
+
+The agent only acts when you ask it to. An empty file or a finished task list
+doesn't count as a request. Before each code change, it asks you at least one
+question about the change and waits for your answer.
+
+This list also tells you what you could get from a browser chat instead. That's
+intentional. The rules are written down, and following them is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written one of the tasks marked in bold above:
+When you have written a bold task:
 
-```
-1. Write it.
-2. Commit it.   git add <your file> && git commit --signoff -m "<task id>: <what it does>"
-3. Explain it.  The agent asks what your commit does, then a few short questions.
-```
+1. Write the code.
+2. Commit it with
+   `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
+3. Explain it. The agent asks what your commit does, then up to three short
+   follow-up questions. A large commit gets more questions, a small one fewer.
 
-**Step 3 is the one worth having.** Explaining code you have just written is how
-you find out whether you understood it, and it works the same whether anyone is
-listening or not. Expect one question about what your commit does and up to three
-short follow-ups: more for a big commit, fewer for a small one. Nothing is graded
-and nothing you say is written down. The commit ahead of it in the history is
-already the record of who wrote what.
+Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
 
-**What changes afterwards.** Once you have written and explained one piece of a
-given kind of code, the agent will write that kind with you for the rest of the
-project, including in features that are nowhere in the requirements.
+Once you have written and explained one piece of a kind of code, the agent may
+write that kind of code with you for the rest of the project. That includes
+features beyond the requirements.
 
-Which of the tasks marked in bold you have done is kept in a small file under
-`.claude/harness/progress/`, filed under your git email. The agent writes it once
-you have explained your commit; you commit it like anything else. Ask it where you
-stand whenever you want to know.
+The agent records each completed task in a file under
+`.claude/harness/progress/`, filed under your git email. Commit that file with your
+work. You can ask the agent at any time which tasks you have completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds one line to the commit message:
+`git commit --signoff` adds this line to the commit message:
 
 ```
 Signed-off-by: Lea Müller <lea.mueller@example.com>
 ```
 
-It means **I wrote this code**. It is an ordinary git trailer and you will meet it
-in real projects. Nothing here checks it, and it is worth doing anyway. Use it on
-all of your own work, not only on the tasks marked in bold.
+The line says that you wrote the code. Many open-source projects require it.
+Nothing in this repo checks it, but use it on all your own commits, not only on the
+bold tasks.
 
-When the agent wrote or helped write something, the commit carries a
-`Co-Authored-By: Claude …` line instead, which it adds itself. Between the two,
-`git log` shows who wrote what, which is more use to you than trying to remember in
-week three.
-
-## Before you write code
-
-Two questions. They cost five minutes each and they are the two this project
-punishes you for answering late.
-
-**How much of this are you actually going to build?** Twelve requirements, two
-days. Decide now which parts are in, which are stretch, and which you are leaving
-out on purpose, then write that down somewhere you will still see it on day two.
-
-**What is a saved artwork, once it is in `localStorage`?** The whole object the API
-sent, or four fields you picked out of it? And does what comes back out get
-validated on the way in, or do you trust it because you were the one who wrote it?
-FR008 stores it, FR009 reads it, FR010 hangs a note off it and FR012 wants a single
-type describing it. Answer this once, before the first thing is saved, and those
-four stop arguing with each other.
-
-Run `/onboard` and the agent will put both to you and check the rest of your setup.
-It will not answer either of them for you.
+When the agent wrote a commit or helped with it, the agent adds a
+`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+who wrote what.
 
 ## Running it
 
-Open **this folder** in VS Code and start Claude Code from the repo root. Starting
-it from a subfolder silently drops this folder's settings, which mostly means the
-agent starts writing code it should be helping you write.
+Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
+Code loads this repo's settings only from the root folder. Without them, the agent
+may write code that you are supposed to write.
 
-Your progress is filed under your git email, so set it once and use the same one on
-every machine you work from. Otherwise the work you did in the lab and the work you
-did at home end up in two separate records, and neither counts for the other.
+Use the same git email on every computer. The agent stores your progress under that
+email, and work you do under a second email won't count.
 
-**If you want the agent to talk differently**, with simpler language, shorter
-answers, or more or less detail, say so, and ask it to save that as a personal
-skill in `~/.claude/skills/`. It travels with you to the next project, so you only
-have to ask once. It changes how the agent talks, not which code you must write
-yourself.
+To change how the agent talks to you, for example with simpler language or shorter
+answers, tell it, and ask it to save that as a personal skill in
+`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
+change which code you write yourself.
 
-Inline suggestions (Copilot-style ghost text) are turned off for this folder in
-`.vscode/settings.json`. That file is read-only, and the agent cannot write to it.
-Otherwise it could restore ghost text in a single edit, and ghost text is the one
-form of help that arrives without being asked.
+Some files in this repo are read-only for you and the agent:
 
-**This file is read-only too**, along with `CLAUDE.md`. This page is the
-requirements: it tells the agent which code you must write and where it may help
-after you ask, so it is not a page the agent gets to reword. Your own writing
-about your project goes in files you make, whether that is your notes, your
-Issues, or anything else you want.
+- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
+  like Copilot show while you type. Those suggestions write code without you
+  asking for it.
+- `README.md` and `CLAUDE.md` say which code you write yourself and where the
+  agent may help. The agent must not change them.
 
-If you think a requirement is wrong or unclear, say so to your instructor. That is
-a conversation, not a diff.
+If you think a requirement is wrong or unclear, talk to your instructor.
 
-None of these locks is a cage, and you should know that up front. Read-only here
-means VS Code rejects typing in those buffers, there is a setting to change that,
-and you can use other editors. But none of it can happen quietly. Every file
-named above is committed, so any change lands in your PR with your name on it.
-That is the mechanism: not "you cannot", but "it is visible".
+You can get around these locks, but they are here to help you to learn.

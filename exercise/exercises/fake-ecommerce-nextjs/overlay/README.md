@@ -1,6 +1,6 @@
 # Fake eCommerce Site
 
-Module 021, Advanced React II: Next.js. Solo project, two days.
+Advanced React II: Next.js. Solo project, two days.
 
 You built this shop before as a React single-page app. Now you build it again with
 Next.js and the App Router. The pages are the same. What changes is where the code
@@ -148,9 +148,7 @@ When you have written a bold task:
 3. Explain it. The agent asks what your commit does, then up to three short
    follow-up questions. A large commit gets more questions, a small one fewer.
 
-Explaining your own code shows you whether you understood it. Nobody grades your
-answers, and nothing you say is saved. The commit already records that you wrote
-the code.
+Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
 
 Once you have written and explained one piece of a kind of code, the agent may
 write that kind of code with you for the rest of the project. That includes
@@ -168,7 +166,7 @@ work. You can ask the agent at any time which tasks you have completed.
 Signed-off-by: Lea Müller <lea.mueller@example.com>
 ```
 
-The line says that you wrote the code. The Linux kernel and many other open-source projects require it.
+The line says that you wrote the code. Many open-source projects require it.
 Nothing in this repo checks it, but use it on all your own commits, not only on the
 bold tasks.
 
@@ -200,6 +198,4 @@ Some files in this repo are read-only for you and the agent:
 
 If you think a requirement is wrong or unclear, talk to your instructor.
 
-You can get around these locks. VS Code has a setting for it, and other editors
-ignore it. All of these files are committed, though, so any change to them shows
-up in the git history under your name.
+You can get around these locks, but they are here to help you to learn.
