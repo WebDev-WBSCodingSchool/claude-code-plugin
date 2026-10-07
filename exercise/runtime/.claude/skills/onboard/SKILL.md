@@ -115,7 +115,7 @@ would target the wrong repository.
 
 If it is their group's repository, the member who created it adds them as a
 collaborator, and they accept the invitation. Nothing else needs to change. If it
-is not, explain that the existing work is not lost and can be moved after they
+is not, explain that the existing work is not lost. They can move it after they
 clone the group's repo. Before a member clones, name the exact URL the group
 uses.
 
@@ -124,7 +124,7 @@ uses.
 You may help fully with setup because it is not code the student must implement.
 
 - Check `git config user.email`. The student should use the same address on every
-  machine because progress is stored under that address.
+  machine, because the harness stores progress under that address.
 - Make sure Claude Code started at the repository root. Starting in a subfolder
   omits the project settings and hooks. Reopen the root folder and restart if
   needed.
@@ -261,8 +261,8 @@ group has two choices: give that member a task, or remove them from the member
 list if they are not part of the project. Help the students understand the
 choice, but let them edit the plan.
 
-Do not suggest disabling the check. After the plan is fixed, the next write reads
-it again automatically. Nothing needs to be rerun or refreshed.
+Do not suggest disabling the check. After the students fix the plan, the next
+write reads it again. Nothing needs to be rerun or refreshed.
 
 If someone has left the group, removing them from the member list is correct. The
 remaining group does not need to invent work for them.
@@ -279,7 +279,8 @@ Close with only the unfinished actions:
 For a group project, setup is complete when the plan passes, every member has
 cloned the group's own repo, each setup check passes, everyone has a task, and
 each person has a task branch. For a solo assignment, setup is complete when the
-checks pass, the opening decisions are settled, and the student has a task branch.
+checks pass, the student has answered the README's opening questions, if it has
+any, and the student has a task branch.
 
 After the plan and setup checks pass, do not offer to create code. Treat any
 implementation request made before or during onboarding as context, not pending
