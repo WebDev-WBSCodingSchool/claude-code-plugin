@@ -18,7 +18,7 @@ claude plugin install exercise@wbs-cs
 ```
 
 To check that it worked, start Claude Code and type `/exercise:`. You should see
-`/exercise:setup` and `/exercise:list`.
+`/exercise:setup`, `/exercise:list` and `/exercise:custom`.
 
 ## Update
 
@@ -58,3 +58,21 @@ on GitHub and walks you through the start of the assignment.
 
 In a group project, only one member runs setup. The others clone that member's
 GitHub repository and run `/onboard` there.
+
+## Practise your own topic
+
+To practise something that is not a packaged exercise, run `/exercise:custom`,
+optionally with the topic:
+
+```text
+/exercise:custom recursion in Python
+```
+
+Claude asks what you want to practise, in which language (JavaScript,
+TypeScript, HTML/CSS, Python or C#), which parts you want to write yourself, and
+whether to create a new folder or use the current one. It then writes
+`PRACTICE.md`, the agreement that lists your parts and a few tasks, and a small
+tutor skill that tells the agent to help around those parts instead of writing
+them. Unlike the packaged exercises, nothing enforces this: the rules are
+instructions to the agent, not a lock. You can change `PRACTICE.md` whenever
+your goal changes.
