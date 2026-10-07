@@ -9,6 +9,11 @@
       "name": "exercise",
       "source": "./",
       "description": "Set up WBS Coding School assignments as self-contained projects with their task harness."
+    },
+    {
+      "name": "instructor",
+      "source": "./instructor",
+      "description": "Author WBS Coding School exercises from a checkout of the plugin repository."
     }
   ]
 }

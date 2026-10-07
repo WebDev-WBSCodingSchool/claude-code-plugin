@@ -1,5 +1,5 @@
 ---
-name: add
+name: add-exercise
 description: Add a pre-AI project assessment to the WBS harness plugin through the instructor interview. Use when an instructor wants to turn an assessment Markdown file into a new packaged exercise.
 argument-hint: "<path-to-assessment.md>"
 disable-model-invocation: true
@@ -13,16 +13,17 @@ that repository as one new exercise in the plugin source checkout.
 ## Preflight
 
 This skill is public, but authoring requires the plugin's Git repository. Treat
-the current working tree as the write target. Use `${CLAUDE_PLUGIN_ROOT}` only to
-read this skill and run its scripts.
+the current working tree as the write target and run every script from it as
+`<plugin-source-root>/scripts/`. Use `${CLAUDE_PLUGIN_ROOT}` only to read this
+skill.
 
 Before the interview:
 
 1. Resolve the current Git root with `git rev-parse --show-toplevel`.
 2. Confirm that its `.claude-plugin/plugin.json` names
    `exercise`.
-3. Confirm that its plugin version equals the version under
-   `${CLAUDE_PLUGIN_ROOT}`.
+3. Confirm that the version in its `instructor/.claude-plugin/plugin.json`
+   equals the version in `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`.
 4. Require an empty `git status --porcelain`. If it is not empty, stop and name
    the changed paths. Do not stash or commit them.
 5. Confirm that `$ARGUMENTS` points to a readable Markdown file. Read it without
@@ -30,7 +31,7 @@ Before the interview:
 
 An installed plugin cache is not an authoring repository. If the current Git
 root fails these checks, explain that the instructor must open the plugin source
-checkout and run Claude Code there with `claude --plugin-dir .`.
+checkout and run Claude Code there with `claude --plugin-dir instructor`.
 
 ## Interview
 
@@ -61,7 +62,7 @@ requires a clean plugin worktree.
 The final packaging command is:
 
 ```sh
-node "${CLAUDE_PLUGIN_ROOT}/scripts/pack-exercise.mjs" \
+node "<plugin-source-root>/scripts/pack-exercise.mjs" \
   "<plugin-source-root>" "<review-starter-root>" "<exercise-id>"
 ```
 

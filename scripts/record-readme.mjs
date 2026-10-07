@@ -6,9 +6,9 @@ import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from
 import { dirname, join, resolve } from "node:path";
 
 const policyFiles = [
-  "skills/add/SKILL.md",
-  "skills/add/references/interview.md",
-  "skills/add/references/authoring.md",
+  "instructor/skills/add-exercise/SKILL.md",
+  "instructor/skills/add-exercise/references/interview.md",
+  "instructor/skills/add-exercise/references/authoring.md",
   "runtime/README.md",
 ];
 

@@ -85,7 +85,7 @@ try {
     .filter((name) => name !== ".git" && name !== ".in_use")
     .sort();
   assert.deepEqual(shipped, [
-    ".claude-plugin", ".github", "CONTRIBUTING.md", "README.md", "exercises", "runtime", "scripts", "skills", "test",
+    ".claude-plugin", ".github", "CONTRIBUTING.md", "README.md", "exercises", "instructor", "runtime", "scripts", "skills", "test",
   ]);
   const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
   assert.deepEqual(Object.keys(manifest).sort(), ["author", "description", "name", "version"]);

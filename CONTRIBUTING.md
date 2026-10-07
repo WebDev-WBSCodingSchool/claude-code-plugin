@@ -5,28 +5,30 @@ This guide is for instructors and maintainers. Students only need the
 
 ## Get started
 
-Instructor commands change this repository, so they run from a clone of it,
-never from the copy Claude Code installed. Clone the repository, make sure the
-working tree is clean, and start Claude Code with the plugin loaded from the
-checkout:
+Instructor commands live in a separate `instructor` plugin in the `instructor/`
+folder, so students who install `exercise@wbs-cs` never see them. They change
+this repository, so they run from a clone of it, never from the copy Claude Code
+installed. Clone the repository, make sure the working tree is clean, and start
+Claude Code with the instructor plugin loaded from the checkout:
 
 ```sh
 git clone https://github.com/WebDev-WBSCodingSchool/claude-code-plugin.git
 cd claude-code-plugin
-claude --plugin-dir .
+claude --plugin-dir instructor
 ```
 
-For that session, `--plugin-dir .` replaces an installed `exercise@wbs-cs`, so
-you can keep the installed copy.
+For that session, `--plugin-dir instructor` replaces an installed
+`instructor@wbs-cs`, so you can keep the installed copy. Name new instructor
+commands as a verb and the thing they act on, like `add-exercise`.
 
 ## Commands
 
-### `/exercise:add`
+### `/instructor:add-exercise`
 
 Turns a project assessment into a new exercise.
 
 ```text
-/exercise:add /path/to/assessment.md
+/instructor:add-exercise /path/to/assessment.md
 ```
 
 You need the assessment as a Markdown file and a clean working tree. The command
@@ -90,6 +92,7 @@ node test/setup.test.mjs
 node test/detectors.test.mjs
 node test/pack-exercise.test.mjs
 claude plugin validate --strict .
+claude plugin validate --strict instructor
 ```
 
 ## Release
@@ -97,5 +100,6 @@ claude plugin validate --strict .
 Students install from the `stable` branch, so nothing merged to `main` reaches
 them until a release. To release, open **Actions → Release → Run workflow** on
 `main` and choose `patch`, `minor`, or `major`. The workflow runs the tests,
-bumps `version` in `.claude-plugin/plugin.json`, tags the commit, and moves
+bumps `version` in both `.claude-plugin/plugin.json` and
+`instructor/.claude-plugin/plugin.json`, tags the commit, and moves
 `stable` to it. Installed copies only update when that version changes.

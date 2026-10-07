@@ -46,7 +46,7 @@ their IDs. Do not change the source assessment.
 The instructor reviews the complete README. After approval, record its state:
 
 ```sh
-node "${CLAUDE_PLUGIN_ROOT}/scripts/record-readme.mjs" \
+node "<plugin-source-root>/scripts/record-readme.mjs" \
   "<plugin-source-root>" "<review-starter-root>"
 ```
 
@@ -55,7 +55,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/record-readme.mjs" \
 Run:
 
 ```sh
-node "${CLAUDE_PLUGIN_ROOT}/scripts/verify.mjs" "<review-starter-root>"
+node "<plugin-source-root>/scripts/verify.mjs" "<review-starter-root>"
 ```
 
 It must print `no problems`. Then initialize a local Git repository, configure

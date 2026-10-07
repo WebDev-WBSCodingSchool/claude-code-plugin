@@ -1,4 +1,4 @@
-# Cuts a release: runs the tests, bumps the version in plugin.json, tags it, and
+# Cuts a release: runs the tests, bumps the version in both plugin.json files, tags it, and
 # moves `stable` to it. Students install from `stable`, so nothing merged to main
 # reaches them until this runs. Installed copies only update when the version
 # string changes, which is why the bump and the branch move happen together.
@@ -41,16 +41,22 @@ jobs:
         run: |
           node --input-type=module -e '
             import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
-            const path = ".claude-plugin/plugin.json";
-            const plugin = JSON.parse(readFileSync(path, "utf8"));
+            // Both plugins share one version, so /instructor:add-exercise can
+            // check that it matches the checkout it writes into.
+            const paths = [".claude-plugin/plugin.json", "instructor/.claude-plugin/plugin.json"];
+            const plugin = JSON.parse(readFileSync(paths[0], "utf8"));
             const parts = plugin.version.split(".").map(Number);
             if (parts.length !== 3 || parts.some(Number.isNaN)) throw new Error(`not x.y.z: ${plugin.version}`);
             const i = ["major", "minor", "patch"].indexOf(process.argv[1]);
             parts[i] += 1;
             parts.fill(0, i + 1);
-            plugin.version = parts.join(".");
-            writeFileSync(path, `${JSON.stringify(plugin, null, 2)}\n`);
-            appendFileSync(process.env.GITHUB_OUTPUT, `version=${plugin.version}\n`);
+            const version = parts.join(".");
+            for (const path of paths) {
+              const manifest = JSON.parse(readFileSync(path, "utf8"));
+              manifest.version = version;
+              writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
+            }
+            appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\n`);
           ' "${{ inputs.bump }}"
 
       - name: Commit, tag, and publish to stable
