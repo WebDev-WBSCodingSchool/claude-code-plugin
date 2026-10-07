@@ -3,13 +3,38 @@
 This guide is for instructors and maintainers. Students only need the
 [README](README.md).
 
-## Get started
+## Install
 
 Instructor commands live in a separate `instructor` plugin in the `instructor/`
-folder, so students who install `exercise@wbs-cs` never see them. They change
-this repository, so they run from a clone of it, never from the copy Claude Code
-installed. Clone the repository, make sure the working tree is clean, and start
-Claude Code with the instructor plugin loaded from the checkout:
+folder, so students who install `exercise@wbs-cs` never see them. Run these two
+commands once, in a terminal:
+
+```sh
+claude plugin marketplace add "WebDev-WBSCodingSchool/claude-code-plugin#stable"
+claude plugin install instructor@wbs-cs
+```
+
+If you already added the marketplace for `exercise@wbs-cs`, skip the first
+command. To check that it worked, start Claude Code and type `/instructor:`.
+
+## Update
+
+Auto-update is set per marketplace, so if you enabled it for `wbs-cs`, the
+instructor plugin updates along with `exercise`. To update by hand instead:
+
+```sh
+claude plugin marketplace update wbs-cs
+claude plugin update instructor@wbs-cs
+```
+
+Restart Claude Code afterwards.
+
+## Commands that change this repository
+
+Some commands, such as `/instructor:add-exercise`, write into this repository.
+They run from a clone of it, never from the copy Claude Code installed. Clone the
+repository, make sure the working tree is clean, and start Claude Code with the
+instructor plugin loaded from the checkout:
 
 ```sh
 git clone https://github.com/WebDev-WBSCodingSchool/claude-code-plugin.git
@@ -18,8 +43,12 @@ claude --plugin-dir instructor
 ```
 
 For that session, `--plugin-dir instructor` replaces an installed
-`instructor@wbs-cs`, so you can keep the installed copy. Name new instructor
-commands as a verb and the thing they act on, like `add-exercise`.
+`instructor@wbs-cs`, so you can keep the installed copy. Loading it from the
+checkout also guarantees that the command's instructions match the scripts and
+files it writes to.
+
+Name new instructor commands as a verb and the thing they act on, like
+`add-exercise`.
 
 ## Commands
 
