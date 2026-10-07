@@ -1,6 +1,6 @@
 # <FILL: project name>
 
-<FILL: module and duration, one line. "Module 021, Advanced React II: Next.js.
+<FILL: module name and duration, one line, without the module number, which differs between courses. "Advanced React II: Next.js.
 Solo project, two days." or "Five days full time, ten days part time. Group
 project with a presentation at the end.">
 
