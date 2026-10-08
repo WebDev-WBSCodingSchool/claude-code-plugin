@@ -18,7 +18,8 @@ claude plugin install exercise@wbs-cs
 ```
 
 To check that it worked, start Claude Code and type `/exercise:`. You should see
-`/exercise:setup`, `/exercise:list` and `/exercise:custom`.
+`/exercise:setup`, `/exercise:list`, `/exercise:custom` and
+`/exercise:lms-chrome`.
 
 ## Update
 
@@ -76,6 +77,28 @@ tutor skill that tells the agent to help around those parts instead of writing
 them. Unlike the packaged exercises, nothing enforces this: the rules are
 instructions to the agent, not a lock. You can change `PRACTICE.md` whenever
 your goal changes.
+
+## Work with an LMS lesson
+
+`/exercise:lms-chrome` reads a lesson from the WBS LMS in your own browser. You
+can then ask questions about it, or turn its exercise, or a new one on the same
+topic, into a practice project like `/exercise:custom` does.
+
+It needs Claude in Chrome, which lets Claude Code use your browser and your LMS
+login. You need Google Chrome or Microsoft Edge and a paid Claude plan (Pro,
+Max, Team or Enterprise). Set it up once:
+
+1. Install the [Claude extension](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn)
+   and sign in with your Claude account.
+2. Log in to the LMS in the same browser.
+3. Start Claude Code with `claude --chrome`, or run `/chrome` in a running
+   session and enable it.
+
+Then pass the link of the lesson page:
+
+```text
+/exercise:lms-chrome https://learn.wbscodingschool.com/courses/.../topic/...
+```
 
 ## Practise your own topic in Codex
 
