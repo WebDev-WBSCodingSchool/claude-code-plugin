@@ -27,7 +27,7 @@ Find out, in roughly this order, skipping anything the student already said:
 5. Where the agent may help: typically setup, tooling, test data, styling and
    explanations. Anything not guarded is open.
 6. Where to create it: a new folder (the default, ask for its name) or the
-   folder Claude Code is open in.
+   folder you are working in now.
 
 If the student says "you decide" to any of these, choose, say the choice in one
 line, and move on.
@@ -43,8 +43,8 @@ Before writing anything:
 
 ## Write the contract
 
-Draft `PRACTICE.md` from
-`${CLAUDE_PLUGIN_ROOT}/skills/custom/practice-template.md`. Write two to five
+Draft `PRACTICE.md` from `practice-template.md`, which sits in the same folder
+as this skill file. Write two to five
 tasks, each one result the student can check on their own, in the order they
 would build them. Mark guarded parts by file and, where a file is shared, by
 function or section.
@@ -68,11 +68,13 @@ In the target folder:
 1. For a new folder, create it and run `git init`. Leave an existing folder's git
    state alone.
 2. Write the accepted `PRACTICE.md`.
-3. Copy the tutor skill:
+3. Copy the tutor skill, `practice-tutor.md` from the same folder as this skill
+   file, unchanged. In the command below, `<skill folder>` stands for that
+   folder's absolute path:
 
    ```sh
    mkdir -p .claude/skills/practice-tutor
-   cp "${CLAUDE_PLUGIN_ROOT}/skills/custom/practice-tutor.md" .claude/skills/practice-tutor/SKILL.md
+   cp "<skill folder>/practice-tutor.md" .claude/skills/practice-tutor/SKILL.md
    ```
 
 4. Append to `CLAUDE.md`, creating it if missing:
@@ -99,7 +101,7 @@ In the target folder:
 
 ## Finish
 
-Report the path. In a new folder, tell the student to open Claude Code there.
+Report the path. In a new folder, tell the student to open their coding agent there.
 Then say once that the rules are instructions to the agent, not a lock: an agent
 told to ignore them can still write the guarded code, so the practice holds
 because the student wants it to.

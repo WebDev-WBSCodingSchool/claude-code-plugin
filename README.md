@@ -76,3 +76,25 @@ tutor skill that tells the agent to help around those parts instead of writing
 them. Unlike the packaged exercises, nothing enforces this: the rules are
 instructions to the agent, not a lock. You can change `PRACTICE.md` whenever
 your goal changes.
+
+## Practise your own topic in Codex
+
+`/exercise:custom` also works in Codex. The packaged exercises do not yet. To
+install the plugin, run these two commands once:
+
+```sh
+codex plugin marketplace add WebDev-WBSCodingSchool/claude-code-plugin --ref stable
+codex plugin add exercise@wbs-cs
+```
+
+To update, fetch the latest catalog, then install the plugin again. The second
+command replaces the installed version with the new one:
+
+```sh
+codex plugin marketplace upgrade wbs-cs
+codex plugin add exercise@wbs-cs
+```
+
+To use it, start Codex in the folder where you keep your projects. Type `$`,
+pick `exercise:custom`, and describe what you want to practise. It runs the
+same interview and creates the same files as in Claude Code.
