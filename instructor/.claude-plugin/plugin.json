@@ -1,6 +1,6 @@
 {
   "name": "instructor",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Author WBS Coding School exercises from a checkout of the plugin repository.",
   "author": {
     "name": "WBS Coding School"

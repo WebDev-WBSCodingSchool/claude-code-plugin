@@ -1,6 +1,6 @@
 {
   "name": "exercise",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Set up WBS Coding School assignments as self-contained projects with their task harness.",
   "author": {
     "name": "WBS Coding School"
