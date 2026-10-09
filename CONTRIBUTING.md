@@ -124,9 +124,12 @@ harness committed inside it, and teammates who clone it have no plugin at all.
 
 Two rules follow from that, and `test/setup.test.mjs` enforces both:
 
-- **The plugin ships skills only.** Claude Code loads a plugin's hooks, agents,
-  MCP servers, output styles, and settings into every session, including inside
-  a student's project. The test allows only the current top-level entries of
+- **The plugin ships skills, plus agents that only a skill starts.** Claude
+  Code loads a plugin's hooks, MCP servers, output styles, and settings into
+  every session, including inside a student's project. It loads agents too, but
+  an agent acts only when something starts it, so each agent's description must
+  say which skill starts it. `exercise:lms-reader`, which `/exercise:lms-chrome`
+  starts, is the only one so far. The test allows only the current top-level entries of
   `exercise/` and keys of its `plugin.json`. A new one fails the test until you add it to the list
   there, which you should only do once you know it cannot act inside a project.
 - **Nothing in `exercise/runtime/` or an exercise refers to the plugin's files**, such as

@@ -84,16 +84,17 @@ try {
     withLockfile.map(() => "audit fix --package-lock-only"),
   );
 
-  // The plugin ships skills only. Hooks, agents, MCP servers, output styles and
-  // settings in a plugin are active inside every session, including a student's
-  // project, which would tie projects to the installed plugin version. Adding a
-  // new top-level entry or manifest key means deciding it cannot do that.
+  // The plugin ships skills, plus agents that only a skill starts. Hooks, MCP
+  // servers, output styles and settings in a plugin are active inside every
+  // session, including a student's project, which would tie projects to the
+  // installed plugin version. Adding a new top-level entry or manifest key means
+  // deciding it cannot do that.
   // `.in_use` is Claude Code's own marker in an installed copy, not ours.
   const shipped = readdirSync(pluginRoot)
     .filter((name) => name !== ".git" && name !== ".in_use")
     .sort();
   assert.deepEqual(shipped, [
-    ".claude-plugin", "exercises", "runtime", "scripts", "skills",
+    ".claude-plugin", "agents", "exercises", "runtime", "scripts", "skills",
   ]);
   const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
   assert.deepEqual(Object.keys(manifest).sort(), ["author", "description", "name", "version"]);
