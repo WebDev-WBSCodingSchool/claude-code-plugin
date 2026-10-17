@@ -115,6 +115,35 @@ Then:
 
 The exercise reaches students with the next release.
 
+### `/instructor:custom`
+
+Builds a one-off starter repository for a single batch, outside this
+repository. Use it when a batch needs a changed version of an exercise, or an
+assignment that will never be packaged.
+
+```text
+/instructor:custom movie-diary
+/instructor:custom /path/to/description.md
+```
+
+Run it from a checkout like the other commands. The working tree may have
+changes, but not under `exercise/`, because the starter copies the harness from
+there. The command reads this repository and never changes it.
+
+With an exercise ID, it summarizes the packaged exercise and asks what should
+be different for this batch, such as a dropped or added requirement, another
+protected topic, or a group project turned solo. With a description, it works
+through the ten questions of `/instructor:add-exercise`, but only asks for
+confirmation where the description already answers one. Either way it shows a
+summary of the changes and writes nothing until you approve it.
+
+It then builds the starter in the folder you chose, checks it with
+`exercise/scripts/verify.mjs`, and commits it locally. An adjusted exercise gets
+the changes as a second commit, so `git show` in the starter lists what this
+batch changed. The harness itself stays as shipped: a protected topic the hooks
+cannot yet recognise needs a shared harness change first, as described under
+`/instructor:add-exercise`. The command does not push the starter.
+
 ## Change the shared harness
 
 `exercise/runtime/` holds the hooks, skills, and settings that every exercise shares. A
