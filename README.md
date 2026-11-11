@@ -60,6 +60,20 @@ on GitHub and walks you through the start of the assignment.
 In a group project, only one member runs setup. The others clone that member's
 GitHub repository and run `/onboard` there.
 
+## Set up from a terminal
+
+The same setup also runs outside Claude Code, with Node.js and Git only:
+
+```sh
+npx wbs-exercise list
+npx wbs-exercise art-explorer ./my-art-explorer
+```
+
+The [`wbs-exercise`](https://www.npmjs.com/package/wbs-exercise) command
+downloads the exercises from this repository's `stable` branch and runs the same
+setup script, so it creates exactly the project `/exercise:setup` would. Then
+continue with `/onboard` in Claude Code as above.
+
 ## Practise your own topic
 
 To practise something that is not a packaged exercise, run `/exercise:custom`,
