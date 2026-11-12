@@ -36,6 +36,22 @@ jobs:
       - name: Test
         run: for t in test/*.mjs; do node "$t"; done
 
+      # The wbs-exercise npx launcher runs this repo's setup.mjs from a sparse
+      # download of stable, so a release that moves or adds files setup reads
+      # can break it without any change on its side. Its unit test treats this
+      # checkout as stable, so an incompatible release stops here, before it
+      # reaches students. Untracked, so the release commit below leaves it out.
+      - uses: actions/checkout@v5
+        with:
+          repository: WebDev-WBSCodingSchool/wbs-exercise
+          path: wbs-exercise
+
+      - name: Test the npx launcher against this release
+        working-directory: wbs-exercise
+        run: npm test
+        env:
+          PLUGIN_CHECKOUT: ${{ github.workspace }}
+
       - name: Bump version
         id: bump
         run: |
