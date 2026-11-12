@@ -1,0 +1,4 @@
+# Git hooks run under sh, which cannot read CRLF. Git for Windows converts to
+# CRLF on checkout by default, including in the clone Claude Code makes when it
+# installs this plugin, so force LF for them whatever the user's settings are.
+exercise/runtime/.claude/githooks/* text eol=lf
