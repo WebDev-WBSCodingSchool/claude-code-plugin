@@ -144,7 +144,10 @@ try {
   const exercises = catalog();
 
   if (command === "list" && !exerciseId) {
-    for (const exercise of exercises) console.log(`${exercise.id}\t${exercise.title}`);
+    const width = Math.max(...exercises.map((exercise) => exercise.id.length));
+    // A terminal gets aligned columns; a pipe (the skills, the tests) keeps the tab-separated lines it parses.
+    for (const exercise of exercises)
+      console.log(process.stdout.isTTY ? `${exercise.id.padEnd(width)}  ${exercise.title}` : `${exercise.id}\t${exercise.title}`);
     process.exit(0);
   }
 
