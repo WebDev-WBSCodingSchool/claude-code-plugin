@@ -175,32 +175,52 @@ let branch = "";
 let commits = [head];
 
 if (!reviewed) {
-  const file = task.file;
-  if (!existsSync(join(root, file))) {
-    fail(`${file} doesn't exist yet — ${task.id} is meant to live there.`);
+  const scopePaths = Array.isArray(task.files) && task.files.length ? task.files : [task.file];
+  const hasTarget =
+    Array.isArray(task.files) && task.files.length
+      ? scopePaths.some((p) => existsSync(join(root, p))) || existsSync(join(root, task.file))
+      : existsSync(join(root, task.file));
+  if (!hasTarget) {
+    fail(`${task.file} doesn't exist yet — ${task.id} is meant to live there.`);
   }
-  let dirty = "";
+  let dirtyOut = "";
   try {
-    dirty = git(["status", "--porcelain", "--", file]);
+    dirtyOut = git(["status", "--porcelain", "-uall", "--", ...scopePaths]);
   } catch (err) {
-    fail(`Couldn't ask git about ${file}: ${err.message}`);
+    fail(`Couldn't ask git about ${scopePaths.join(", ")}: ${err.message}`);
   }
-  if (dirty) {
+  const dirScopes = scopePaths.filter((p) => p.endsWith("/"));
+  const exts = (config.guardedExtensions ?? [".js"]).map((e) => e.toLowerCase());
+  const dirtyFiles = dirtyOut
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const stripped = line.replace(/^\s*[MARCUD?!]{1,2}\s+/, "");
+      const arrow = stripped.indexOf(" -> ");
+      const raw = arrow === -1 ? stripped : stripped.slice(arrow + 4);
+      return raw.replace(/^"|"$/g, "");
+    })
+    .filter((p) => {
+      const fromDir = dirScopes.some((d) => p.startsWith(d));
+      return !fromDir || exts.some((e) => p.toLowerCase().endsWith(e));
+    });
+  if (dirtyFiles.length) {
+    const addArgs = dirtyFiles.map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(" ");
     fail(
-      `${file} has uncommitted changes. Commit it first, then run this again.\n\n` +
-        `  git add ${file}\n  git commit -m "${task.id}: ${task.title}"\n\n` +
+      `${dirtyFiles.join(", ")} has uncommitted changes. Commit it first, then run this again.\n\n` +
+        `  git add ${addArgs}\n  git commit -m "${task.id}: ${task.title}"\n\n` +
         `This isn't bureaucracy. The commit has to happen before the agent is allowed ` +
         `to help refine the code, so that the history shows your version first and the ` +
         `assisted version after it. That ordering is the only record of who wrote what, ` +
         `and it's the reason nothing you said explaining it needs to be stored anywhere.`,
     );
   }
-  // Only the task's own file is checked. A student with unrelated scratch edits
-  // elsewhere in the tree should not be blocked by them.
+  // Only the task's configured path(s) are checked. A student with unrelated
+  // scratch edits elsewhere in the tree should not be blocked by them.
 
-  // Every commit on this branch that touched the task's file. In sum they are the
-  // evidence for a solved task — a first go and three fixes is what learning looks
-  // like, and storing only the last of them threw four fifths of it away.
+  // Every commit on this branch that touched the task's path(s). In sum they are
+  // the evidence for a solved task — a first go and three fixes is what learning
+  // looks like, and storing only the last of them threw four fifths of it away.
   branch = "";
   try {
     branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
@@ -220,17 +240,17 @@ if (!reviewed) {
   }
 
   try {
-    commits = git(["rev-list", range, "--", file]).split("\n").filter(Boolean);
+    commits = git(["rev-list", range, "--", ...scopePaths]).split("\n").filter(Boolean);
   } catch (err) {
-    fail(`Couldn't ask git about ${file}: ${err.message}`);
+    fail(`Couldn't ask git about ${scopePaths.join(", ")}: ${err.message}`);
   }
 
   if (!commits.length) {
     // Branch already merged, or the base was squashed — the range is empty but the
     // work exists. Falling back beats refusing: the student did nothing wrong.
-    const sha = git(["log", "-1", "--format=%H", "--", file]);
+    const sha = git(["log", "-1", "--format=%H", "--", ...scopePaths]);
     if (!sha) {
-      fail(`No commit has touched ${file} yet. Commit your work, then run this again.`);
+      fail(`No commit has touched ${scopePaths.join(", ")} yet. Commit your work, then run this again.`);
     }
     commits = [sha];
   }
@@ -281,7 +301,9 @@ console.log(`\n${task.title} (${task.id}) signed off, ${row.route}. Recorded in 
 console.log(
   opened.length
     ? `You may now ask the agent for help with ${opened.join(", ")} code, including in features beyond the core. It still asks a project-specific question before editing.`
-    : `Nothing new. You could already ask the agent for help with ${task.categories.join(", ")}.`,
+    : (task.categories ?? []).length === 0
+      ? `Recorded. This task does not gate any additional category.`
+      : `Nothing new. You could already ask the agent for help with ${task.categories.join(", ")}.`,
 );
 console.log(`Commit that file along with your work.\n`);
 for (const p of bs.problems) console.log(`  ${p.text}\n`);

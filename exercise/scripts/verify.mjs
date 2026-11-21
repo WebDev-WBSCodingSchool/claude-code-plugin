@@ -77,6 +77,23 @@ export function problems(repo) {
       out.push(`task ${t.id} points at ${t.file}, which does not exist`);
     if (!exts.includes(extname(t.file).toLowerCase()))
       out.push(`task ${t.id} writes ${t.file}, whose extension is not in guardedExtensions`);
+    if (t.files !== undefined) {
+      if (
+        !Array.isArray(t.files) ||
+        t.files.length === 0 ||
+        t.files.some((f) => typeof f !== "string" || !f.trim())
+      ) {
+        out.push(`task ${t.id} has an invalid files list`);
+      } else {
+        for (const f of t.files) {
+          if (f.endsWith("/")) continue;
+          if (!config.preScaffold && !existsSync(join(repo, f)))
+            out.push(`task ${t.id} files entry ${f} does not exist`);
+          if (!exts.includes(extname(f).toLowerCase()))
+            out.push(`task ${t.id} files entry ${f} extension is not in guardedExtensions`);
+        }
+      }
+    }
     for (const c of t.categories ?? [])
       if (!gated.includes(c)) out.push(`task ${t.id} exercises "${c}", which is not gated`);
   }

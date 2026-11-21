@@ -51,13 +51,18 @@ function or section.
 
 Pick the syntax check for the language:
 
-| Language   | Syntax check                      |
-| ---------- | --------------------------------- |
-| JavaScript | `node --check <file>`             |
-| TypeScript | `npx tsc --noEmit <file>`         |
-| Python     | `python3 -m py_compile <file>`    |
-| C#         | `dotnet build`                    |
-| HTML/CSS   | none                              |
+| Language   | Syntax check                   |
+| ---------- | ------------------------------ |
+| JavaScript | `node --check <file>`          |
+| TypeScript | `npx tsc --noEmit`             |
+| Python     | `python3 -m py_compile <file>` |
+| C#         | `dotnet build`                 |
+| HTML/CSS   | none                           |
+
+For TypeScript, use `npx tsc --noEmit` whenever a `tsconfig.json` exists; passing
+an explicit `<file>` argument causes `tsc` to ignore `tsconfig.json` and breaks
+JSX and module settings. Use `npx tsc --noEmit <file>` only when no
+`tsconfig.json` is present.
 
 Show the draft to the student and change it until they accept it.
 
@@ -77,7 +82,9 @@ In the target folder:
    cp "<skill folder>/practice-tutor.md" .claude/skills/practice-tutor/SKILL.md
    ```
 
-4. Append to `CLAUDE.md`, creating it if missing:
+4. Update `CLAUDE.md`, creating it if missing. Only append the block below if
+   `CLAUDE.md` does not already reference both `PRACTICE.md` and
+   `.claude/skills/practice-tutor/SKILL.md`:
 
    ```markdown
    @PRACTICE.md
@@ -86,7 +93,9 @@ In the target folder:
    `.claude/skills/practice-tutor/SKILL.md`.
    ```
 
-5. Append to `AGENTS.md`, creating it if missing:
+5. Update `AGENTS.md`, creating it if missing. Only append the block below if
+   `AGENTS.md` does not already reference both `PRACTICE.md` and
+   `.claude/skills/practice-tutor/SKILL.md`:
 
    ```markdown
    This folder holds a practice exercise. Before answering any request that could

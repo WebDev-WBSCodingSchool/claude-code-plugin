@@ -38,11 +38,11 @@
   "tasks": [
     { "id": "FR001", "title": "Home loads all products and categories", "file": "src/app/page.tsx", "categories": ["getRequests"] },
     { "id": "FR002", "title": "Category page lists that category's products", "file": "src/app/category/[category]/page.tsx", "categories": ["getRequests"] },
-    { "id": "FR003", "title": "One cart, shared by every page", "file": "src/app/layout.tsx", "categories": ["reactContext", "clientComponents"] },
-    { "id": "FR004", "title": "Cart controls on every product card", "file": "src/app/page.tsx", "categories": ["clientComponents"] },
-    { "id": "FR005", "title": "Cart icon shows total quantity and price", "file": "src/app/layout.tsx", "categories": ["reactContext"] },
+    { "id": "FR003", "title": "One cart, shared by every page", "file": "src/app/layout.tsx", "files": ["src/"], "categories": ["reactContext", "clientComponents"] },
+    { "id": "FR004", "title": "Cart controls on every product card", "file": "src/app/page.tsx", "files": ["src/"], "categories": ["clientComponents"] },
+    { "id": "FR005", "title": "Cart icon shows total quantity and price", "file": "src/app/layout.tsx", "files": ["src/"], "categories": ["reactContext"] },
     { "id": "FR006", "title": "Cart page table with totals", "file": "src/app/cart/page.tsx", "categories": ["clientComponents"] },
     { "id": "X1", "title": "Unknown category shows the 404 page", "file": "src/app/category/[category]/page.tsx", "categories": ["getRequests"] },
-    { "id": "X2", "title": "Cart icon waits for the saved cart", "file": "src/app/layout.tsx", "categories": ["clientComponents"] }
+    { "id": "X2", "title": "Cart icon waits for the saved cart", "file": "src/app/layout.tsx", "files": ["src/"], "categories": ["clientComponents"] }
   ]
 }

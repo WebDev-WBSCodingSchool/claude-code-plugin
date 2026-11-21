@@ -53,9 +53,10 @@ URLs, so the code can't go anywhere else:
 - `src/app/layout.tsx` for FR003, FR005, and X2
 - `src/app/cart/page.tsx` for FR006
 
-Your commit for a task must change its file. You decide where everything else goes
-and what it's called, including your components, the cart context, and your helper
-functions.
+Your commit for a task must change its route file (or, for `FR003`, `FR004`,
+`FR005`, and `X2`, any source file under `src/` such as your cart context, navbar,
+or product card component). You decide where everything else goes and what it's
+called, including your components, the cart context, and your helper functions.
 
 ### Things the requirements don't mention
 

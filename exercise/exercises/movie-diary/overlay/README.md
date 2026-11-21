@@ -13,9 +13,13 @@ In week 1 you build it in plain JavaScript. In week 2 you move it to Vite and ES
 modules and make the code easier to read.
 
 Doing the Pokédex instead? The requirements and the rules are the same. Rename
-`journal.html` and `journal.js` to `pokedex.html` and `pokedex.js`, and change the
-two matching lines in `.claude/harness/config.json`. In week 2, rename
-`src/journal.js` the same way.
+`journal.html` and `journal.js` to `pokedex.html` and `pokedex.js`, and update
+all five matching `file` entries in `.claude/harness/config.json` (`FR015`,
+`FR016`, and `FR017` from `"journal.js"` to `"pokedex.js"` in week 1, plus
+`FR021` and `FR023` from `"src/journal.js"` to `"src/pokedex.js"` in week 2).
+In week 2, rename `src/journal.js` the same way. In VS Code, `config.json` opens
+read-only — run **File: Toggle Active Editor Read-only in Session** from the
+Command Palette (or edit the file outside VS Code) to save your change.
 
 ## How you work
 
