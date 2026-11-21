@@ -9,8 +9,9 @@ The repository is a marketplace, `wbs-cs`, with two plugins. `exercise/` is the
 student plugin: its skills, the setup scripts, the shared harness in
 `exercise/runtime/`, and the packaged exercises in `exercise/exercises/`.
 `instructor/` is the instructor plugin, with its skills and the scripts only
-instructors run. The tests, the release workflow, and these docs stay at the top
-level, so neither plugin ships them.
+instructors run. `eval/` holds the agentic evaluation suite and committed
+baselines (see [eval/README.md](eval/README.md)). The tests, evals, release
+workflow, and these docs stay at the top level, so neither plugin ships them.
 
 ## Install
 
@@ -167,9 +168,7 @@ Two rules follow from that, and `test/setup.test.mjs` enforces both:
 ## Test
 
 ```sh
-node test/setup.test.mjs
-node test/detectors.test.mjs
-node test/pack-exercise.test.mjs
+for t in test/*.mjs; do node "$t"; done
 claude plugin validate --strict .
 claude plugin validate --strict exercise
 claude plugin validate --strict instructor

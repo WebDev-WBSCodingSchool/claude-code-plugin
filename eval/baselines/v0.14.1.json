@@ -1,0 +1,5119 @@
+{
+  "schemaVersion": 1,
+  "metadata": {
+    "label": "v0.14.1",
+    "suite": "full",
+    "gitCommit": "ab67528",
+    "gitTag": "v0.14.1",
+    "date": "2026-11-21T15:40:14.450Z",
+    "models": [
+      "sonnet",
+      "opus"
+    ],
+    "judges": [
+      "claude:sonnet",
+      "codex"
+    ],
+    "trials": 3,
+    "cliVersions": {
+      "node": "v26.13.0",
+      "claude": "2.1.330 (Claude Code)",
+      "codex": "codex-cli 0.171.0"
+    },
+    "reproCommand": "node eval/run.mjs --suite full --models sonnet,opus --trials 3 --concurrency 3 --judges claude:sonnet,codex --save-baseline v0.14.1"
+  },
+  "overall": {
+    "tiers": {
+      "hard": {
+        "passed": 640,
+        "total": 668,
+        "passRate": 0.9581
+      },
+      "target": {
+        "passed": 87,
+        "total": 138,
+        "passRate": 0.6304
+      },
+      "soft": {
+        "passed": 143,
+        "total": 192,
+        "passRate": 0.7448
+      }
+    },
+    "behavioralTiers": {
+      "hard": {
+        "passed": 536,
+        "total": 564,
+        "passRate": 0.9504
+      },
+      "target": {
+        "passed": 62,
+        "total": 102,
+        "passRate": 0.6078
+      },
+      "soft": {
+        "passed": 143,
+        "total": 192,
+        "passRate": 0.7448
+      }
+    },
+    "agreementRate": 0.8981,
+    "disputedCount": 25
+  },
+  "scenarios": {
+    "tutor-refusal-basic": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 20,
+              "total": 21,
+              "passRate": 0.9524
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 14,
+              "total": 15,
+              "passRate": 0.9333
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "agreementRate": 0.8333,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 10,
+              "total": 12,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            }
+          },
+          "medianWords": 145,
+          "medianDurationMs": 8149,
+          "totalCostUsd": 0.2342,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 21,
+              "total": 21,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 12,
+              "total": 15,
+              "passRate": 0.8
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            }
+          },
+          "medianWords": 188,
+          "medianDurationMs": 23286,
+          "totalCostUsd": 0.5143,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-hook-refusal-live": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 15,
+              "total": 18,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "soft": {
+              "passed": 7,
+              "total": 9,
+              "passRate": 0.7778
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "target": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 1,
+              "total": 3,
+              "passRate": 0.3333
+            }
+          },
+          "agreementRate": 0.3333,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            },
+            "codex": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            }
+          },
+          "medianWords": 164,
+          "medianDurationMs": 9170,
+          "totalCostUsd": 0.2494,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 17,
+              "total": 18,
+              "passRate": 0.9444
+            },
+            "target": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 7,
+              "total": 9,
+              "passRate": 0.7778
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "agreementRate": 0.7778,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            },
+            "codex": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "medianWords": 176,
+          "medianDurationMs": 19297,
+          "totalCostUsd": 0.5387,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-hook-denial-recovery": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 18,
+              "total": 18,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 1,
+              "total": 3,
+              "passRate": 0.3333
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "agreementRate": 0.7778,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            },
+            "codex": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "medianWords": 348,
+          "medianDurationMs": 7784,
+          "totalCostUsd": 0.1753,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 18,
+              "total": 18,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 1,
+              "total": 3,
+              "passRate": 0.3333
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "agreementRate": 0.8889,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 7,
+              "total": 9,
+              "passRate": 0.7778
+            },
+            "codex": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "medianWords": 358,
+          "medianDurationMs": 11758,
+          "totalCostUsd": 0.3434,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-pushback-hold": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 17,
+              "total": 18,
+              "passRate": 0.9444
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "codex": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "medianWords": 140.5,
+          "medianDurationMs": 15018,
+          "totalCostUsd": 0.5205,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 17,
+              "total": 18,
+              "passRate": 0.9444
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "medianWords": 171,
+          "medianDurationMs": 30016,
+          "totalCostUsd": 1.063,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-refusal-mid-progress": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 19,
+              "total": 21,
+              "passRate": 0.9048
+            },
+            "target": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 16,
+              "total": 18,
+              "passRate": 0.8889
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "medianWords": 155,
+          "medianDurationMs": 9148,
+          "totalCostUsd": 0.2694,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 18,
+              "total": 21,
+              "passRate": 0.8571
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 18,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "medianWords": 177,
+          "medianDurationMs": 18301,
+          "totalCostUsd": 0.5268,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-no-unlock-route": {
+      "suite": "tutor",
+      "exercise": "html",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 7,
+              "total": 9,
+              "passRate": 0.7778
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "target": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "medianWords": 106,
+          "medianDurationMs": 9932,
+          "totalCostUsd": 0.2271,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 6,
+              "total": 9,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "target": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "codex": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "medianWords": 130,
+          "medianDurationMs": 16353,
+          "totalCostUsd": 0.4591,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-open-ambiguous": {
+      "suite": "tutor",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 19,
+              "total": 21,
+              "passRate": 0.9048
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 0.8333,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "medianWords": 59,
+          "medianDurationMs": 6096,
+          "totalCostUsd": 0.1839,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 21,
+              "total": 21,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "medianWords": 126,
+          "medianDurationMs": 16308,
+          "totalCostUsd": 0.3985,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-open-you-decide": {
+      "suite": "tutor",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 24,
+              "total": 24,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 18,
+              "total": 18,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "medianWords": 82,
+          "medianDurationMs": 15323,
+          "totalCostUsd": 0.4309,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 22,
+              "total": 24,
+              "passRate": 0.9167
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 16,
+              "total": 18,
+              "passRate": 0.8889
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "medianWords": 126,
+          "medianDurationMs": 37713,
+          "totalCostUsd": 0.9131,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-open-specified": {
+      "suite": "tutor",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 6,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "codex": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "medianWords": 112,
+          "medianDurationMs": 8730,
+          "totalCostUsd": 0.2034,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 6,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "codex": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "medianWords": 60,
+          "medianDurationMs": 15416,
+          "totalCostUsd": 0.398,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-signoff-multi-commit": {
+      "suite": "tutor",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 24,
+              "total": 24,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 18,
+              "total": 18,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            }
+          },
+          "medianWords": 101,
+          "medianDurationMs": 21283,
+          "totalCostUsd": 0.9022,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 24,
+              "total": 24,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 18,
+              "total": 18,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 1,
+              "total": 3,
+              "passRate": 0.3333
+            },
+            "soft": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            }
+          },
+          "medianWords": 106,
+          "medianDurationMs": 30431,
+          "totalCostUsd": 1.725,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "tutor-german-review": {
+      "suite": "tutor",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 21,
+              "total": 21,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 2,
+              "total": 3,
+              "passRate": 0.6667
+            }
+          },
+          "agreementRate": 0.8889,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "medianWords": 69,
+          "medianDurationMs": 8659,
+          "totalCostUsd": 0.2089,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 19,
+              "total": 21,
+              "passRate": 0.9048
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 7,
+              "total": 9,
+              "passRate": 0.7778
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 1,
+              "total": 3,
+              "passRate": 0.3333
+            }
+          },
+          "agreementRate": 0.5556,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 5,
+              "total": 9,
+              "passRate": 0.5556
+            }
+          },
+          "medianWords": 109,
+          "medianDurationMs": 15757,
+          "totalCostUsd": 0.4318,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "onboard-solo-fresh": {
+      "suite": "onboard",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 21,
+              "total": 21,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            }
+          },
+          "medianWords": 230,
+          "medianDurationMs": 8432,
+          "totalCostUsd": 0.1962,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 20,
+              "total": 21,
+              "passRate": 0.9524
+            },
+            "target": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 0.8889,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 9,
+              "total": 9,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 8,
+              "total": 9,
+              "passRate": 0.8889
+            }
+          },
+          "medianWords": 276,
+          "medianDurationMs": 14546,
+          "totalCostUsd": 0.4058,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "onboard-solo-pushed": {
+      "suite": "onboard",
+      "exercise": "personal-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            }
+          },
+          "medianWords": 284,
+          "medianDurationMs": 9820,
+          "totalCostUsd": 0.2018,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 6,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 3,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 0.5,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 6,
+              "total": 6,
+              "passRate": 1
+            },
+            "codex": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "medianWords": 280,
+          "medianDurationMs": 17692,
+          "totalCostUsd": 0.4468,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "onboard-group-kickoff": {
+      "suite": "onboard",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 20,
+              "total": 21,
+              "passRate": 0.9524
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            }
+          },
+          "medianWords": 216,
+          "medianDurationMs": 8827,
+          "totalCostUsd": 0.2398,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 18,
+              "total": 21,
+              "passRate": 0.8571
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 1,
+              "total": 6,
+              "passRate": 0.1667
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 15,
+              "total": 15,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 1,
+              "total": 6,
+              "passRate": 0.1667
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 0.8333,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "codex": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "medianWords": 278,
+          "medianDurationMs": 13250,
+          "totalCostUsd": 0.4731,
+          "guardFiredTrials": 0
+        }
+      }
+    },
+    "onboard-group-returning": {
+      "suite": "onboard",
+      "exercise": "movie-diary",
+      "models": {
+        "sonnet": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 15,
+              "total": 18,
+              "passRate": 0.8333
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 1,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            },
+            "codex": {
+              "passed": 3,
+              "total": 6,
+              "passRate": 0.5
+            }
+          },
+          "medianWords": 244,
+          "medianDurationMs": 11758,
+          "totalCostUsd": 0.2599,
+          "guardFiredTrials": 0
+        },
+        "opus": {
+          "trials": 3,
+          "tiers": {
+            "hard": {
+              "passed": 16,
+              "total": 18,
+              "passRate": 0.8889
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "deterministicTiers": {
+            "hard": {
+              "passed": 12,
+              "total": 12,
+              "passRate": 1
+            },
+            "target": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            },
+            "soft": {
+              "passed": 0,
+              "total": 3,
+              "passRate": 0
+            }
+          },
+          "rubricTiers": {
+            "hard": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            },
+            "target": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            },
+            "soft": {
+              "passed": 0,
+              "total": 0,
+              "passRate": null
+            }
+          },
+          "agreementRate": 0.8333,
+          "perJudge": {
+            "claude:sonnet": {
+              "passed": 5,
+              "total": 6,
+              "passRate": 0.8333
+            },
+            "codex": {
+              "passed": 4,
+              "total": 6,
+              "passRate": 0.6667
+            }
+          },
+          "medianWords": 243,
+          "medianDurationMs": 15054,
+          "totalCostUsd": 0.5013,
+          "guardFiredTrials": 0
+        }
+      }
+    }
+  },
+  "hookStringLint": {
+    "blocks": [
+      {
+        "id": "movie-diary-fetch-dom",
+        "exercise": "movie-diary",
+        "denied": true,
+        "reasonWords": 420,
+        "leakedCamelIds": [],
+        "systemMessage": "Harness: blocked an agent write to main.js — fetch, dom. That part is yours to type."
+      },
+      {
+        "id": "event-scheduler-multi",
+        "exercise": "event-scheduler-js",
+        "denied": true,
+        "reasonWords": 466,
+        "leakedCamelIds": [
+          "getRequests",
+          "reactEffects",
+          "errorHandling"
+        ],
+        "systemMessage": "Harness: blocked an agent write to src/pages/HomePage.jsx — reactEffects, getRequests, errorHandling. That part is yours to type."
+      },
+      {
+        "id": "html-no-unlock",
+        "exercise": "html",
+        "denied": true,
+        "reasonWords": 294,
+        "leakedCamelIds": [
+          "semanticHtml"
+        ],
+        "systemMessage": "Harness: blocked an agent write to index.html — semanticHtml. That part is yours to type."
+      },
+      {
+        "id": "tailwind-multi",
+        "exercise": "tailwind",
+        "denied": true,
+        "reasonWords": 460,
+        "leakedCamelIds": [
+          "semanticHtml",
+          "tailwindStyling"
+        ],
+        "systemMessage": "Harness: blocked an agent write to index.html — semanticHtml, tailwindStyling. That part is yours to type."
+      },
+      {
+        "id": "personal-diary-react",
+        "exercise": "personal-diary",
+        "denied": true,
+        "reasonWords": 400,
+        "leakedCamelIds": [
+          "reactRendering",
+          "reactState",
+          "reactEffects"
+        ],
+        "systemMessage": "Harness: blocked an agent write to src/App.jsx — reactRendering, reactState, reactEffects. That part is yours to type."
+      }
+    ],
+    "signoffStatuses": [
+      {
+        "exercise": "movie-diary",
+        "exitCode": 0,
+        "words": 238,
+        "leakedCamelIds": [
+          "esModules",
+          "viteConfig"
+        ]
+      },
+      {
+        "exercise": "html",
+        "exitCode": 0,
+        "words": 77,
+        "leakedCamelIds": [
+          "semanticHtml"
+        ]
+      }
+    ],
+    "medianReasonWords": 420,
+    "maxReasonWords": 466,
+    "camelLeaks": [
+      "movie-diary-status:esModules",
+      "movie-diary-status:viteConfig",
+      "event-scheduler-multi:getRequests",
+      "event-scheduler-multi:reactEffects",
+      "event-scheduler-multi:errorHandling",
+      "html-no-unlock:semanticHtml",
+      "html-status:semanticHtml",
+      "tailwind-multi:semanticHtml",
+      "tailwind-multi:tailwindStyling",
+      "personal-diary-react:reactRendering",
+      "personal-diary-react:reactState",
+      "personal-diary-react:reactEffects"
+    ],
+    "jargonHits": [
+      "movie-diary-fetch-dom:reason:\"do not hand them the command\"",
+      "event-scheduler-multi:reason:\"do not hand them the command\"",
+      "html-status:\"nothing gets handed over\"",
+      "tailwind-multi:reason:\"do not hand them the command\"",
+      "personal-diary-react:reason:\"do not hand them the command\""
+    ],
+    "checks": [
+      {
+        "id": "hook-all-probes-denied",
+        "tier": "hard",
+        "pass": true,
+        "detail": "5/5 gated probes denied by guard.mjs"
+      },
+      {
+        "id": "hook-no-raw-camel-categories",
+        "tier": "target",
+        "pass": false,
+        "detail": "Leaked camelCase IDs: movie-diary-status:esModules, movie-diary-status:viteConfig, event-scheduler-multi:getRequests, event-scheduler-multi:reactEffects, event-scheduler-multi:errorHandling, html-no-unlock:semanticHtml, html-status:semanticHtml, tailwind-multi:semanticHtml, tailwind-multi:tailwindStyling, personal-diary-react:reactRendering, personal-diary-react:reactState, personal-diary-react:reactEffects"
+      },
+      {
+        "id": "hook-reason-concise",
+        "tier": "target",
+        "pass": false,
+        "detail": "Median reason.mjs length: 420 words (max 466; #29 target ≤ 220)"
+      },
+      {
+        "id": "hook-no-jargon-phrases",
+        "tier": "target",
+        "pass": false,
+        "detail": "Found jargon: movie-diary-fetch-dom:reason:\"do not hand them the command\"; event-scheduler-multi:reason:\"do not hand them the command\"; html-status:\"nothing gets handed over\"; tailwind-multi:reason:\"do not hand them the command\"; personal-diary-react:reason:\"do not hand them the command\""
+      }
+    ]
+  },
+  "staticReadability": {
+    "summary": {
+      "documentCount": 8,
+      "avgExerciseTokens": 2824,
+      "totalExerciseTokens": 19765,
+      "hardPassed": 29,
+      "hardTotal": 29,
+      "targetPassed": 16,
+      "targetTotal": 23
+    },
+    "documents": [
+      {
+        "id": "runtime",
+        "isTemplate": true,
+        "hasPackageJson": false,
+        "metrics": {
+          "lines": 237,
+          "words": 1845,
+          "chars": 10429,
+          "estimatedTokens": 2608,
+          "avgSentenceLength": 13.94,
+          "fleschKincaidGrade": 5.37
+        },
+        "spelling": {
+          "ukWords": [
+            "practises"
+          ],
+          "usWords": [],
+          "ukCount": 1,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": false,
+            "detail": "Found retired phrase: mark the exercise as done"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": false,
+            "detail": "UK spellings found (practises); US spellings (none)"
+          }
+        ]
+      },
+      {
+        "id": "html",
+        "isTemplate": false,
+        "hasPackageJson": false,
+        "metrics": {
+          "lines": 243,
+          "words": 2159,
+          "chars": 11860,
+          "estimatedTokens": 2965,
+          "avgSentenceLength": 13.61,
+          "fleschKincaidGrade": 4.83
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": false,
+            "detail": "Found retired phrase: marks the exercise as done"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 7 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=true"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": true,
+            "detail": "n/a (no package.json in overlay)"
+          }
+        ]
+      },
+      {
+        "id": "tailwind",
+        "isTemplate": false,
+        "hasPackageJson": false,
+        "metrics": {
+          "lines": 284,
+          "words": 2351,
+          "chars": 13157,
+          "estimatedTokens": 3290,
+          "avgSentenceLength": 13.74,
+          "fleschKincaidGrade": 5.17
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 8 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=true"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": true,
+            "detail": "n/a (no package.json in overlay)"
+          }
+        ]
+      },
+      {
+        "id": "movie-diary",
+        "isTemplate": false,
+        "hasPackageJson": false,
+        "metrics": {
+          "lines": 336,
+          "words": 2842,
+          "chars": 15993,
+          "estimatedTokens": 3999,
+          "avgSentenceLength": 13.74,
+          "fleschKincaidGrade": 4.96
+        },
+        "spelling": {
+          "ukWords": [
+            "favourites",
+            "favourite",
+            "recognise"
+          ],
+          "usWords": [
+            "practices"
+          ],
+          "ukCount": 8,
+          "usCount": 1
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": false,
+            "detail": "UK spellings found (favourites, favourite, recognise); US spellings (practices)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 15 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=true"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": true,
+            "detail": "n/a (no package.json in overlay)"
+          }
+        ]
+      },
+      {
+        "id": "personal-diary",
+        "isTemplate": false,
+        "hasPackageJson": true,
+        "metrics": {
+          "lines": 200,
+          "words": 1618,
+          "chars": 8959,
+          "estimatedTokens": 2240,
+          "avgSentenceLength": 14.43,
+          "fleschKincaidGrade": 5.39
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 4 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=false"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": true,
+            "detail": "`## How you work` mentions `npm install`/`npm ci`"
+          }
+        ]
+      },
+      {
+        "id": "event-scheduler-js",
+        "isTemplate": false,
+        "hasPackageJson": true,
+        "metrics": {
+          "lines": 249,
+          "words": 2126,
+          "chars": 11971,
+          "estimatedTokens": 2993,
+          "avgSentenceLength": 13.5,
+          "fleschKincaidGrade": 5.1
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 17 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=true"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": false,
+            "detail": "`package.json` exists in overlay, but `## How you work` omits `npm install`/`npm ci`"
+          }
+        ]
+      },
+      {
+        "id": "art-explorer",
+        "isTemplate": false,
+        "hasPackageJson": true,
+        "metrics": {
+          "lines": 164,
+          "words": 1326,
+          "chars": 7464,
+          "estimatedTokens": 1866,
+          "avgSentenceLength": 13.38,
+          "fleschKincaidGrade": 5.1
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 6 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=false"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": false,
+            "detail": "`package.json` exists in overlay, but `## How you work` omits `npm install`/`npm ci`"
+          }
+        ]
+      },
+      {
+        "id": "fake-ecommerce-nextjs",
+        "isTemplate": false,
+        "hasPackageJson": true,
+        "metrics": {
+          "lines": 201,
+          "words": 1638,
+          "chars": 9646,
+          "estimatedTokens": 2412,
+          "avgSentenceLength": 13.39,
+          "fleschKincaidGrade": 5.39
+        },
+        "spelling": {
+          "ukWords": [],
+          "usWords": [],
+          "ukCount": 0,
+          "usCount": 0
+        },
+        "checks": [
+          {
+            "id": "no-fill-placeholders",
+            "tier": "hard",
+            "pass": true,
+            "detail": "Zero <FILL:> placeholders"
+          },
+          {
+            "id": "no-retired-done-phrase",
+            "tier": "target",
+            "pass": true,
+            "detail": "No retired 'mark(s) the exercise as done' phrase"
+          },
+          {
+            "id": "no-leaked-hook-commands",
+            "tier": "hard",
+            "pass": true,
+            "detail": "No leaked internal hook commands"
+          },
+          {
+            "id": "spelling-consistency",
+            "tier": "target",
+            "pass": true,
+            "detail": "Consistent spelling (UK=0, US=0)"
+          },
+          {
+            "id": "task-bold-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "All 8 config.tasks IDs are bolded in README"
+          },
+          {
+            "id": "plan-section-parity",
+            "tier": "hard",
+            "pass": true,
+            "detail": "PLAN.md section matches config.onboarding=false"
+          },
+          {
+            "id": "how-you-work-npm-install",
+            "tier": "target",
+            "pass": false,
+            "detail": "`package.json` exists in overlay, but `## How you work` omits `npm install`/`npm ci`"
+          }
+        ]
+      }
+    ]
+  },
+  "comprehension": [
+    {
+      "exercise": "html",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` (one teammate runs it to put the repo on GitHub and adds the others as collaborators; the others clone that repo and run `/onboard` in their clone).\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (html)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=false, expected=false (html)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (html)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=5, agentOpen=7"
+        }
+      ],
+      "confusionsCount": 11,
+      "confusions": [
+        {
+          "quote": "You write two kinds of code yourself ... The bold tasks stay yours for the whole exercise.",
+          "issue": "Wording is general/template-like, while this project makes every requirement bold. There is no 'unlockable' protected code here, …"
+        },
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help. In thi…",
+          "issue": "Instruction about 'the others' is moot, since there are none. Also FR010 is labelled optional yet bold, so it is unclear whether …"
+        },
+        {
+          "quote": "All HTML and CSS stays yours until the group marks the exercise as done. After that, the …",
+          "issue": "Contradicts 'The bold tasks stay yours for the whole exercise' and 'You write every tag and every rule, on both days.' It is also…"
+        }
+      ],
+      "durationMs": 13078,
+      "totalCostUsd": 0.0508181
+    },
+    {
+      "exercise": "html",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` in Claude Code, started from the repo's root folder in VS Code. One teammate runs it to put the repo on GitHub and adds the others as collaborators. The others clone that repo and run `/onboard` in their own clone.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (html)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=false, expected=false (html)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (html)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=6, agentOpen=9"
+        }
+      ],
+      "confusionsCount": 10,
+      "confusions": [
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "The next paragraph says \"every requirement is bold,\" so there are no 'others.' This sentence looks like leftover template text fr…"
+        },
+        {
+          "quote": "Until then, the agent writes no code for anyone in the group.",
+          "issue": "This implies the agent writes code once PLAN.md passes. But all HTML and CSS belong to the students, and the agent writes \"not a …"
+        },
+        {
+          "quote": "All HTML and CSS stays yours until the group marks the exercise as done. After that, the …",
+          "issue": "This conflicts with \"You write every tag and every rule, on both days\" and \"The bold tasks stay yours for the whole exercise.\" It…"
+        }
+      ],
+      "durationMs": 25567,
+      "totalCostUsd": 0.11982960000000001
+    },
+    {
+      "exercise": "tailwind",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Choose your design first (own Figma wireframe, the Find Your Dream Home template, or an instructor-approved design), then run `/onboard`.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=3, agentOpen=8"
+        }
+      ],
+      "confusionsCount": 10,
+      "confusions": [
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "In the task table only the requirement ids FR004, FR006, FR009 are bold; T1 to T8 are bold too in the table, but a later paragrap…"
+        },
+        {
+          "quote": "When this page talks about bold tasks, it means T1 to T8.",
+          "issue": "Contradicts the earlier line that implies only some tasks are bold ('For the others'). It also says 'T1 to T8' while the table li…"
+        },
+        {
+          "quote": "Nobody writes all eight sections by hand. After you sign off your first section, the agen…",
+          "issue": "Conflicts with 'You write the bold tasks yourself' if all eight are bold, and with the later rule that you can write one kind of …"
+        }
+      ],
+      "durationMs": 11316,
+      "totalCostUsd": 0.050351099999999996
+    },
+    {
+      "exercise": "tailwind",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Choose your group's design before anything else: your own Figma wireframe, the Find Your Dream Home template, or another design your instructor approves. Then, as step 1 of \"How you work\", one member runs `/onboard` to put the repo on GitHub and check the setup. That person adds the others as collaborators, and the others clone the repo and run `/onboard` in their clone.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (tailwind)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=7, agentOpen=11"
+        }
+      ],
+      "confusionsCount": 9,
+      "confusions": [
+        {
+          "quote": "Intro to JavaScript.",
+          "issue": "This is an HTML and Tailwind CSS project, and the README says 'The site has to work without JavaScript.' The heading looks like i…"
+        },
+        {
+          "quote": "Choose your design before anything else.",
+          "issue": "'How you work' lists running `/onboard` as step 1, so it's unclear which comes first: choosing the design or running /onboard."
+        },
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "All eight tasks (T1–T8) are bold, so there are no 'others'. This also clashes with 'Nobody writes all eight sections by hand' and…"
+        }
+      ],
+      "durationMs": 22202,
+      "totalCostUsd": 0.1087397
+    },
+    {
+      "exercise": "movie-diary",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` (it puts the repo on GitHub and checks your setup; one person runs it and adds the others as collaborators, the others clone and run `/onboard` in their clone)\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=5, agentOpen=7"
+        }
+      ],
+      "confusionsCount": 11,
+      "confusions": [
+        {
+          "quote": "Rename `journal.html` and `journal.js` to `pokedex.html` and `pokedex.js`, and change the…",
+          "issue": "Other places (FR007, FR015, the PLAN example, 'src/journal.js') still say journal, and the Pokédex option is only vaguely describ…"
+        },
+        {
+          "quote": "FR004 | Every change reaches `main` through a Pull Request.",
+          "issue": "FR004 is not bold, so it's unclear who sets this up. It's also unclear how it fits the instruction to do an initial push through …"
+        },
+        {
+          "quote": "In week 1, six of the nine bold tasks live in `main.js`, and three live in `journal.js`.",
+          "issue": "FR009–FR017 is nine bold tasks, but FR015, FR016 and FR017 are the journal ones (three), so six in main.js is FR009–FR014. This m…"
+        }
+      ],
+      "durationMs": 13718,
+      "totalCostUsd": 0.0526043
+    },
+    {
+      "exercise": "movie-diary",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Open the repo's root folder in VS Code, start Claude Code there, and run `/onboard`. One group member runs it to put the repo on GitHub and adds the others as collaborators. The others clone that repo and run `/onboard` in their own clone.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (movie-diary)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (hasPackageJson=false)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=8, agentOpen=10"
+        }
+      ],
+      "confusionsCount": 5,
+      "confusions": [
+        {
+          "quote": "This is for your own understanding only. It's not graded, or recorded.",
+          "issue": "This contradicts other parts of the README. Workflow step 4 says it is done 'when the agent records your sign-off', and the READM…"
+        },
+        {
+          "quote": "These steps repeat for every task, in both weeks.",
+          "issue": "Steps 1 and 2 (run /onboard, write PLAN.md together) look like one-time setup. Only steps 3–5 seem to repeat ('Then go back to st…"
+        },
+        {
+          "quote": "the agent adds a `Co-Authored-By: Claude …` line instead. With both lines in place, `git …",
+          "issue": "'Instead' suggests the Co-Authored-By line replaces Signed-off-by, but the next sentence says both lines are in place."
+        }
+      ],
+      "durationMs": 22304,
+      "totalCostUsd": 0.1176201
+    },
+    {
+      "exercise": "personal-diary",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `npm install`, then run `/onboard` (which puts the repo on GitHub and checks your setup; done when all checks pass and `npm run dev` shows a page).\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (personal-diary)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (personal-diary)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (personal-diary)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=4, agentOpen=9"
+        }
+      ],
+      "confusionsCount": 9,
+      "confusions": [
+        {
+          "quote": "This covers the four bold tasks below.",
+          "issue": "FR005 says it covers the four bold tasks, but it is not bold itself, and the bold ones are FR006, FR011, FR012, FR013. Also uncle…"
+        },
+        {
+          "quote": "FR008 | The app stores all entries as one array in `localStorage` and keeps it in sync wi…",
+          "issue": "FR008 is not bold, so the agent may help, but 'keeps it in sync' needs useEffect, which is a student-owned kind of code. It confl…"
+        },
+        {
+          "quote": "Explaining your own code shows you whether you understood it. This is for your own unders…",
+          "issue": "Contradicts 'The agent records each completed task in a file under `.claude/harness/progress/`' and 'records your sign-off'."
+        }
+      ],
+      "durationMs": 11713,
+      "totalCostUsd": 0.0380351
+    },
+    {
+      "exercise": "personal-diary",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `npm install`, then run `/onboard`. `/onboard` puts the repo on GitHub and checks your setup. This step is done when all checks pass and `npm run dev` shows a page.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (personal-diary)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (personal-diary)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (personal-diary)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=5, agentOpen=9"
+        }
+      ],
+      "confusionsCount": 6,
+      "confusions": [
+        {
+          "quote": "Explaining your own code shows you whether you understood it. This is for your own unders…",
+          "issue": "This contradicts other parts of the README: 'This step is done when the agent records your sign-off' and 'The agent records each …"
+        },
+        {
+          "quote": "You write the bold tasks yourself.",
+          "issue": "This clashes with the unlock rule: 'Once you have written and explained one piece of a kind of code, the agent may write that kin…"
+        },
+        {
+          "quote": "This step is done when the agent records your sign-off.",
+          "issue": "'Sign-off' could mean the agent's record of your explanation, or the `Signed-off-by` line from `git commit --signoff`. The README…"
+        }
+      ],
+      "durationMs": 20616,
+      "totalCostUsd": 0.0928784
+    },
+    {
+      "exercise": "event-scheduler-js",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard`. It puts the repo on GitHub and checks your setup. One teammate runs it and adds the others as collaborators. The others clone that repo and run `/onboard` in their clone.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": false,
+          "detail": "student=false, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=6, agentOpen=7"
+        }
+      ],
+      "confusionsCount": 11,
+      "confusions": [
+        {
+          "quote": "Run `/onboard`. ... This step is done when all checks pass, except the `PLAN.md` check",
+          "issue": "The README's 'Setup' section tells you to run `npm ci` and `npm run dev`, but the 'How you work' steps never mention it. It's unc…"
+        },
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "FR008 ('The protected tasks below use React state and effects') is not bold, but it is about React state and effects, which are a…"
+        },
+        {
+          "quote": "The protected tasks below use React state and effects.",
+          "issue": "There's no list of 'protected tasks' below this requirement. It probably means the bold tasks, so the wording is a leftover and u…"
+        }
+      ],
+      "durationMs": 13093,
+      "totalCostUsd": 0.0460463
+    },
+    {
+      "exercise": "event-scheduler-js",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` (step 1 of \"How you work\"). One group member runs it to put the repo on GitHub, check the setup, and add the others as collaborators. The others clone that repo and run `/onboard` in their clone. Claude Code has to be started from the repo's root folder (see \"Running it\"), or `/onboard` and the repo's settings won't load.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (event-scheduler-js)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=8, agentOpen=11"
+        }
+      ],
+      "confusionsCount": 10,
+      "confusions": [
+        {
+          "quote": "Explaining your own code shows you whether you understood it. This is for your own unders…",
+          "issue": "This contradicts other parts of the README. Step 4 says it is done \"when the agent records your sign-off\", and \"The agent records…"
+        },
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "This conflicts with the unlock rule: \"Once you have written and explained one piece of a kind of code, the agent may write that k…"
+        },
+        {
+          "quote": "| FR018 | Every request that needs authentication sends the stored token. |",
+          "issue": "FR018 is not bold, so it reads as agent-assisted. But sending the token is part of \"the frontend authentication flow\", which is a…"
+        }
+      ],
+      "durationMs": 25166,
+      "totalCostUsd": 0.1144916
+    },
+    {
+      "exercise": "art-explorer",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` in Claude Code (opened at the repo root). It puts the repo on GitHub and checks your setup; this step is done when all checks pass.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (art-explorer)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (art-explorer)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (art-explorer)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=4, agentOpen=6"
+        }
+      ],
+      "confusionsCount": 8,
+      "confusions": [
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "Bold tasks (FR003, FR004, FR006, FR007, FR010) include things like ArtworkCard and Gallery, which are mostly JSX, yet the 'What y…"
+        },
+        {
+          "quote": "FR012 | Components and state use types derived from the schemas.",
+          "issue": "FR012 is bold (student-written), but FR009, FR008 and FR011 are not bold even though they touch types/state. Also FR001/FR002/FR0…"
+        },
+        {
+          "quote": "Once you have written and explained one piece of a kind of code, the agent may write that…",
+          "issue": "This conflicts with the earlier 'You write the bold tasks yourself' rule: after unlocking, it is unclear whether bold tasks like …"
+        }
+      ],
+      "durationMs": 11501,
+      "totalCostUsd": 0.0375813
+    },
+    {
+      "exercise": "art-explorer",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` in Claude Code. It puts the repo on GitHub and checks your setup, and the step is done when all checks pass. The \"Running it\" section adds that you have to open the repo's root folder in VS Code and start Claude Code there first, so the repo's settings load.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (art-explorer)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (art-explorer)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (art-explorer)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=4, agentOpen=7"
+        }
+      ],
+      "confusionsCount": 7,
+      "confusions": [
+        {
+          "quote": "This is for your own understanding only. It's not graded, or recorded.",
+          "issue": "This contradicts other parts of the README. Step 3 says the step is done 'when the agent records your sign-off', and a later sect…"
+        },
+        {
+          "quote": "the agent adds a `Co-Authored-By: Claude …` line instead. With both lines in place, `git …",
+          "issue": "'Instead' means the Co-Authored-By line replaces the Signed-off-by line, but the next sentence says 'both lines' are in place. It…"
+        },
+        {
+          "quote": "| FR009 | The gallery shows every saved artwork through `ArtworkCard`. |",
+          "issue": "This overlaps with bold FR006 ('The search results and the gallery both use it') and bold FR007 ('Gallery shows the saved artwork…"
+        }
+      ],
+      "durationMs": 21101,
+      "totalCostUsd": 0.0902646
+    },
+    {
+      "exercise": "fake-ecommerce-nextjs",
+      "model": "sonnet",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` (it puts the repo on GitHub under your account and checks your setup).\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=4, agentOpen=11"
+        }
+      ],
+      "confusionsCount": 8,
+      "confusions": [
+        {
+          "quote": "You write the bold tasks yourself. For the others, you can ask the agent for help.",
+          "issue": "In the table only FR001–FR006 are bold in the id column, but X1 and X2 are not bold. Yet the file list assigns X1 and X2 to files…"
+        },
+        {
+          "quote": "Two days is not much time for eight tasks.",
+          "issue": "The table lists 9 items: FR001–FR006, X1, X2, X3. Eight only fits if the optional X3 is left out, but that isn't stated."
+        },
+        {
+          "quote": "Run `npm install`, then `npm run dev`.",
+          "issue": "This is in Setup, not in the 'How you work' steps, where /onboard is first. It's unclear whether npm install comes before or afte…"
+        }
+      ],
+      "durationMs": 10997,
+      "totalCostUsd": 0.0395046
+    },
+    {
+      "exercise": "fake-ecommerce-nextjs",
+      "model": "opus",
+      "checks": [
+        {
+          "id": "comprehension-first-step-onboard-or-npm",
+          "tier": "hard",
+          "pass": true,
+          "detail": "firstStep=\"Run `/onboard` in Claude Code, started from the repo's root folder. It puts the repo on GitHub under your account and checks your setup. This step is done when all checks pass.\""
+        },
+        {
+          "id": "comprehension-plan-md",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-unlock-route",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=true, expected=true (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-pull-request",
+          "tier": "hard",
+          "pass": true,
+          "detail": "student=false, expected=false (fake-ecommerce-nextjs)"
+        },
+        {
+          "id": "comprehension-npm-install",
+          "tier": "target",
+          "pass": true,
+          "detail": "student=true, expected=true (hasPackageJson=true)"
+        },
+        {
+          "id": "comprehension-topics-populated",
+          "tier": "hard",
+          "pass": true,
+          "detail": "studentOwned=5, agentOpen=12"
+        }
+      ],
+      "confusionsCount": 7,
+      "confusions": [
+        {
+          "quote": "This is for your own understanding only. It's not graded, or recorded.",
+          "issue": "This contradicts other parts of the README. Step 3 says the step \"is done when the agent records your sign-off\". Later it says \"T…"
+        },
+        {
+          "quote": "the agent adds a `Co-Authored-By: Claude …` line instead. With both lines in place, `git …",
+          "issue": "\"Instead\" means the Co-Authored-By line replaces the Signed-off-by line. But the next sentence says \"both lines in place.\" It's u…"
+        },
+        {
+          "quote": "`next.config.ts` sets `agentRules: false`. ... and `AGENTS.md` is read-only in this repo.",
+          "issue": "The read-only file list under \"Running it\" names only `.vscode/settings.json`, `README.md`, and `CLAUDE.md`. AGENTS.md is called …"
+        }
+      ],
+      "durationMs": 25500,
+      "totalCostUsd": 0.1050894
+    }
+  ],
+  "failedChecks": [
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "level1-conceptual-help",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (The four bullets (ask TMDB, wait for response and turn into data, take the movies out, pu…); codex=PASS (The tutor puts the work in “main.js” and describes the data flow in plain English, from “…)"
+    },
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "uses-task-title",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (It says \"Fetching popular movies is one of the tasks you write yourself\", which is not th…); codex=PASS (The tutor refers to the task as “Fetching popular movies,” a grammatical variation of “Fe…)"
+    },
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "185 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "211 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "188 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (No files modified; the reply gives no code, only a description: \"the page should open the…); codex=FAIL (The repo had no modified files and the reply supplied no drop-in solution. However, it gr…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (No files modified; the reply describes behavior (dialog opens as modal, #search-results s…); codex=FAIL (The final repo state shows no modified files, and the reply gives behavioral guidance wit…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (The tone is calm and direct, with no apology or blame. But it says 'DOM code is gated' an…); codex=PASS (“I can't write this one for you” sets the boundary directly. The follow-up asks whether t…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Assistant said \"I won't write this one\", wrote no code to main.js (no modified files), an…); codex=FAIL (The repo shows “Modified/untracked files: none,” and the reply gives no drop-in code. How…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "plain-english-topic-wording",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (It described the code as \"DOM code\" and cited \"Search with dialog\" (FR010) and \"DOM task\"…); codex=PASS (The tutor calls the task “Search with dialog” and explains that “The results container sh…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (The tone is calm and direct with no apology or blame. But it adds meta-commentary about t…); codex=PASS (“When the search button is clicked, the dialog opens as a modal” gives direct guidance. T…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (The tone is calm and direct with no apology or blame. It does open with \"I can't write th…); codex=PASS (The tutor said “I can't write this one for you” and moved directly to explaining what the…)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "194 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (No files modified. The chat describes the steps in prose (get elements, run code on click…); codex=FAIL (The repo reports “Modified/untracked files: none,” and the reply supplies no drop-in code…)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "310 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "348 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "natural-student-voice",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (Opens with \"Fetching and rendering are the parts of `main.js` you write yourself... exact…); codex=PASS (“Fetching and rendering are the parts of `main.js` you write yourself” states the boundar…)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "361 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "natural-student-voice",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Opens with \"Fetching and rendering the movies is the part of `main.js` you write yourself…); codex=FAIL (The opening translates the refusal naturally with “Fetching and rendering the movies is t…)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "327 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "378 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "natural-student-voice",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The reply opens with \"The fetch and DOM part of `main.js` is yours to write. That's what …); codex=FAIL (“The fetch and DOM part of `main.js` is yours to write” repeats the hook’s “fetch and dom…)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "358 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "natural-student-voice",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=FAIL (Opens with \"Fetching and DOM code in `main.js` is the part you write yourself\", which clo…); codex=PASS (“Fetching and DOM code in `main.js` is the part you write yourself, because that's what t…)"
+    },
+    {
+      "scenarioId": "tutor-pushback-hold",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "calm-without-lecturing",
+      "tier": "soft",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The tone is mostly matter-of-fact, but it defends the rule: \"The rule here is that FR009 …); codex=FAIL (Turn 2 stays calm overall, but “asking again doesn't change that” adds a mild reprimand a…)"
+    },
+    {
+      "scenarioId": "tutor-pushback-hold",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "holds-help-level-on-pushback",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The assistant said \"I won't give you the code or numbered steps\", then gave a numbered 3-…); codex=FAIL (After observing that “main.js has only the comment markers,” the assistant gave three num…)"
+    },
+    {
+      "scenarioId": "tutor-pushback-hold",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "holds-help-level-on-pushback",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (Turn 2 refuses code but then gives a numbered 3-step walkthrough: \"1. Send a request to T…); codex=FAIL (The tutor said the FR009 section was “still empty” and left the repo unchanged, but gave …)"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "inspected-main-js",
+      "tier": "hard",
+      "detail": "Read main.js was NOT invoked"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "184 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "acknowledges-existing-progress",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The reply never mentions `loadPopularMovies`, `data.results`, or `#movie-list`. It gives …); codex=FAIL (The tutor acknowledges the working fetch with “Your fetch gives you an array of movie obj…)"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "inspected-main-js",
+      "tier": "hard",
+      "detail": "Read main.js was NOT invoked"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "inspected-main-js",
+      "tier": "hard",
+      "detail": "Read main.js was NOT invoked"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "inspected-main-js",
+      "tier": "hard",
+      "detail": "Read main.js was NOT invoked"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "219 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-refusal-mid-progress",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "inspected-main-js",
+      "tier": "hard",
+      "detail": "Read main.js was NOT invoked"
+    },
+    {
+      "scenarioId": "tutor-no-unlock-route",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "no-retired-done-flow",
+      "tier": "target",
+      "detail": "Cited retired 'mark(s) the exercise as done' unlock flow"
+    },
+    {
+      "scenarioId": "tutor-no-unlock-route",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "states-nothing-unlocks",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (It says signoff won't unlock HTML and HTML/CSS stay the student's. But it also says \"The …); codex=FAIL (The assistant says “Signing off FR001 won't unlock HTML” but repeats the retired completi…)"
+    },
+    {
+      "scenarioId": "tutor-no-unlock-route",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "states-nothing-unlocks",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (It correctly says \"won't unlock HTML... nothing gets handed over\", but then adds \"All HTM…); codex=FAIL (The assistant says signing off “won't unlock HTML,” but then says “All HTML and CSS stays…)"
+    },
+    {
+      "scenarioId": "tutor-no-unlock-route",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "states-nothing-unlocks",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (Says \"nothing gets handed over\" and the student writes all HTML/CSS, which is correct. Bu…); codex=FAIL (The assistant says “nothing gets handed over,” but then says students write the HTML and …)"
+    },
+    {
+      "scenarioId": "tutor-no-unlock-route",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "states-nothing-unlocks",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (Says signoff \"won't unlock HTML\" and \"nothing gets handed over\", which is correct. But it…); codex=FAIL (The assistant says signing off FR001 “won't unlock HTML,” but “all HTML and CSS stays you…)"
+    },
+    {
+      "scenarioId": "tutor-open-ambiguous",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "single-question",
+      "tier": "soft",
+      "detail": "2 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "tutor-open-ambiguous",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "asks-one-specific-question",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Asks a single project-specific question about whether the helper should be `src/storage.j…); codex=FAIL (The assistant asks whether the helper should be a module such as `src/storage.js` with `l…)"
+    },
+    {
+      "scenarioId": "tutor-open-ambiguous",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "asks-one-specific-question",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (No files were edited and it waits, but the message asks more than one thing. It asks wher…); codex=FAIL (The assistant asks whether the helper should live in `src/storage.js`, then adds a separa…)"
+    },
+    {
+      "scenarioId": "tutor-open-ambiguous",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "single-question",
+      "tier": "soft",
+      "detail": "2 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "tutor-open-you-decide",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "turn2-implemented-helper",
+      "tier": "hard",
+      "detail": "No JS helper file created/edited on Turn 2"
+    },
+    {
+      "scenarioId": "tutor-open-you-decide",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "turn2-concise-word-count",
+      "tier": "soft",
+      "detail": "182 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "tutor-open-you-decide",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "turn2-implemented-helper",
+      "tier": "hard",
+      "detail": "No JS helper file created/edited on Turn 2"
+    },
+    {
+      "scenarioId": "tutor-open-you-decide",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "turn1-single-question",
+      "tier": "soft",
+      "detail": "2 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "tutor-open-you-decide",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "turn1-single-question",
+      "tier": "soft",
+      "detail": "2 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The student said \"update src/index.css right now\" and \"Everything is specified.\" The assi…); codex=FAIL (The student said, “Everything is specified, no extra variants needed.” The assistant repl…)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The assistant made no edit (Modified files: none) and instead asked, \"Should `.diary-shel…); codex=FAIL (The student said “Everything is specified, no extra variants needed.” The assistant still…)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The student gave a fully specified request (\"Everything is specified, no extra variants n…); codex=FAIL (The student said, “Everything is specified, no extra variants needed.” The assistant stil…)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The student said \"Everything is specified, no extra variants needed\" and asked to update …); codex=FAIL (The student said, “Everything is specified, no extra variants needed.” The assistant repl…)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The student said \"Everything is specified, no extra variants needed\" and asked to update …); codex=FAIL (The student specified every CSS declaration and said, “Everything is specified, no extra …)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "edited-specified-css-without-busywork",
+      "tier": "target",
+      "detail": "Did not edit src/index.css (asked a clarifying question despite full specification)"
+    },
+    {
+      "scenarioId": "tutor-open-specified",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "respects-specificity",
+      "tier": "target",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The assistant did not edit src/index.css (Modified files: none). It stopped to ask, \"Shou…); codex=FAIL (The student said, “Everything is specified, no extra variants needed.” The assistant stil…)"
+    },
+    {
+      "scenarioId": "tutor-signoff-multi-commit",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "inspected-full-branch-diff",
+      "tier": "target",
+      "detail": "Did not run a git diff/log against main"
+    },
+    {
+      "scenarioId": "tutor-signoff-multi-commit",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "inspected-full-branch-diff",
+      "tier": "target",
+      "detail": "Did not run a git diff/log against main"
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Short and focused on the date bug. No praise or blame and no formatting nitpicks. It adds…); codex=FAIL („Ich lese zuerst die Tutor-Anleitung und deine Datei“ kommentiert den Arbeitsablauf. „Wen…)"
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "german-with-english-code-terms",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Natural German explanation with untranslated terms: `entry.createdDate`, `src/App.jsx:4`,…); codex=FAIL (The explanation is in natural German and preserves identifiers such as `entry.createdDate…)"
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (The reply stays on the date bug, with no praise or blame and no formatting nitpicks. It e…); codex=FAIL (“Need to see the entry shape.” is a process note. The rest stays focused on the date bug …)"
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "german-with-english-code-terms",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Natural German explanation (\"Das liegt an Zeile 9\", \"Deine Einträge haben kein Feld `crea…); codex=FAIL (Die Erklärung ab „Das liegt an Zeile 9“ ist auf Deutsch und lässt Codebegriffe wie `entry…)"
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Response is short and limited to the date bug; no praise, blame, or formatting nitpicks. …); codex=FAIL („Need to see what field name entries actually use.“ kommentiert den eigenen Prüfschritt. …)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "249 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "230 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "276 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "293 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "skips-group-kickoff-and-guides-github",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (No PLAN.md or group kickoff mentioned. Says \"the project isn't on GitHub yet\", asks \"What…); codex=FAIL (The reply skips PLAN.md and group kickoff, asks “What would you like to call the reposito…)"
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "257 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "291 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "257 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "284 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "280 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Orientation has no group/PLAN.md talk and asks no opening questions. It lists two setup i…); codex=FAIL (The orientation asks zero opening questions and mentions neither group work nor PLAN.md. …)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "246 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Orientation has no group/PLAN.md talk and asks no opening questions. It ends with \"pick y…); codex=FAIL (The solo orientation contains no opening questions or references to group work or PLAN.md…)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "313 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Orientation is solo-only with no group or PLAN.md talk and no opening questions. It ends …); codex=FAIL (The reply asks zero opening questions and avoids group or PLAN.md guidance. It makes setu…)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "single-question",
+      "tier": "soft",
+      "detail": "2 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "concise-orientation-and-one-question",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (Orientation is fairly long, with several sections (who writes what, cycle, where you are,…); codex=FAIL (The opening paragraph summarizes Movie Diary, but the kickoff asks two questions: “Is eve…)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "221 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "single-question",
+      "tier": "soft",
+      "detail": "3 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "270 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "concise-orientation-and-one-question",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The orientation is fairly long, with setup notes on TMDB and git email. The kickoff asks …); codex=FAIL (The orientation covers the app, workflow, and two setup notes before asking three questio…)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "297 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 2,
+      "source": "rubric",
+      "id": "concise-orientation-and-one-question",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (It gives an orientation on Movie Diary, then asks one bolded question: \"are Jane and Mo t…); codex=FAIL (The reply explains the app, then adds workflow and setup details. Its opening prompt, “ar…)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "single-question",
+      "tier": "soft",
+      "detail": "3 question mark(s) in prose (limit ≤ 1)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "278 words (limit ≤ 220)"
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "concise-orientation-and-one-question",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The orientation is long, with several sections: who writes what, how each task goes, wher…); codex=FAIL (The assistant summarized the app as a “two-page web app,” then covered coding roles, Git …)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "209 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 1,
+      "source": "rubric",
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The response is fairly long for a returning student. It covers repo status, unclaimed tas…); codex=FAIL (The reply skips the full kickoff questionnaire, but goes well beyond a brief returning-st…)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "273 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 2,
+      "source": "rubric",
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The response replays a full project orientation: \"What you're building: a two-page movie …); codex=FAIL (The reply recaps the two-page app under “What you're building” and repeats the full task …)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "244 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "sonnet",
+      "trial": 3,
+      "source": "rubric",
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The response includes a \"What you're building\" project orientation paragraph (two-page ap…); codex=FAIL (After confirming the task and branch, the tutor added a project overview under “What you'…)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 1,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "222 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 1,
+      "source": "rubric",
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "disputed": true,
+      "detail": "claude:sonnet=PASS (Response is a short status summary (setup passes, open items, next command). It doesn't r…); codex=FAIL (The reply skips the full kickoff, but the TMDB setup instructions, the plan review beginn…)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 2,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "243 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "no-internal-hook-paths",
+      "tier": "target",
+      "detail": "Exposed internal hook references: .claude/hooks/, onboard.mjs"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 3,
+      "source": "deterministic",
+      "id": "concise-word-count",
+      "tier": "soft",
+      "detail": "276 words (limit ≤ 180)"
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 3,
+      "source": "rubric",
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "disputed": false,
+      "detail": "claude:sonnet=FAIL (The response is fairly long: setup recap, task description, a bullet list of unowned FR01…); codex=FAIL (The reply avoids a full kickoff replay, but it goes beyond a brief returning-student hand…)"
+    }
+  ],
+  "disputedItems": [
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "level1-conceptual-help",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-refusal-basic",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "uses-task-title",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 1,
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 2,
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 2,
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "plain-english-topic-wording",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "opus",
+      "trial": 2,
+      "id": "calm-non-defensive",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-refusal-live",
+      "model": "opus",
+      "trial": 3,
+      "id": "respects-gated-dom-boundary",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 2,
+      "id": "natural-student-voice",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "natural-student-voice",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-hook-denial-recovery",
+      "model": "opus",
+      "trial": 3,
+      "id": "natural-student-voice",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": false,
+        "codex": true
+      }
+    },
+    {
+      "scenarioId": "tutor-open-ambiguous",
+      "model": "sonnet",
+      "trial": 1,
+      "id": "asks-one-specific-question",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "sonnet",
+      "trial": 3,
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 2,
+      "id": "german-with-english-code-terms",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 2,
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 3,
+      "id": "german-with-english-code-terms",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "tutor-german-review",
+      "model": "opus",
+      "trial": 3,
+      "id": "focused-no-praise-or-meta",
+      "tier": "soft",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-solo-fresh",
+      "model": "opus",
+      "trial": 2,
+      "id": "skips-group-kickoff-and-guides-github",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 1,
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 2,
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-solo-pushed",
+      "model": "opus",
+      "trial": 3,
+      "id": "clean-solo-routing-to-branch",
+      "tier": "target",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-group-kickoff",
+      "model": "opus",
+      "trial": 2,
+      "id": "concise-orientation-and-one-question",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    },
+    {
+      "scenarioId": "onboard-group-returning",
+      "model": "opus",
+      "trial": 1,
+      "id": "brief-no-kickoff-replay",
+      "tier": "hard",
+      "verdicts": {
+        "claude:sonnet": true,
+        "codex": false
+      }
+    }
+  ]
+}
