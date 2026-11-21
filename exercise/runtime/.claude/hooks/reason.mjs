@@ -2,12 +2,11 @@
 //
 // Written last, and deliberately.
 //
-// hooks-research established that `permissionDecisionReason` is handed to Claude
-// on every single block. That makes this the one piece of the tutor persona that
-// re-primes after every compaction and therefore cannot erode — the skill file
-// can be dropped from a long session, this cannot. Anything the agent must not
-// forget while a student is struggling at hour six belongs here rather than
-// there.
+// `permissionDecisionReason` is handed to Claude on every single block. That
+// makes this the one piece of the tutor persona that re-primes after every
+// compaction and therefore cannot erode — the skill file can be dropped from a
+// long session, this cannot. Anything the agent must not forget while a student
+// is struggling at hour six belongs here rather than there.
 //
 // It is also where the *conditional* part lives. The skill is shared across
 // assignments and cannot promise an unlock that some assignments do not have.
@@ -19,8 +18,8 @@
 // not a wall: it is injected on every block, and a reason nobody finishes
 // reading is a reason that does not work.
 //
-// It opens with the line the student should hear, in the student's words. Run 2
-// found the agent relaying this string's own vocabulary — "gate", "gated",
+// It opens with the line the student should hear, in the student's words. Earlier
+// trials showed the agent relaying this string's own vocabulary — "gate", "gated",
 // "prose" — and inventing restraint-narration around it. That is what a block
 // message full of instructions about itself primes. Give the agent the sentence
 // instead, then the instructions, and keep the instructions short.

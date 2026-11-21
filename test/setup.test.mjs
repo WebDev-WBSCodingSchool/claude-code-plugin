@@ -16,7 +16,10 @@ const scratch = mkdtempSync(join(tmpdir(), "wbs-harness-plugin-test-"));
 const fakeBin = join(scratch, "bin");
 const npmLog = join(scratch, "npm.log");
 mkdirSync(fakeBin);
-writeFileSync(join(fakeBin, "npm"), `#!/bin/sh\necho "$*" >> "${npmLog}"\nexit 1\n`);
+writeFileSync(
+  join(fakeBin, "npm"),
+  `#!/bin/sh\nif [ "$WBS_FAKE_NPM_SLEEP" != "" ]; then sleep "$WBS_FAKE_NPM_SLEEP"; fi\necho "$*" >> "${npmLog}"\nexit 1\n`,
+);
 chmodSync(join(fakeBin, "npm"), 0o755);
 const env = { ...process.env, PATH: `${fakeBin}${delimiter}${process.env.PATH}` };
 
@@ -60,6 +63,11 @@ try {
     assert.equal(
       execFileSync("git", ["status", "--porcelain"], { cwd: target, encoding: "utf8" }),
       "",
+    );
+    // #23: setup must initialize a fresh single-commit repo, never inherit runtime/.git
+    assert.equal(
+      execFileSync("git", ["rev-list", "--count", "HEAD"], { cwd: target, encoding: "utf8" }).trim(),
+      "1",
     );
 
     // A set-up project is governed by the harness committed inside it, never by
@@ -105,6 +113,18 @@ try {
   });
   assert.equal(rejected.status, 1);
   assert.match(rejected.stderr, /unknown exercise/);
+
+  // #23: slow/hanging npm audit fix times out cleanly and setup still finishes
+  const timeoutTarget = join(scratch, "timeout-check");
+  const startMs = Date.now();
+  const timedOut = spawnSync(process.execPath, [setup, "setup", "personal-diary", timeoutTarget], {
+    encoding: "utf8",
+    env: { ...env, WBS_FAKE_NPM_SLEEP: "5", WBS_NPM_AUDIT_TIMEOUT_MS: "200" },
+  });
+  const elapsedMs = Date.now() - startMs;
+  assert.equal(timedOut.status, 0, timedOut.stderr);
+  assert.match(timedOut.stderr, /could not apply security fixes/);
+  assert.ok(elapsedMs < 3000, `Expected audit timeout to fall back quickly, took ${elapsedMs}ms`);
 
   console.log(`${exerciseIds.length} setup integration checks passed`);
 } finally {

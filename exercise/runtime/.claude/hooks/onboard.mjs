@@ -18,10 +18,24 @@
 // clone left it pointed somewhere else. Putting the project on GitHub is not done
 // here: it needs a repo name and a person to own it, and both are the student's.
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { root, git, loadConfig, planFile, checkPlan, planBlock, taskLines } from "./harness.mjs";
+
+function samePath(a, b) {
+  try {
+    const left = realpathSync(a);
+    const right = realpathSync(b);
+    return process.platform === "win32"
+      ? left.toLowerCase() === right.toLowerCase()
+      : left === right;
+  } catch {
+    return process.platform === "win32"
+      ? join(a).toLowerCase() === join(b).toLowerCase()
+      : join(a) === join(b);
+  }
+}
 
 const config = loadConfig();
 const plan = planFile(config);
@@ -136,7 +150,7 @@ if (has("--check")) {
   if (top === null) {
     console.log(`  ✗ this is not a git repository (or git isn't installed)`);
     failed = true;
-  } else if (join(top) !== join(cwd)) {
+  } else if (!samePath(top, cwd)) {
     console.log(`  ✗ you are in ${cwd}`);
     console.log(`    The repo root is ${top}. Open THAT folder and start again from`);
     console.log(`    there — from a subfolder the harness config is silently ignored,`);

@@ -75,7 +75,8 @@ if (process.argv.includes("--status")) {
   console.log(`\nTasks:`);
   for (const t of config.tasks) {
     const row = unlocks.find((u) => u.task === t.id);
-    const mark = row ? `signed off (${row.route}, ${row.commits.at(-1).slice(0, 7)})` : "not yet";
+    const lastCommit = row?.commits?.at(-1)?.slice(0, 7) ?? "no commit";
+    const mark = row ? `signed off (${row.route}, ${lastCommit})` : "not yet";
     console.log(`  ${t.title.padEnd(24)} ${t.id}  ${mark}`);
   }
   console.log(`\nYou may ask the agent for help with these: ${[...open].join(", ") || "none of them yet"}`);
@@ -286,7 +287,7 @@ console.log(`Commit that file along with your work.\n`);
 for (const p of bs.problems) console.log(`  ${p.text}\n`);
 // A solo student has nobody to review a Pull Request, so merging locally is enough.
 console.log(
-  config.onboarding
+  config.onboarding !== false
     ? `Next: open a Pull Request for this branch, then cut a new one for your next task.\n`
     : `Next: merge this branch into ${config.integrationBranch ?? "main"} (locally or through a Pull Request), then cut a new one for your next task.\n`,
 );
