@@ -183,7 +183,8 @@ export function formatTranscriptForJudge(session, repoState) {
         if (k === lastTextIdx) continue;
         const ev = timeline[k];
         if (ev.type === "text") {
-          actionLines.push(`- [Pre-tool note] ${ev.text.replace(/\s+/g, " ").slice(0, 200)}`);
+          // Not truncated: judges grade explanations Claude gives before a tool call (e.g. signoff checks)
+          actionLines.push(`- [Pre-tool note] ${ev.text.replace(/\s+/g, " ")}`);
         } else if (ev.type === "tool_use") {
           actionLines.push(`- Tool ${ev.name}: ${JSON.stringify(ev.input).slice(0, 300)}`);
         } else if (ev.type === "hook_denial") {

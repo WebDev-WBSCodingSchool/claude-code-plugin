@@ -499,6 +499,28 @@ test("parseStreamJson separates pre-tool narration from final assistantText and 
   assert.ok(
     !transcript.slice(transcript.indexOf("### Turn 1 — Assistant")).includes("Need to see"),
   );
+
+  // Long pre-tool notes reach the judge in full (they once got cut at 200 chars)
+  const longNote = `${"The script refuses if main.js is missing. ".repeat(8)}END-OF-NOTE`;
+  const longTranscript = formatTranscriptForJudge(
+    {
+      turns: [
+        {
+          prompt: "Sign me off",
+          parsed: {
+            assistantText: "Done.",
+            timeline: [
+              { type: "text", text: longNote },
+              { type: "tool_use", name: "Bash", input: { command: "node .claude/hooks/signoff.mjs FR009" } },
+              { type: "text", text: "Done." },
+            ],
+          },
+        },
+      ],
+    },
+    { branch: "main", modifiedFiles: [], progressFiles: {} },
+  );
+  assert.ok(longTranscript.includes("END-OF-NOTE"));
 });
 
 // ---------------------------------------------------------------------------
