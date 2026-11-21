@@ -65,9 +65,9 @@ ${readmeText}
 }
 
 export function gradeComprehensionOutput({ exerciseId, config, hasPackageJson, output }) {
-  const expectsPlan = Boolean(config.onboarding);
+  const expectsPlan = config.onboarding !== false;
   const expectsUnlock = config.unlockRoute !== false;
-  const expectsPr = Boolean(config.onboarding);
+  const expectsPr = config.onboarding !== false;
   const expectsNpm = Boolean(hasPackageJson);
 
   // On html (unlockRoute: false), v0.14.1 README has the #15 contradiction, so unlock-route is [target]

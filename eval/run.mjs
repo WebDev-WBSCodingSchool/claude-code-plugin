@@ -9,7 +9,7 @@ import { snapshotRepoState } from "./lib/sandbox.mjs";
 import { checkSessionCompletedCleanly, runHookStringLint } from "./lib/assertions.mjs";
 import { runStaticReadabilitySuite } from "./lib/readability.mjs";
 import { preflightJudges, runJudgePanel } from "./lib/judge.mjs";
-import { isDirectRun } from "./lib/utils.mjs";
+import { installSignalCleanup, isDirectRun, runPool } from "./lib/utils.mjs";
 import {
   buildCompactSummary,
   renderMarkdownReport,
@@ -168,8 +168,8 @@ export function formatTranscriptForJudge(session, repoState) {
     parts.push(t.prompt);
     parts.push("");
 
-    const timeline = Array.isArray(t.parsed.timeline) ? t.parsed.timeline : null;
-    if (timeline && timeline.length) {
+    const timeline = Array.isArray(t.parsed.timeline) ? t.parsed.timeline : [];
+    if (timeline.length) {
       // Find the final text block index so earlier steps appear in true chronological order
       let lastTextIdx = -1;
       for (let k = timeline.length - 1; k >= 0; k--) {
@@ -195,21 +195,6 @@ export function formatTranscriptForJudge(session, repoState) {
         parts.push(...actionLines);
         parts.push("");
       }
-    } else {
-      if (t.parsed.toolUses.length) {
-        parts.push(`### Turn ${i + 1} — Tool Calls`);
-        for (const tu of t.parsed.toolUses) {
-          parts.push(`- ${tu.name}: ${JSON.stringify(tu.input).slice(0, 300)}`);
-        }
-        parts.push("");
-      }
-      if (t.parsed.preToolUseDenials.length) {
-        parts.push(`### Turn ${i + 1} — PreToolUse Hook Denials`);
-        for (const d of t.parsed.preToolUseDenials) {
-          parts.push(`- [${d.hookName}] ${d.systemMessage}`);
-        }
-        parts.push("");
-      }
     }
 
     parts.push(`### Turn ${i + 1} — Assistant`);
@@ -221,20 +206,6 @@ export function formatTranscriptForJudge(session, repoState) {
   parts.push(`- Modified/untracked files: ${repoState.modifiedFiles.join(", ") || "none"}`);
   parts.push(`- Progress files: ${Object.keys(repoState.progressFiles ?? {}).join(", ") || "none"}`);
   return parts.join("\n");
-}
-
-async function runPool(items, concurrency, worker) {
-  const results = new Array(items.length);
-  let nextIdx = 0;
-  async function loop() {
-    while (nextIdx < items.length) {
-      const idx = nextIdx++;
-      results[idx] = await worker(items[idx], idx);
-    }
-  }
-  const runners = Array.from({ length: Math.min(concurrency, items.length) }, () => loop());
-  await Promise.all(runners);
-  return results;
 }
 
 async function runBehavioralTrial({ scenario, model, trial, judgeSpecs }) {
@@ -260,14 +231,29 @@ async function runBehavioralTrial({ scenario, model, trial, judgeSpecs }) {
       }),
     ];
     const transcript = formatTranscriptForJudge(session, repoState);
-    const rubric =
-      judgeSpecs.length && sessionCleanCheck.pass
-        ? await runJudgePanel(judgeSpecs, {
-            scenario,
-            transcript,
-            context: `Exercise: ${scenario.exercise}. Final branch: ${repoState.branch}. Modified files: ${repoState.modifiedFiles.join(", ") || "none"}.`,
-          })
-        : null;
+    let rubric = null;
+    if (judgeSpecs.length && sessionCleanCheck.pass) {
+      try {
+        rubric = await runJudgePanel(judgeSpecs, {
+          scenario,
+          transcript,
+          context: `Exercise: ${scenario.exercise}. Final branch: ${repoState.branch}. Modified files: ${repoState.modifiedFiles.join(", ") || "none"}.`,
+        });
+        if (rubric?.errors) {
+          for (const [jSpec, jErr] of Object.entries(rubric.errors)) {
+            console.warn(`[warn] ${scenario.id} (${model} #${trial}) judge ${jSpec} failed: ${jErr}`);
+          }
+        }
+      } catch (judgeErr) {
+        console.warn(`[warn] ${scenario.id} (${model} #${trial}) judge panel failed: ${judgeErr.message}`);
+        deterministic.push({
+          id: "judge-panel-execution",
+          tier: "hard",
+          pass: false,
+          detail: `Judge panel failed: ${judgeErr.message}`,
+        });
+      }
+    }
 
     const helperDurationMs = context.helperTelemetry?.durationMs ?? 0;
     const helperCostUsd = context.helperTelemetry?.totalCostUsd ?? 0;
@@ -318,6 +304,7 @@ async function runBehavioralTrial({ scenario, model, trial, judgeSpecs }) {
 }
 
 async function main() {
+  installSignalCleanup();
   const opts = parseCliArgs(process.argv.slice(2));
   if (opts.help) {
     usage();

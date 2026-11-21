@@ -1,17 +1,12 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { median as computeMedian } from "./utils.mjs";
+import { formatPct, median as computeMedian } from "./utils.mjs";
 
 const median = (values) => computeMedian(values, { round: 2 });
 
 function pct(num, den) {
   if (!den) return null;
   return Number((num / den).toFixed(4));
-}
-
-function formatPct(rate) {
-  if (rate === null || rate === undefined) return "—";
-  return `${Math.round(rate * 100)}%`;
 }
 
 function clip(text, max = 180) {
@@ -87,7 +82,9 @@ export function buildCompactSummary(runData) {
     }
 
     if (trial.rubric) {
-      bucket._agreementRates.push(trial.rubric.agreementRate);
+      if (typeof trial.rubric.agreementRate === "number") {
+        bucket._agreementRates.push(trial.rubric.agreementRate);
+      }
       for (const item of trial.rubric.items ?? []) {
         bucket._rubricItems.push(item);
         if (!item.pass) {

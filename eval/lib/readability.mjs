@@ -196,7 +196,7 @@ export function lintReadme({
     });
 
     const hasPlanSection = /^##\s+.*PLAN\.md/m.test(raw);
-    const expectsPlan = Boolean(config.onboarding);
+    const expectsPlan = config.onboarding !== false;
     checks.push({
       id: "plan-section-parity",
       tier: "hard",

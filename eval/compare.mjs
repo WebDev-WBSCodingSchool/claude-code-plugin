@@ -4,7 +4,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { preflightJudges, runBlindPairwiseAb } from "./lib/judge.mjs";
-import { isDirectRun } from "./lib/utils.mjs";
+import { formatPct, isDirectRun, runPool } from "./lib/utils.mjs";
 
 function round4(n) {
   return Number(n.toFixed(4));
@@ -15,16 +15,23 @@ function delta(a, b) {
   return round4(b - a);
 }
 
-function fmtPct(rate) {
-  if (rate === null || rate === undefined) return "—";
-  return `${Math.round(rate * 100)}%`;
-}
-
 function fmtDelta(d) {
   if (d === null || d === undefined) return "—";
-  const pct = Math.round(d * 100);
-  if (pct === 0) return "0%";
-  return pct > 0 ? `+${pct}%` : `${pct}%`;
+  if (d === 0) return "0%";
+  const scaled = d * 100;
+  const rounded = Math.round(scaled);
+  if (rounded === 0) {
+    const dec = Number(scaled.toFixed(1));
+    const shown = dec === 0 ? (d > 0 ? 0.1 : -0.1) : dec;
+    return shown > 0 ? `+${shown}%` : `${shown}%`;
+  }
+  return rounded > 0 ? `+${rounded}%` : `${rounded}%`;
+}
+
+function tierRateFromChecks(checks, tier) {
+  const list = (checks ?? []).filter((c) => c.tier === tier);
+  if (!list.length) return null;
+  return round4(list.filter((c) => c.pass).length / list.length);
 }
 
 /**
@@ -33,31 +40,55 @@ function fmtDelta(d) {
 export function computeSummaryDiff(baseline, candidate) {
   const rows = [];
   const regressions = [];
+  const missingScenarios = [];
+  let comparedSections = 0;
+
+  const baseScenarios = baseline.scenarios ?? {};
+  const currScenarios = candidate.scenarios ?? {};
+  const sameSuite =
+    Boolean(baseline.metadata?.suite) &&
+    baseline.metadata?.suite === candidate.metadata?.suite;
 
   const scenarioIds = [
-    ...new Set([
-      ...Object.keys(baseline.scenarios ?? {}),
-      ...Object.keys(candidate.scenarios ?? {}),
-    ]),
+    ...new Set([...Object.keys(baseScenarios), ...Object.keys(currScenarios)]),
   ].sort();
 
   for (const scenarioId of scenarioIds) {
-    const baseModels = baseline.scenarios?.[scenarioId]?.models ?? {};
-    const currModels = candidate.scenarios?.[scenarioId]?.models ?? {};
+    const baseModels = baseScenarios[scenarioId]?.models ?? {};
+    const currModels = currScenarios[scenarioId]?.models ?? {};
     const models = [...new Set([...Object.keys(baseModels), ...Object.keys(currModels)])].sort();
 
     for (const model of models) {
       const b = baseModels[model];
       const c = currModels[model];
+      if (b && !c) {
+        missingScenarios.push({ scenarioId, model });
+        if (sameSuite) {
+          regressions.push({
+            scenarioId,
+            model,
+            tier: "hard",
+            base: b.tiers?.hard?.passRate ?? null,
+            curr: null,
+            delta: null,
+            reason: "missing from candidate run",
+          });
+        }
+        continue;
+      }
       if (!b || !c) continue;
 
-      const hardDelta = delta(b.tiers?.hard?.passRate, c.tiers?.hard?.passRate);
-      const targetDelta = delta(b.tiers?.target?.passRate, c.tiers?.target?.passRate);
-      const softDelta = delta(b.tiers?.soft?.passRate, c.tiers?.soft?.passRate);
-      const rubricDelta = delta(
-        b.rubricTiers?.hard?.passRate,
-        c.rubricTiers?.hard?.passRate,
-      );
+      comparedSections++;
+      const baseHard = b.tiers?.hard?.passRate ?? null;
+      const currHard = c.tiers?.hard?.passRate ?? null;
+      const baseTarget = b.tiers?.target?.passRate ?? null;
+      const currTarget = c.tiers?.target?.passRate ?? null;
+      const baseSoft = b.tiers?.soft?.passRate ?? null;
+      const currSoft = c.tiers?.soft?.passRate ?? null;
+
+      const hardDelta = delta(baseHard, currHard);
+      const targetDelta = delta(baseTarget, currTarget);
+      const softDelta = delta(baseSoft, currSoft);
       const agreementDelta = delta(b.agreementRate, c.agreementRate);
       const wordsDelta =
         typeof b.medianWords === "number" && typeof c.medianWords === "number"
@@ -67,16 +98,15 @@ export function computeSummaryDiff(baseline, candidate) {
       const row = {
         scenarioId,
         model,
-        baseHard: b.tiers?.hard?.passRate ?? null,
-        currHard: c.tiers?.hard?.passRate ?? null,
+        baseHard,
+        currHard,
         hardDelta,
-        baseTarget: b.tiers?.target?.passRate ?? null,
-        currTarget: c.tiers?.target?.passRate ?? null,
+        baseTarget,
+        currTarget,
         targetDelta,
-        baseSoft: b.tiers?.soft?.passRate ?? null,
-        currSoft: c.tiers?.soft?.passRate ?? null,
+        baseSoft,
+        currSoft,
         softDelta,
-        rubricDelta,
         baseAgreement: b.agreementRate ?? null,
         currAgreement: c.agreementRate ?? null,
         agreementDelta,
@@ -86,27 +116,167 @@ export function computeSummaryDiff(baseline, candidate) {
       };
       rows.push(row);
 
-      if (typeof hardDelta === "number" && hardDelta < 0) {
+      if (typeof baseHard === "number" && currHard === null) {
         regressions.push({
           scenarioId,
           model,
           tier: "hard",
-          base: row.baseHard,
-          curr: row.currHard,
+          base: baseHard,
+          curr: null,
+          delta: null,
+          reason: "pass rate dropped to null",
+        });
+      } else if (typeof hardDelta === "number" && hardDelta < 0) {
+        regressions.push({
+          scenarioId,
+          model,
+          tier: "hard",
+          base: baseHard,
+          curr: currHard,
           delta: hardDelta,
         });
       }
-      if (typeof targetDelta === "number" && targetDelta < -0.05) {
+      if (typeof baseTarget === "number" && currTarget === null) {
         regressions.push({
           scenarioId,
           model,
           tier: "target",
-          base: row.baseTarget,
-          curr: row.currTarget,
+          base: baseTarget,
+          curr: null,
+          delta: null,
+          reason: "pass rate dropped to null",
+        });
+      } else if (typeof targetDelta === "number" && targetDelta < -0.05) {
+        regressions.push({
+          scenarioId,
+          model,
+          tier: "target",
+          base: baseTarget,
+          curr: currTarget,
           delta: targetDelta,
         });
       }
     }
+  }
+
+  // Static hook-string lint regressions (#29)
+  if (baseline.hookStringLint?.checks && candidate.hookStringLint?.checks) {
+    comparedSections++;
+    const currById = new Map(candidate.hookStringLint.checks.map((c) => [c.id, c]));
+    for (const bc of baseline.hookStringLint.checks) {
+      const cc = currById.get(bc.id);
+      if (bc.pass && (!cc || !cc.pass)) {
+        regressions.push({
+          scenarioId: `hookStringLint:${bc.id}`,
+          model: "static",
+          tier: bc.tier ?? "hard",
+          base: 1,
+          curr: 0,
+          delta: -1,
+          reason: cc ? cc.detail : "check missing in candidate",
+        });
+      }
+    }
+  }
+
+  // Static README readability/lint regressions
+  if (baseline.staticReadability?.summary && candidate.staticReadability?.summary) {
+    comparedSections++;
+    const bs = baseline.staticReadability.summary;
+    const cs = candidate.staticReadability.summary;
+    const bHard = bs.hardTotal ? round4(bs.hardPassed / bs.hardTotal) : null;
+    const cHard = cs.hardTotal ? round4(cs.hardPassed / cs.hardTotal) : null;
+    const bTarget = bs.targetTotal ? round4(bs.targetPassed / bs.targetTotal) : null;
+    const cTarget = cs.targetTotal ? round4(cs.targetPassed / cs.targetTotal) : null;
+    const dHard = delta(bHard, cHard);
+    const dTarget = delta(bTarget, cTarget);
+    if (typeof bHard === "number" && cHard === null) {
+      regressions.push({
+        scenarioId: "staticReadability",
+        model: "static",
+        tier: "hard",
+        base: bHard,
+        curr: null,
+        delta: null,
+        reason: "pass rate dropped to null",
+      });
+    } else if (typeof dHard === "number" && dHard < 0) {
+      regressions.push({
+        scenarioId: "staticReadability",
+        model: "static",
+        tier: "hard",
+        base: bHard,
+        curr: cHard,
+        delta: dHard,
+      });
+    }
+    if (typeof dTarget === "number" && dTarget < -0.05) {
+      regressions.push({
+        scenarioId: "staticReadability",
+        model: "static",
+        tier: "target",
+        base: bTarget,
+        curr: cTarget,
+        delta: dTarget,
+      });
+    }
+  }
+
+  // Simulated-student README comprehension regressions
+  const baseCompList = Array.isArray(baseline.comprehension) ? baseline.comprehension : [];
+  const currCompList = Array.isArray(candidate.comprehension) ? candidate.comprehension : [];
+  if (baseCompList.length && currCompList.length) {
+    comparedSections++;
+    const baseCompChecks = baseCompList.flatMap((c) => c.checks ?? []);
+    const currCompChecks = currCompList.flatMap((c) => c.checks ?? []);
+    const bHard = tierRateFromChecks(baseCompChecks, "hard");
+    const cHard = tierRateFromChecks(currCompChecks, "hard");
+    const bTarget = tierRateFromChecks(baseCompChecks, "target");
+    const cTarget = tierRateFromChecks(currCompChecks, "target");
+    const dHard = delta(bHard, cHard);
+    const dTarget = delta(bTarget, cTarget);
+    if (typeof bHard === "number" && cHard === null) {
+      regressions.push({
+        scenarioId: "comprehension",
+        model: "all",
+        tier: "hard",
+        base: bHard,
+        curr: null,
+        delta: null,
+        reason: "pass rate dropped to null",
+      });
+    } else if (typeof dHard === "number" && dHard < 0) {
+      regressions.push({
+        scenarioId: "comprehension",
+        model: "all",
+        tier: "hard",
+        base: bHard,
+        curr: cHard,
+        delta: dHard,
+      });
+    }
+    if (typeof dTarget === "number" && dTarget < -0.05) {
+      regressions.push({
+        scenarioId: "comprehension",
+        model: "all",
+        tier: "target",
+        base: bTarget,
+        curr: cTarget,
+        delta: dTarget,
+      });
+    }
+  }
+
+  if (comparedSections === 0) {
+    regressions.push({
+      scenarioId: "comparison",
+      model: "all",
+      tier: "hard",
+      base: null,
+      curr: null,
+      delta: null,
+      reason: "no overlapping scenarios or static checks between baseline and candidate",
+    });
   }
 
   const baseTokens = baseline.staticReadability?.summary?.avgExerciseTokens ?? null;
@@ -123,8 +293,6 @@ export function computeSummaryDiff(baseline, candidate) {
       ? currHookWords - baseHookWords
       : null;
 
-  const baseCompList = Array.isArray(baseline.comprehension) ? baseline.comprehension : [];
-  const currCompList = Array.isArray(candidate.comprehension) ? candidate.comprehension : [];
   const baseConfusions = baseCompList.length
     ? baseCompList.reduce((sum, c) => sum + (c.confusionsCount ?? 0), 0)
     : null;
@@ -140,6 +308,7 @@ export function computeSummaryDiff(baseline, candidate) {
     baseLabel: baseline.metadata?.label ?? "baseline",
     currLabel: candidate.metadata?.label ?? "candidate",
     rows,
+    missingScenarios,
     regressions,
     baseTokens,
     currTokens,
@@ -161,14 +330,25 @@ export function renderDiffTable(diff) {
   );
   lines.push("-".repeat(108));
   for (const r of diff.rows) {
-    const hardStr = `${fmtPct(r.currHard)} (${fmtDelta(r.hardDelta)})`.padEnd(17);
-    const targetStr = `${fmtPct(r.currTarget)} (${fmtDelta(r.targetDelta)})`.padEnd(17);
-    const softStr = `${fmtPct(r.currSoft)} (${fmtDelta(r.softDelta)})`.padEnd(17);
+    const hardStr = `${formatPct(r.currHard)} (${fmtDelta(r.hardDelta)})`.padEnd(17);
+    const targetStr = `${formatPct(r.currTarget)} (${fmtDelta(r.targetDelta)})`.padEnd(17);
+    const softStr = `${formatPct(r.currSoft)} (${fmtDelta(r.softDelta)})`.padEnd(17);
     const wDelta = r.wordsDelta === null ? "—" : r.wordsDelta > 0 ? `+${r.wordsDelta}` : `${r.wordsDelta}`;
     const wordsStr = `${r.currWords ?? "—"} (${wDelta})`.padEnd(12);
-    const flag = typeof r.hardDelta === "number" && r.hardDelta < 0 ? "  [REGRESSION]" : "";
+    const isReg =
+      (typeof r.hardDelta === "number" && r.hardDelta < 0) ||
+      (typeof r.baseHard === "number" && r.currHard === null) ||
+      (typeof r.targetDelta === "number" && r.targetDelta < -0.05) ||
+      (typeof r.baseTarget === "number" && r.currTarget === null);
+    const flag = isReg ? "  [REGRESSION]" : "";
     lines.push(
-      `${r.scenarioId.padEnd(28)} ${r.model.padEnd(8)} ${hardStr} ${targetStr} ${softStr} ${wordsStr} ${fmtPct(r.currAgreement)}${flag}`,
+      `${r.scenarioId.padEnd(28)} ${r.model.padEnd(8)} ${hardStr} ${targetStr} ${softStr} ${wordsStr} ${formatPct(r.currAgreement)}${flag}`,
+    );
+  }
+
+  if ((diff.missingScenarios ?? []).length) {
+    lines.push(
+      `\nNote: ${diff.missingScenarios.length} baseline (scenario, model) pair(s) not present in candidate.`,
     );
   }
 
@@ -191,8 +371,9 @@ export function renderDiffTable(diff) {
   if (diff.regressions.length) {
     lines.push(`\nRegressions flagged (${diff.regressions.length}):`);
     for (const reg of diff.regressions) {
+      const reasonSuffix = reg.reason ? ` — ${reg.reason}` : "";
       lines.push(
-        `  ! ${reg.scenarioId} (${reg.model}) [${reg.tier}]: ${fmtPct(reg.base)} -> ${fmtPct(reg.curr)} (${fmtDelta(reg.delta)})`,
+        `  ! ${reg.scenarioId} (${reg.model}) [${reg.tier}]: ${formatPct(reg.base)} -> ${formatPct(reg.curr)} (${fmtDelta(reg.delta)})${reasonSuffix}`,
       );
     }
   } else {
@@ -211,19 +392,6 @@ function loadJsonOrDir(pathArg, preferredFile) {
     return JSON.parse(readFileSync(candidate, "utf8"));
   }
   return JSON.parse(readFileSync(full, "utf8"));
-}
-
-async function runPool(items, concurrency, worker) {
-  const results = new Array(items.length);
-  let nextIdx = 0;
-  async function loop() {
-    while (nextIdx < items.length) {
-      const idx = nextIdx++;
-      results[idx] = await worker(items[idx], idx);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => loop()));
-  return results;
 }
 
 async function runAbMode(
@@ -272,16 +440,26 @@ async function runAbMode(
   const pairResults = await runPool(sharedKeys, concurrency, async (key) => {
     const tA = mapA.get(key);
     const tB = mapB.get(key);
-    const res = await runBlindPairwiseAb(judgeSpecs, {
-      scenarioId: tA.scenarioId,
-      description: `${tA.suite} / ${tA.exercise}`,
-      transcriptA: tA.transcript ?? JSON.stringify(tA.turns ?? []),
-      transcriptB: tB.transcript ?? JSON.stringify(tB.turns ?? []),
-    });
-    return { tA, res };
+    try {
+      const res = await runBlindPairwiseAb(judgeSpecs, {
+        scenarioId: tA.scenarioId,
+        description: `${tA.suite} / ${tA.exercise}`,
+        transcriptA: tA.transcript ?? JSON.stringify(tA.turns ?? []),
+        transcriptB: tB.transcript ?? JSON.stringify(tB.turns ?? []),
+      });
+      return { tA, res, error: null };
+    } catch (err) {
+      console.error(`✗ A/B pair failed (${key}): ${err.message}`);
+      return { tA, res: null, error: err.message };
+    }
   });
 
-  for (const { tA, res } of pairResults) {
+  for (const { tA, res, error } of pairResults) {
+    const trialLabel = allTrials ? ` #${tA.trial ?? 1}` : "";
+    if (error || !res) {
+      console.log(`${`${tA.scenarioId}${trialLabel}`.padEnd(32)} ${tA.model.padEnd(7)} ERROR: ${error}`);
+      continue;
+    }
     const summaryStr = Object.entries(res)
       .map(([j, r]) => {
         totals[j][r.winner]++;
@@ -289,7 +467,6 @@ async function runAbMode(
         return `${j}=${r.winner}${r.positionBias ? "(bias->tie)" : ""}`;
       })
       .join("  ");
-    const trialLabel = allTrials ? ` #${tA.trial ?? 1}` : "";
     console.log(`${`${tA.scenarioId}${trialLabel}`.padEnd(32)} ${tA.model.padEnd(7)} ${summaryStr}`);
     for (const [j, r] of Object.entries(res)) {
       if (r.reasoning) console.log(`    [${j}] ${r.reasoning.slice(0, 220)}`);

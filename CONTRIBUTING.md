@@ -168,7 +168,7 @@ Two rules follow from that, and `test/setup.test.mjs` enforces both:
 ## Test
 
 ```sh
-for t in test/*.mjs; do node "$t"; done
+for t in test/*.mjs; do node "$t" || exit 1; done
 claude plugin validate --strict .
 claude plugin validate --strict exercise
 claude plugin validate --strict instructor

@@ -2,7 +2,15 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { sanitizeClaudeEnv, sleep, spawnAsync } from "./utils.mjs";
+import {
+  buildMinimalEnv,
+  cleanupClaudeProjectDir,
+  registerCleanup,
+  sanitizeClaudeEnv,
+  sanitizeCodexEnv,
+  sleep,
+  spawnAsync,
+} from "./utils.mjs";
 
 export const RUBRIC_SCHEMA = {
   type: "object",
@@ -29,12 +37,9 @@ export const RUBRIC_SCHEMA = {
 export const PAIRWISE_AB_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["winner", "toneWinner", "clarityWinner", "adherenceWinner", "reasoning"],
+  required: ["winner", "reasoning"],
   properties: {
     winner: { type: "string", enum: ["A", "B", "tie"] },
-    toneWinner: { type: "string", enum: ["A", "B", "tie"] },
-    clarityWinner: { type: "string", enum: ["A", "B", "tie"] },
-    adherenceWinner: { type: "string", enum: ["A", "B", "tie"] },
     reasoning: { type: "string" },
   },
 };
@@ -89,14 +94,7 @@ export function parseJudgeSpec(spec) {
 }
 
 export function sanitizeAgyEnv(env = process.env) {
-  const clean = {};
-  for (const [k, v] of Object.entries(env)) {
-    if (k.startsWith("ANTIGRAVITY_")) continue;
-    if (k.startsWith("AGY_ACP_")) continue;
-    if (k === "GEMINI_HOME") continue;
-    clean[k] = v;
-  }
-  return clean;
+  return buildMinimalEnv(env);
 }
 
 export function buildJudgeCommand(
@@ -125,7 +123,6 @@ export function buildJudgeCommand(
       args,
       stdinText: null,
       env: sanitizeClaudeEnv(process.env),
-      readOutputFile: false,
     };
   }
 
@@ -149,7 +146,12 @@ export function buildJudgeCommand(
       args.push("-m", specObj.model);
     }
     args.push("-");
-    return { bin: "codex", args, stdinText: prompt, env: process.env, readOutputFile: true };
+    return {
+      bin: "codex",
+      args,
+      stdinText: prompt,
+      env: sanitizeCodexEnv(process.env),
+    };
   }
 
   if (specObj.provider === "agy") {
@@ -172,7 +174,6 @@ export function buildJudgeCommand(
       args,
       stdinText: null,
       env: sanitizeAgyEnv(process.env),
-      readOutputFile: false,
     };
   }
 
@@ -189,7 +190,7 @@ export function preflightJudge(specObj) {
       ? sanitizeAgyEnv(process.env)
       : specObj.provider === "claude"
         ? sanitizeClaudeEnv(process.env)
-        : process.env;
+        : sanitizeCodexEnv(process.env);
   const cmd =
     specObj.provider === "claude"
       ? ["claude", ["--version"]]
@@ -253,32 +254,61 @@ export function preflightJudges(specs, { allowPartial = false } = {}) {
   return { available, unavailable, checks: results.map((r) => r.check) };
 }
 
-function extractJsonOutput(provider, stdout, outPath) {
+export function validateJudgePayload(data, schema) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Judge payload is not a JSON object");
+  }
+  if (schema === RUBRIC_SCHEMA) {
+    if (!Array.isArray(data.items) || typeof data.notes !== "string") {
+      throw new Error("Judge rubric payload missing required items[] or notes");
+    }
+    for (const item of data.items) {
+      if (
+        !item ||
+        typeof item !== "object" ||
+        typeof item.id !== "string" ||
+        typeof item.pass !== "boolean" ||
+        typeof item.evidence !== "string"
+      ) {
+        throw new Error("Judge rubric payload contains malformed item");
+      }
+    }
+    return data;
+  }
+  if (schema === PAIRWISE_AB_SCHEMA) {
+    if (!["A", "B", "tie"].includes(data.winner) || typeof data.reasoning !== "string") {
+      throw new Error("Judge pairwise A/B payload missing valid winner or reasoning");
+    }
+    return data;
+  }
+  return data;
+}
+
+export function extractJsonOutput(provider, stdout, outPath, schema = null) {
+  let payload;
   if (provider === "codex") {
     if (!existsSync(outPath)) {
       throw new Error(`codex did not write output file ${outPath}`);
     }
-    return JSON.parse(readFileSync(outPath, "utf8").trim());
-  }
-
-  const trimmed = String(stdout ?? "").trim();
-  const parsed = JSON.parse(trimmed);
-  if (provider === "claude") {
-    if (parsed.structured_output) return parsed.structured_output;
-    if (typeof parsed.result === "string") return JSON.parse(parsed.result);
-    return parsed;
-  }
-
-  // agy
-  if (parsed.structured_output) return parsed.structured_output;
-  if (typeof parsed.result === "string") {
-    try {
-      return JSON.parse(parsed.result);
-    } catch {
-      return parsed;
+    payload = JSON.parse(readFileSync(outPath, "utf8").trim());
+  } else {
+    const trimmed = String(stdout ?? "").trim();
+    const parsed = JSON.parse(trimmed);
+    if (parsed?.is_error) {
+      throw new Error(`${provider} returned error envelope: ${String(parsed.result ?? "").slice(0, 200)}`);
+    }
+    if (parsed?.structured_output && typeof parsed.structured_output === "object") {
+      payload = parsed.structured_output;
+    } else if (typeof parsed?.result === "string" && parsed.result.trim()) {
+      payload = JSON.parse(parsed.result.trim());
+    } else if (provider === "claude") {
+      throw new Error("claude output envelope missing structured_output and JSON result");
+    } else {
+      // agy may emit the structured payload directly at top level when not wrapped
+      payload = parsed;
     }
   }
-  return parsed;
+  return schema ? validateJudgePayload(payload, schema) : payload;
 }
 
 export async function runSingleJudge(
@@ -286,6 +316,11 @@ export async function runSingleJudge(
   { prompt, schema = RUBRIC_SCHEMA, timeoutMs = 150_000, maxRetries = 2 } = {},
 ) {
   const emptyDir = mkdtempSync(join(tmpdir(), `wbs-eval-judge-${specObj.provider}-`));
+  const cleanup = () => {
+    if (specObj.provider === "claude") cleanupClaudeProjectDir(emptyDir);
+    rmSync(emptyDir, { recursive: true, force: true });
+  };
+  const unregister = registerCleanup(cleanup);
   const schemaJson = JSON.stringify(schema);
   const schemaPath = join(emptyDir, "schema.json");
   const outPath = join(emptyDir, "out.json");
@@ -302,6 +337,7 @@ export async function runSingleJudge(
   try {
     let attempt = 0;
     while (true) {
+      rmSync(outPath, { force: true });
       const started = Date.now();
       const res = await spawnAsync(cmd.bin, cmd.args, {
         cwd: emptyDir,
@@ -313,7 +349,7 @@ export async function runSingleJudge(
 
       if (!res.timedOut && res.exitCode === 0) {
         try {
-          const data = extractJsonOutput(specObj.provider, res.stdout, outPath);
+          const data = extractJsonOutput(specObj.provider, res.stdout, outPath, schema);
           return { spec: specObj.spec, provider: specObj.provider, data, durationMs, retries: attempt };
         } catch (parseErr) {
           if (attempt < maxRetries) {
@@ -327,8 +363,9 @@ export async function runSingleJudge(
 
       const combined = `${res.stderr} ${res.stdout}`.toLowerCase();
       const transient =
+        res.timedOut ||
         combined.includes("rate limit") ||
-        combined.includes("429") ||
+        /\b429\b/.test(combined) ||
         combined.includes("overloaded") ||
         combined.includes("timeout");
       if (attempt < maxRetries && transient) {
@@ -342,7 +379,8 @@ export async function runSingleJudge(
       );
     }
   } finally {
-    rmSync(emptyDir, { recursive: true, force: true });
+    unregister();
+    cleanup();
   }
 }
 
@@ -394,7 +432,7 @@ export function aggregatePanelVerdicts(rubricItems, judgeResultsBySpec) {
     });
   }
 
-  const agreementRate = comparableCount > 0 ? agreedCount / comparableCount : 1;
+  const agreementRate = comparableCount > 0 ? agreedCount / comparableCount : null;
   const notes = Object.fromEntries(
     judgeNames.map((n) => [n, String(judgeResultsBySpec[n]?.notes ?? "")]),
   );
@@ -437,20 +475,35 @@ export async function runJudgePanel(judgeSpecs, { scenario, transcript, context 
     return null;
   }
   const prompt = buildRubricPrompt({ scenario, transcript, context });
-  const results = await Promise.all(
+  const settled = await Promise.allSettled(
     judgeSpecs.map((specObj) =>
       runSingleJudge(specObj, { prompt, schema: RUBRIC_SCHEMA }),
     ),
   );
   const bySpec = {};
   const judgeTelemetry = {};
-  for (const r of results) {
-    bySpec[r.spec] = r.data;
-    judgeTelemetry[r.spec] = { durationMs: r.durationMs, retries: r.retries };
+  const errors = {};
+  for (let i = 0; i < settled.length; i++) {
+    const s = settled[i];
+    const spec = judgeSpecs[i].spec;
+    if (s.status === "fulfilled") {
+      const r = s.value;
+      bySpec[r.spec] = r.data;
+      judgeTelemetry[r.spec] = { durationMs: r.durationMs, retries: r.retries };
+    } else {
+      errors[spec] = s.reason?.message ?? String(s.reason);
+    }
+  }
+  if (Object.keys(bySpec).length === 0) {
+    const msg = Object.entries(errors)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join("; ");
+    throw new Error(`All judges failed: ${msg}`);
   }
   return {
     ...aggregatePanelVerdicts(scenario.rubric, bySpec),
     telemetry: judgeTelemetry,
+    ...(Object.keys(errors).length ? { errors } : {}),
   };
 }
 
@@ -504,21 +557,22 @@ Compare Response A and Response B on:
 2. Clarity (plain student-friendly language, concrete, focused)
 3. Adherence (follows pedagogical/harness rules without leaking internal jargon or writing gated code)
 
-Choose winner: "A", "B", or "tie", plus per-dimension winners and brief reasoning.`;
+Choose winner: "A", "B", or "tie", with brief reasoning.`;
 
-  const perJudge = {};
-  for (const specObj of judgeSpecs) {
-    const [ab, ba] = await Promise.all([
-      runSingleJudge(specObj, {
-        prompt: makePrompt(transcriptA, transcriptB),
-        schema: PAIRWISE_AB_SCHEMA,
-      }),
-      runSingleJudge(specObj, {
-        prompt: makePrompt(transcriptB, transcriptA),
-        schema: PAIRWISE_AB_SCHEMA,
-      }),
-    ]);
-    perJudge[specObj.spec] = aggregatePairwiseAb(ab.data, ba.data);
-  }
-  return perJudge;
+  const entries = await Promise.all(
+    judgeSpecs.map(async (specObj) => {
+      const [ab, ba] = await Promise.all([
+        runSingleJudge(specObj, {
+          prompt: makePrompt(transcriptA, transcriptB),
+          schema: PAIRWISE_AB_SCHEMA,
+        }),
+        runSingleJudge(specObj, {
+          prompt: makePrompt(transcriptB, transcriptA),
+          schema: PAIRWISE_AB_SCHEMA,
+        }),
+      ]);
+      return [specObj.spec, aggregatePairwiseAb(ab.data, ba.data)];
+    }),
+  );
+  return Object.fromEntries(entries);
 }

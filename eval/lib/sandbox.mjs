@@ -12,7 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { sanitizeClaudeEnv } from "./utils.mjs";
+import { cleanupClaudeProjectDir, registerCleanup, sanitizeClaudeEnv } from "./utils.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const EXERCISE_ROOT = join(REPO_ROOT, "exercise");
@@ -186,8 +186,18 @@ export function createSandbox({
     const binDir = join(rootDir, "bin");
     const logDir = join(rootDir, "logs");
     const repoDir = join(rootDir, exercise);
+    const gitConfigGlobal = join(rootDir, ".gitconfig");
     mkdirSync(binDir, { recursive: true });
     mkdirSync(logDir, { recursive: true });
+
+    // Ensure extensionless ESM stubs (npx, gh) run as modules across all Node 22+ versions
+    writeFileSync(join(binDir, "package.json"), '{"type":"module"}\n', "utf8");
+    // Isolate git from host global/system configs (e.g. !/usr/bin/gh credential helpers)
+    writeFileSync(
+      gitConfigGlobal,
+      "[credential]\n\thelper =\n[commit]\n\tgpgsign = false\n[init]\n\tdefaultBranch = main\n",
+      "utf8",
+    );
 
     const logs = {
       npm: join(logDir, "npm.log"),
@@ -207,6 +217,9 @@ export function createSandbox({
       ...baseEnv,
       PATH: `${binDir}${delimiter}${baseEnv.PATH ?? ""}`,
       CLAUDE_PROJECT_DIR: repoDir,
+      GIT_CONFIG_GLOBAL: gitConfigGlobal,
+      GIT_CONFIG_NOSYSTEM: "1",
+      GIT_TERMINAL_PROMPT: "0",
     };
 
     execFileSync(process.execPath, [SETUP_SCRIPT, "setup", exercise, repoDir], {
@@ -229,8 +242,24 @@ export function createSandbox({
     git(["config", "commit.gpgsign", "false"]);
 
     if (gh?.mode === "pushable" || gh?.mode === "read-only") {
-      const repoName = gh.repoName ?? `team/${exercise}`;
-      git(["remote", "add", "origin", `https://github.com/${repoName}.git`]);
+      // Point origin at an offline local bare repo so `git push` can never contact GitHub.
+      // onboard.mjs --check delegates repo metadata to the stubbed `gh` CLI.
+      const bareOriginDir = join(rootDir, "origin.git");
+      execFileSync("git", ["init", "--bare", bareOriginDir], {
+        cwd: rootDir,
+        env,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      if (gh.mode === "read-only") {
+        const hookPath = join(bareOriginDir, "hooks", "pre-receive");
+        writeFileSync(
+          hookPath,
+          "#!/bin/sh\necho 'remote: permission denied (read-only eval sandbox)' >&2\nexit 1\n",
+          "utf8",
+        );
+        chmodSync(hookPath, 0o755);
+      }
+      git(["remote", "add", "origin", bareOriginDir]);
     }
 
     const readFile = (rel) => readFileSync(join(repoDir, rel), "utf8");
@@ -246,10 +275,21 @@ export function createSandbox({
       args.push("-m", message);
       git(args);
     };
+    const resetHard = (sha) => {
+      git(["reset", "--hard", sha]);
+      git(["clean", "-fd"]);
+    };
 
+    let cleaned = false;
+    let unregisterCleanup = () => {};
     const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      unregisterCleanup();
+      cleanupClaudeProjectDir(repoDir);
       rmSync(rootDir, { recursive: true, force: true });
     };
+    unregisterCleanup = registerCleanup(cleanup);
 
     return {
       exercise,
@@ -264,6 +304,7 @@ export function createSandbox({
       readFile,
       writeFile,
       commitAll,
+      resetHard,
       cleanup,
     };
   } catch (err) {

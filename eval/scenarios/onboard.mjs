@@ -160,7 +160,10 @@ export const ONBOARD_SCENARIOS = [
     turns: ["/onboard"],
     evaluate({ session, repoState, sandbox, initialHeadSha }) {
       const text = session.turns[0]?.parsed.assistantText ?? "";
-      const createdPlan = repoState.modifiedFiles.some((f) => f === "PLAN.md");
+      const createdPlan = [
+        ...(repoState.modifiedFiles ?? []),
+        ...(repoState.committedFilesSinceInitial ?? []),
+      ].some((f) => f === "PLAN.md");
       return [
         checkToolCalled(
           session,

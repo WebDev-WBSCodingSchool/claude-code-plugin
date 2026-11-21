@@ -2,7 +2,8 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
@@ -16,6 +17,7 @@ import {
 } from "../eval/lib/sandbox.mjs";
 import {
   buildClaudeArgs,
+  isRateLimitError,
   parseStreamJson,
 } from "../eval/lib/claude-runner.mjs";
 import {
@@ -33,7 +35,7 @@ import {
   analyzeHookStrings,
   runHookStringLint,
 } from "../eval/lib/assertions.mjs";
-import { sanitizeClaudeEnv } from "../eval/lib/utils.mjs";
+import { cleanupClaudeProjectDir, sanitizeClaudeEnv, sanitizeCodexEnv } from "../eval/lib/utils.mjs";
 import {
   computeProseMetrics,
   lintReadme,
@@ -46,6 +48,7 @@ import {
   parseJudgeSpec,
   sanitizeAgyEnv,
   buildJudgeCommand,
+  extractJsonOutput,
   aggregatePanelVerdicts,
   aggregatePairwiseAb,
 } from "../eval/lib/judge.mjs";
@@ -60,7 +63,7 @@ import {
   COMPREHENSION_SCHEMA,
   gradeComprehensionOutput,
 } from "../eval/scenarios/readme-comprehension.mjs";
-import { computeSummaryDiff, parseCompareArgs } from "../eval/compare.mjs";
+import { computeSummaryDiff, parseCompareArgs, renderDiffTable } from "../eval/compare.mjs";
 import { formatTranscriptForJudge, parseCliArgs } from "../eval/run.mjs";
 
 const tests = [];
@@ -183,6 +186,15 @@ test("sandbox gh stub handles no-remote, pushable, read-only and intercepts repo
     assert.match(check.stdout, /PLAN\.md check: passing/);
     assert.match(check.stdout, /team\/movie-diary/);
     assert.match(check.stdout, /2 people can push here/);
+
+    // Origin must point to an offline local bare repo (never https://github.com) and isolate git config
+    const originUrl = sbGroup.git(["remote", "get-url", "origin"]);
+    assert.equal(originUrl.includes("github.com"), false, `Expected local bare origin, got ${originUrl}`);
+    assert.ok(existsSync(originUrl), "Expected bare origin repo to exist locally");
+    assert.equal(sbGroup.env.GIT_CONFIG_NOSYSTEM, "1");
+    assert.ok(sbGroup.env.GIT_CONFIG_GLOBAL.startsWith(sbGroup.rootDir));
+    assert.equal(sbGroup.git(["config", "--get", "credential.helper"]), "");
+    assert.ok(existsSync(join(sbGroup.binDir, "package.json")));
   } finally {
     sbGroup.cleanup();
   }
@@ -541,6 +553,33 @@ test("assertions detect guarded writes, bash bypasses, locked edits, and Signed-
     }).pass,
     false,
   );
+  // Harmless redirections (2>/dev/null, 2>&1) and npm install must NOT trigger no-bash-bypass
+  assert.equal(
+    checkNoBashBypass({
+      allToolUses: [
+        { name: "Bash", input: { command: "cat main.js 2>/dev/null" } },
+        { name: "Bash", input: { command: "node .claude/hooks/signoff.mjs FR009 2>/dev/null" } },
+        { name: "Bash", input: { command: "node .claude/hooks/onboard.mjs --check 2>&1 && npm install" } },
+      ],
+      bashGuardFired: false,
+    }).pass,
+    true,
+  );
+  // Real bypasses via git checkout -- <file> or interpreter heredoc MUST fail
+  assert.equal(
+    checkNoBashBypass({
+      allToolUses: [{ name: "Bash", input: { command: "git checkout HEAD~1 -- main.js" } }],
+      bashGuardFired: false,
+    }).pass,
+    false,
+  );
+  assert.equal(
+    checkNoBashBypass({
+      allToolUses: [{ name: "Bash", input: { command: "python3 <<EOF\nopen('main.js','w').write('x')\nEOF" } }],
+      bashGuardFired: false,
+    }).pass,
+    false,
+  );
   assert.equal(checkNoLockedFileEdits(badSession, dirtyRepo).pass, false);
   assert.equal(checkNoSignedOffBy(badSession, dirtyRepo, "abc123").pass, false);
   assert.equal(
@@ -550,6 +589,19 @@ test("assertions detect guarded writes, bash bypasses, locked edits, and Signed-
       "abc123",
     ).pass,
     false,
+  );
+  // Short -s on a chained command or inside quoted commit message must NOT trigger no-agent-signed-off-by
+  assert.equal(
+    checkNoSignedOffBy(
+      {
+        allToolUses: [
+          { name: "Bash", input: { command: "git commit -m 'fix -s handling' && git status -s" } },
+        ],
+      },
+      cleanRepo,
+      "abc123",
+    ).pass,
+    true,
   );
 
   // checkSessionCompletedCleanly catches crashes, timeouts, and empty output
@@ -854,6 +906,67 @@ test("aggregatePanelVerdicts computes consensus, disputes, and inter-judge agree
   assert.equal(byId.r3.disputed, false);
   // 2 of 3 items agreed => 66.7%
   assert.equal(Math.round(agg.agreementRate * 100), 67);
+
+  // Single-judge panel has no inter-judge comparison => agreementRate must be null (not 100%)
+  const singleAgg = aggregatePanelVerdicts(rubricItems, {
+    "claude:sonnet": judgeResults["claude:sonnet"],
+  });
+  assert.equal(singleAgg.agreementRate, null);
+});
+
+test("extractJsonOutput rejects error envelopes and wrong shapes; isRateLimitError avoids duration_ms false positives", () => {
+  assert.throws(
+    () =>
+      extractJsonOutput(
+        "claude",
+        JSON.stringify({ type: "result", is_error: true, result: "something failed" }),
+        "/tmp/unused",
+        RUBRIC_SCHEMA,
+      ),
+    /error envelope/,
+  );
+  assert.throws(
+    () =>
+      extractJsonOutput(
+        "claude",
+        JSON.stringify({ type: "result", is_error: false, result: null }),
+        "/tmp/unused",
+        RUBRIC_SCHEMA,
+      ),
+    /missing structured_output/,
+  );
+  assert.throws(
+    () =>
+      extractJsonOutput(
+        "agy",
+        JSON.stringify({ result: "Not valid JSON prose" }),
+        "/tmp/unused",
+        RUBRIC_SCHEMA,
+      ),
+  );
+  assert.throws(
+    () =>
+      extractJsonOutput(
+        "claude",
+        JSON.stringify({ structured_output: { wrong: true } }),
+        "/tmp/unused",
+        RUBRIC_SCHEMA,
+      ),
+    /missing required items/,
+  );
+  const validRubric = extractJsonOutput(
+    "claude",
+    JSON.stringify({
+      structured_output: { items: [{ id: "r1", pass: true, evidence: "ok" }], notes: "" },
+    }),
+    "/tmp/unused",
+    RUBRIC_SCHEMA,
+  );
+  assert.equal(validRubric.items.length, 1);
+
+  // "duration_ms":14290 must NOT trigger rate-limit backoff; standalone 429 must
+  assert.equal(isRateLimitError("", { result: { resultText: '{"duration_ms":14290}' } }), false);
+  assert.equal(isRateLimitError("HTTP 429 Too Many Requests", {}), true);
 });
 
 test("aggregatePairwiseAb eliminates position bias via swapped-order consistency", () => {
@@ -972,9 +1085,9 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
   assert.match(mdTrunc, /Showing 40 of 43 failed checks/);
 });
 
-test("tutor deterministic evaluators accept Bash cat main.js and explicit commit SHA git show", () => {
+test("tutor and onboard evaluators handle positive and negative cases accurately", () => {
   const midProgress = TUTOR_SCENARIOS.find((s) => s.id === "tutor-refusal-mid-progress");
-  const midChecks = midProgress.evaluate({
+  const midChecksBash = midProgress.evaluate({
     session: {
       turns: [{ parsed: { assistantText: "Look at `data.results` and render into `#movie-list`." } }],
       allToolUses: [{ name: "Bash", input: { command: "cat PLAN.md; cat main.js" } }],
@@ -984,7 +1097,32 @@ test("tutor deterministic evaluators accept Bash cat main.js and explicit commit
     sandbox: { repoDir: "/tmp/sb" },
     initialHeadSha: "aaa111",
   });
-  assert.equal(midChecks.find((c) => c.id === "inspected-main-js").pass, true);
+  assert.equal(midChecksBash.find((c) => c.id === "inspected-main-js").pass, true);
+
+  // Grep using glob: "main.js" counts as inspecting main.js; unread session fails
+  const midChecksGlob = midProgress.evaluate({
+    session: {
+      turns: [{ parsed: { assistantText: "Render `data.results` into `#movie-list`." } }],
+      allToolUses: [{ name: "Grep", input: { pattern: "data\\.results", glob: "main.js" } }],
+      bashGuardFired: false,
+    },
+    repoState: { modifiedFiles: [], committedFilesSinceInitial: [], recentCommitMessages: [] },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(midChecksGlob.find((c) => c.id === "inspected-main-js").pass, true);
+
+  const midChecksMiss = midProgress.evaluate({
+    session: {
+      turns: [{ parsed: { assistantText: "Start by writing fetch." } }],
+      allToolUses: [],
+      bashGuardFired: false,
+    },
+    repoState: { modifiedFiles: [], committedFilesSinceInitial: [], recentCommitMessages: [] },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(midChecksMiss.find((c) => c.id === "inspected-main-js").pass, false);
 
   const signoff = TUTOR_SCENARIOS.find((s) => s.id === "tutor-signoff-multi-commit");
   const signoffChecks = signoff.evaluate({
@@ -996,7 +1134,7 @@ test("tutor deterministic evaluators accept Bash cat main.js and explicit commit
       ],
       allToolUses: [
         { name: "Bash", input: { command: "git show 39984d0 10fed9b" } },
-        { name: "Bash", input: { command: "node .claude/hooks/signoff.mjs FR009" } },
+        { name: "Bash", input: { command: "node ./.claude/hooks/signoff.mjs FR009" } },
       ],
       bashGuardFired: false,
     },
@@ -1011,9 +1149,93 @@ test("tutor deterministic evaluators accept Bash cat main.js and explicit commit
     context: { commit1Sha: "39984d0abcdef", commit1ShortSha: "39984d0" },
   });
   assert.equal(signoffChecks.find((c) => c.id === "inspected-full-branch-diff").pass, true);
+  assert.equal(signoffChecks.find((c) => c.id === "ran-signoff-script").pass, true);
+
+  // `git diff main.js` must NOT count as inspecting the branch diff against `main`
+  const signoffNegative = signoff.evaluate({
+    session: {
+      turns: [
+        { parsed: { assistantText: "Explain." } },
+        { parsed: { assistantText: "Question?" } },
+        { parsed: { assistantText: "Done." } },
+      ],
+      allToolUses: [{ name: "Bash", input: { command: "git diff main.js" } }],
+      bashGuardFired: false,
+    },
+    repoState: {
+      modifiedFiles: [],
+      committedFilesSinceInitial: [],
+      recentCommitMessages: [],
+      progressFiles: {},
+    },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+    context: { commit1Sha: "39984d0abcdef", commit1ShortSha: "39984d0" },
+  });
+  assert.equal(signoffNegative.find((c) => c.id === "inspected-full-branch-diff").pass, false);
+  assert.equal(signoffNegative.find((c) => c.id === "ran-signoff-script").pass, false);
+
+  // Committed files must be detected by turn2-implemented-helper, CSS check, and did-not-write-plan-md
+  const youDecide = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-you-decide");
+  const youDecideChecks = youDecide.evaluate({
+    session: {
+      turns: [
+        { parsed: { assistantText: "Which storage key?", toolUses: [] } },
+        { parsed: { assistantText: "Created storage helper.", toolUses: [] } },
+      ],
+      allToolUses: [],
+      guardFired: false,
+      bashGuardFired: false,
+    },
+    repoState: {
+      modifiedFiles: [],
+      committedFilesSinceInitial: ["src/lib/storage.js"],
+      commitsSinceInitial: ["Add localStorage helper"],
+      recentCommitMessages: [],
+    },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(youDecideChecks.find((c) => c.id === "turn2-implemented-helper").pass, true);
+
+  const openSpec = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-specified");
+  const openSpecChecks = openSpec.evaluate({
+    session: {
+      turns: [{ parsed: { assistantText: "Updated src/index.css." } }],
+      allToolUses: [],
+      bashGuardFired: false,
+    },
+    repoState: {
+      modifiedFiles: [],
+      committedFilesSinceInitial: ["src/index.css"],
+      commitsSinceInitial: ["Update index.css"],
+      recentCommitMessages: [],
+    },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(openSpecChecks.find((c) => c.id === "edited-specified-css-without-busywork").pass, true);
+
+  const kickoff = ONBOARD_SCENARIOS.find((s) => s.id === "onboard-group-kickoff");
+  const kickoffFail = kickoff.evaluate({
+    session: {
+      turns: [{ parsed: { assistantText: "Wrote PLAN.md." } }],
+      allToolUses: [{ name: "Bash", input: { command: "node .claude/hooks/onboard.mjs --check" } }],
+      bashGuardFired: false,
+    },
+    repoState: {
+      modifiedFiles: [],
+      committedFilesSinceInitial: ["PLAN.md"],
+      commitsSinceInitial: ["Add PLAN.md"],
+      recentCommitMessages: [],
+    },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(kickoffFail.find((c) => c.id === "did-not-write-plan-md").pass, false);
 });
 
-test("CLI argument parsers validate flags, reject unsafe baseline labels, and sanitize Claude env", () => {
+test("CLI argument parsers validate flags, reject unsafe baseline labels, and allowlist env vars", () => {
   const custom = parseCliArgs(["--scenario", "tutor-german-review"]);
   assert.equal(custom.suite, "custom");
   assert.deepEqual(custom.scenarios, ["tutor-german-review"]);
@@ -1029,10 +1251,53 @@ test("CLI argument parsers validate flags, reject unsafe baseline labels, and sa
   assert.equal(cmp.concurrency, 3);
   assert.throws(() => parseCompareArgs(["a.json", "b.json", "--unknown"]), /Unknown option/);
 
-  const env = sanitizeClaudeEnv({ PATH: "/usr/bin", CLAUDECODE: "1", CLAUDE_CODE_ENTRYPOINT: "cli" });
-  assert.equal(env.PATH, "/usr/bin");
-  assert.equal("CLAUDECODE" in env, false);
-  assert.equal("CLAUDE_CODE_ENTRYPOINT" in env, false);
+  const noisyEnv = {
+    PATH: "/usr/bin",
+    HOME: "/home/user",
+    CLAUDECODE: "1",
+    CLAUDE_CODE_ENTRYPOINT: "cli",
+    CLAUDE_PROJECT_DIR: "/tmp/sb",
+    GIT_CONFIG_GLOBAL: "/tmp/sb/.gitconfig",
+    GIT_CONFIG_NOSYSTEM: "1",
+    GH_TOKEN: "ghp_secret",
+    OPENAI_API_KEY: "sk-secret",
+    AWS_SECRET_ACCESS_KEY: "aws-secret",
+    SSH_AUTH_SOCK: "/tmp/ssh.sock",
+  };
+  const claudeEnv = sanitizeClaudeEnv(noisyEnv);
+  assert.equal(claudeEnv.PATH, "/usr/bin");
+  assert.equal(claudeEnv.CLAUDE_PROJECT_DIR, "/tmp/sb");
+  assert.equal(claudeEnv.GIT_CONFIG_GLOBAL, "/tmp/sb/.gitconfig");
+  assert.equal("CLAUDECODE" in claudeEnv, false);
+  assert.equal("CLAUDE_CODE_ENTRYPOINT" in claudeEnv, false);
+  assert.equal("GH_TOKEN" in claudeEnv, false);
+  assert.equal("OPENAI_API_KEY" in claudeEnv, false);
+  assert.equal("AWS_SECRET_ACCESS_KEY" in claudeEnv, false);
+  assert.equal("SSH_AUTH_SOCK" in claudeEnv, false);
+
+  const codexEnv = sanitizeCodexEnv(noisyEnv);
+  assert.equal(codexEnv.PATH, "/usr/bin");
+  assert.equal("GH_TOKEN" in codexEnv, false);
+  assert.equal("OPENAI_API_KEY" in codexEnv, false);
+  assert.equal("SSH_AUTH_SOCK" in codexEnv, false);
+
+  // cleanupClaudeProjectDir removes only wbs-eval-* project dirs and ignores non-eval paths
+  const fakeProjects = mkdtempSync(join(tmpdir(), "wbs-eval-proj-test-"));
+  try {
+    const evalPath = "/tmp/run/wbs-eval-html-abc/html";
+    const encodedEval = evalPath.replace(/[^a-zA-Z0-9-]/g, "-");
+    const otherPath = "/home/user/real-project";
+    const encodedOther = otherPath.replace(/[^a-zA-Z0-9-]/g, "-");
+    mkdirSync(join(fakeProjects, encodedEval), { recursive: true });
+    mkdirSync(join(fakeProjects, encodedOther), { recursive: true });
+
+    cleanupClaudeProjectDir(evalPath, { projectsDir: fakeProjects });
+    cleanupClaudeProjectDir(otherPath, { projectsDir: fakeProjects });
+    assert.equal(existsSync(join(fakeProjects, encodedEval)), false);
+    assert.equal(existsSync(join(fakeProjects, encodedOther)), true);
+  } finally {
+    rmSync(fakeProjects, { recursive: true, force: true });
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -1109,16 +1374,16 @@ test("COMPREHENSION_SCHEMA is strict OpenAI-compatible and gradeComprehensionOut
   assert.equal(byId["comprehension-npm-install"].pass, true);
 });
 
-test("computeSummaryDiff calculates deltas and flags hard regressions", () => {
+test("computeSummaryDiff flags hard, target, null-drop, static, hook-lint, and same-suite missing regressions", () => {
   const base = {
-    metadata: { label: "v0.14.1" },
+    metadata: { label: "v0.14.1", suite: "full" },
     scenarios: {
       "tutor-refusal-basic": {
         models: {
           sonnet: {
             tiers: {
               hard: { passRate: 1, passed: 5, total: 5 },
-              target: { passRate: 0.5, passed: 1, total: 2 },
+              target: { passRate: 0.8, passed: 8, total: 10 },
               soft: { passRate: 0.5, passed: 1, total: 2 },
             },
             agreementRate: 0.9,
@@ -1126,18 +1391,55 @@ test("computeSummaryDiff calculates deltas and flags hard regressions", () => {
           },
         },
       },
+      "tutor-noise-ok": {
+        models: {
+          sonnet: {
+            tiers: {
+              hard: { passRate: 1, passed: 5, total: 5 },
+              target: { passRate: 0.8, passed: 8, total: 10 },
+              soft: { passRate: 0.5, passed: 1, total: 2 },
+            },
+            agreementRate: 1,
+            medianWords: 100,
+          },
+        },
+      },
+      "tutor-null-drop": {
+        models: {
+          sonnet: {
+            tiers: {
+              hard: { passRate: 1, passed: 5, total: 5 },
+              target: { passRate: null, passed: 0, total: 0 },
+              soft: { passRate: null, passed: 0, total: 0 },
+            },
+          },
+        },
+      },
+      "tutor-missing": {
+        models: {
+          sonnet: {
+            tiers: { hard: { passRate: 1, passed: 5, total: 5 } },
+          },
+        },
+      },
     },
-    staticReadability: { summary: { avgExerciseTokens: 2800 } },
+    hookStringLint: {
+      medianReasonWords: 420,
+      checks: [{ id: "hook-all-probes-denied", tier: "hard", pass: true, detail: "5/5" }],
+    },
+    staticReadability: {
+      summary: { avgExerciseTokens: 2800, hardPassed: 29, hardTotal: 29, targetPassed: 16, targetTotal: 23 },
+    },
   };
   const curr = {
-    metadata: { label: "post-fix" },
+    metadata: { label: "post-fix", suite: "full" },
     scenarios: {
       "tutor-refusal-basic": {
         models: {
           sonnet: {
             tiers: {
-              hard: { passRate: 0.8, passed: 4, total: 5 },
-              target: { passRate: 1, passed: 2, total: 2 },
+              hard: { passRate: 0.999, passed: 999, total: 1000 },
+              target: { passRate: 0.7, passed: 7, total: 10 }, // -0.10 => target regression
               soft: { passRate: 1, passed: 2, total: 2 },
             },
             agreementRate: 1,
@@ -1145,17 +1447,63 @@ test("computeSummaryDiff calculates deltas and flags hard regressions", () => {
           },
         },
       },
+      "tutor-noise-ok": {
+        models: {
+          sonnet: {
+            tiers: {
+              hard: { passRate: 1, passed: 5, total: 5 },
+              target: { passRate: 0.76, passed: 76, total: 100 }, // -0.04 => within 5% noise
+              soft: { passRate: 0.5, passed: 1, total: 2 },
+            },
+            agreementRate: 1,
+            medianWords: 100,
+          },
+        },
+      },
+      "tutor-null-drop": {
+        models: {
+          sonnet: {
+            tiers: {
+              hard: { passRate: null, passed: 0, total: 0 },
+              target: { passRate: null, passed: 0, total: 0 },
+              soft: { passRate: null, passed: 0, total: 0 },
+            },
+          },
+        },
+      },
     },
-    staticReadability: { summary: { avgExerciseTokens: 2200 } },
+    hookStringLint: {
+      medianReasonWords: 200,
+      checks: [{ id: "hook-all-probes-denied", tier: "hard", pass: false, detail: "4/5" }],
+    },
+    staticReadability: {
+      summary: { avgExerciseTokens: 2200, hardPassed: 28, hardTotal: 29, targetPassed: 16, targetTotal: 23 },
+    },
   };
 
   const diff = computeSummaryDiff(base, curr);
-  assert.equal(diff.rows.length, 1);
-  assert.equal(diff.rows[0].hardDelta, -0.2);
-  assert.equal(diff.rows[0].targetDelta, 0.5);
-  assert.equal(diff.rows[0].wordsDelta, -40);
-  assert.equal(diff.regressions.length, 1);
+  assert.equal(diff.rows.length, 3);
   assert.equal(diff.readmeTokensDelta, -600);
+  const regKeys = diff.regressions.map((r) => `${r.scenarioId}:${r.tier}`);
+  assert.ok(regKeys.includes("tutor-refusal-basic:hard"), "Small hard drop (-0.1%) must be flagged");
+  assert.ok(regKeys.includes("tutor-refusal-basic:target"), "Target drop > 5% must be flagged");
+  assert.ok(!regKeys.includes("tutor-noise-ok:target"), "Target drop <= 5% must NOT be flagged");
+  assert.ok(regKeys.includes("tutor-null-drop:hard"), "Drop to null must be flagged");
+  assert.ok(regKeys.includes("tutor-missing:hard"), "Missing scenario in same suite must be flagged");
+  assert.ok(regKeys.includes("hookStringLint:hook-all-probes-denied:hard"), "Hook lint flip must be flagged");
+  assert.ok(regKeys.includes("staticReadability:hard"), "Static readability hard drop must be flagged");
+
+  // Sub-percent hard regression (-0.001) must display as -0.1%, not 0%
+  const table = renderDiffTable(diff);
+  assert.match(table, /-0\.1%/);
+
+  // Zero-overlap comparison must flag a regression rather than silently passing
+  const zeroOverlap = computeSummaryDiff(
+    { metadata: { label: "a", suite: "tutor" }, scenarios: { s1: { models: { sonnet: { tiers: { hard: { passRate: 1 } } } } } } },
+    { metadata: { label: "b", suite: "onboard" }, scenarios: { s2: { models: { sonnet: { tiers: { hard: { passRate: 1 } } } } } } },
+  );
+  assert.equal(zeroOverlap.regressions.length, 1);
+  assert.equal(zeroOverlap.regressions[0].scenarioId, "comparison");
 });
 
 // ---------------------------------------------------------------------------

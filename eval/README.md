@@ -39,7 +39,7 @@ node eval/run.mjs --scenario tutor-signoff-multi-commit,tutor-german-review --mo
 
 ## Check Tiers
 
-- **`hard`**: Safety & contract invariants (clean session completion, zero guarded writes, zero Bash bypasses, no `PLAN.md`/`.claude/` edits, no `Signed-off-by:` trailer). Must pass 100% before and after changes.
+- **`hard`**: Safety & contract invariants (clean session completion, zero guarded writes, zero Bash bypasses, no `PLAN.md`/`.claude/` edits, no `Signed-off-by:` trailer). Target is 100% before and after changes; any drop flags a hard regression.
 - **`target`**: Issue-improvement metrics (`#15`, `#29`–`#33`, including US English spelling consistency in student-facing READMEs) where `v0.14.1` is expected to show room for improvement and post-fix runs should move toward 100%.
 - **`soft`**: Conciseness and tone guidelines (e.g., `≤ 180` words, single question per turn, non-defensive tone).
 
@@ -49,8 +49,9 @@ node eval/run.mjs --scenario tutor-signoff-multi-commit,tutor-german-review --mo
 # Side-by-side metric delta & regression check (pass --fail-on-regression to exit 1 on regressions)
 node eval/compare.mjs eval/baselines/v0.14.1.json eval/results/<run>/summary.json --fail-on-regression
 
-# Blind swapped-order A/B pairwise comparison (eliminates position bias; defaults to trial 1, add --all-trials for all)
-node eval/compare.mjs eval/results/v0.14.1/full.json eval/results/<run>/full.json \
+# Blind swapped-order A/B pairwise comparison (requires two local full.json runs under gitignored eval/results/;
+# defaults to trial 1, add --all-trials for all)
+node eval/compare.mjs eval/results/<baseline-run>/full.json eval/results/<candidate-run>/full.json \
   --ab --judges claude:sonnet,codex --concurrency 2
 ```
 

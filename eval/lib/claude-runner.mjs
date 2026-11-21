@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { sanitizeClaudeEnv, sleep, spawnAsync } from "./utils.mjs";
+import { cleanupClaudeProjectDir, registerCleanup, sanitizeClaudeEnv, sleep, spawnAsync } from "./utils.mjs";
 
 export const DEFAULT_SUBJECT_TOOLS = "Read,Edit,Write,Glob,Grep,Skill,Bash";
 
@@ -241,11 +241,11 @@ export function parseStreamJson(raw) {
   };
 }
 
-function isRateLimitError(stderr, parsed) {
+export function isRateLimitError(stderr, parsed) {
   const combined = `${stderr ?? ""} ${parsed?.result?.resultText ?? ""}`.toLowerCase();
   return (
     combined.includes("rate limit") ||
-    combined.includes("429") ||
+    /\b429\b/.test(combined) ||
     combined.includes("overloaded") ||
     combined.includes("too many requests") ||
     combined.includes("temporarily unavailable")
@@ -266,6 +266,7 @@ export async function runClaudeTurn({
   allowedTools = DEFAULT_SUBJECT_TOOLS,
   timeoutMs = 180_000,
   maxRetries = 3,
+  onBeforeRetry = null,
 } = {}) {
   const args = buildClaudeArgs({
     prompt,
@@ -287,6 +288,9 @@ export async function runClaudeTurn({
     const failed = res.timedOut || res.exitCode !== 0 || parsed.result?.isError;
     if (failed && attempt < maxRetries && isRateLimitError(res.stderr, parsed)) {
       attempt++;
+      if (typeof onBeforeRetry === "function") {
+        await onBeforeRetry(attempt);
+      }
       const backoffMs = Math.min(60_000, 4000 * 2 ** (attempt - 1));
       await sleep(backoffMs);
       continue;
@@ -340,6 +344,16 @@ export async function runClaudeSession({
       prompt = String(spec);
     }
 
+    // Snapshot clean pre-turn HEAD so a rate-limit retry resets any partial edits from the failed attempt
+    let preTurnCleanHead = null;
+    try {
+      if (!sandbox.git(["status", "--porcelain"])) {
+        preTurnCleanHead = sandbox.git(["rev-parse", "HEAD"]);
+      }
+    } catch {
+      preTurnCleanHead = null;
+    }
+
     const turnResult = await runClaudeTurn({
       cwd: sandbox.repoDir,
       env: sandbox.env,
@@ -349,6 +363,10 @@ export async function runClaudeSession({
       resumeSessionId: i === 0 ? null : sessionId,
       timeoutMs,
       maxRetries,
+      onBeforeRetry:
+        preTurnCleanHead && typeof sandbox.resetHard === "function"
+          ? () => sandbox.resetHard(preTurnCleanHead)
+          : null,
     });
 
     if (i === 0 && turnResult.parsed.sessionId) {
@@ -391,6 +409,11 @@ export async function runIsolatedClaudeJson({
   maxRetries = 3,
 } = {}) {
   const emptyDir = mkdtempSync(join(tmpdir(), "wbs-eval-isolated-"));
+  const cleanup = () => {
+    cleanupClaudeProjectDir(emptyDir);
+    rmSync(emptyDir, { recursive: true, force: true });
+  };
+  const unregister = registerCleanup(cleanup);
   const schemaStr = typeof jsonSchema === "string" ? jsonSchema : JSON.stringify(jsonSchema);
   const args = [
     "-p",
@@ -430,8 +453,14 @@ export async function runIsolatedClaudeJson({
       }
 
       const structured = envelope?.structured_output ?? null;
-      const failed = res.timedOut || res.exitCode !== 0 || !structured;
-      if (failed && attempt < maxRetries && isRateLimitError(res.stderr, { result: { resultText: res.stdout } })) {
+      const failed = res.timedOut || res.exitCode !== 0 || envelope?.is_error || !structured;
+      // Scan only the result text (or raw stdout if non-JSON), never numeric envelope fields like duration_ms
+      const errorText = envelope
+        ? typeof envelope.result === "string"
+          ? envelope.result
+          : ""
+        : res.stdout;
+      if (failed && attempt < maxRetries && isRateLimitError(res.stderr, { result: { resultText: errorText } })) {
         attempt++;
         await sleep(Math.min(60_000, 4000 * 2 ** (attempt - 1)));
         continue;
@@ -452,6 +481,7 @@ export async function runIsolatedClaudeJson({
       };
     }
   } finally {
-    rmSync(emptyDir, { recursive: true, force: true });
+    unregister();
+    cleanup();
   }
 }

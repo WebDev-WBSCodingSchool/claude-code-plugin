@@ -1,7 +1,39 @@
 import { spawn } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { resolve } from "node:path";
+import { realpathSync, rmSync } from "node:fs";
+import { homedir } from "node:os";
+import { join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+const SAFE_ENV_KEYS = new Set([
+  "PATH",
+  "HOME",
+  "USER",
+  "LOGNAME",
+  "SHELL",
+  "TERM",
+  "COLORTERM",
+  "TMPDIR",
+  "TEMP",
+  "TMP",
+  "LANG",
+  "TZ",
+  "SSL_CERT_FILE",
+  "SSL_CERT_DIR",
+  "NODE_EXTRA_CA_CERTS",
+  "HTTP_PROXY",
+  "HTTPS_PROXY",
+  "NO_PROXY",
+  "http_proxy",
+  "https_proxy",
+  "no_proxy",
+  "SystemRoot",
+  "COMSPEC",
+  "APPDATA",
+  "LOCALAPPDATA",
+  "USERPROFILE",
+]);
+
+const SAFE_ENV_PREFIXES = ["LC_", "XDG_"];
 
 export function sleep(ms) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
@@ -17,17 +49,127 @@ export function median(values, { round = null } = {}) {
   return typeof round === "number" ? Number(raw.toFixed(round)) : raw;
 }
 
+export function formatPct(rate) {
+  if (rate === null || rate === undefined) return "—";
+  return `${Math.round(rate * 100)}%`;
+}
+
+export async function runPool(items, concurrency, worker) {
+  const results = new Array(items.length);
+  let nextIdx = 0;
+  async function loop() {
+    while (nextIdx < items.length) {
+      const idx = nextIdx++;
+      results[idx] = await worker(items[idx], idx);
+    }
+  }
+  const runners = Array.from({ length: Math.min(concurrency, items.length) }, () => loop());
+  await Promise.all(runners);
+  return results;
+}
+
 /**
- * Strip nested Claude Code session env vars so child `claude -p` processes
- * run cleanly when evals are launched from inside a Claude Code session.
+ * Build a minimal allowlisted environment so child agents and judges do not
+ * inherit unrelated credentials (e.g. GH_TOKEN, OPENAI_API_KEY, AWS_*, SSH_AUTH_SOCK).
  */
-export function sanitizeClaudeEnv(env = process.env) {
+export function buildMinimalEnv(env = process.env, { extraAllowed = [] } = {}) {
+  const allowed = new Set([...SAFE_ENV_KEYS, ...extraAllowed]);
   const clean = {};
   for (const [k, v] of Object.entries(env ?? {})) {
-    if (k === "CLAUDECODE" || k === "CLAUDE_CODE_ENTRYPOINT") continue;
-    clean[k] = v;
+    if (v === undefined) continue;
+    if (allowed.has(k) || SAFE_ENV_PREFIXES.some((p) => k.startsWith(p))) {
+      clean[k] = v;
+    }
   }
   return clean;
+}
+
+/**
+ * Allowlist environment for child `claude -p` processes (drops nested
+ * CLAUDECODE/CLAUDE_CODE_ENTRYPOINT vars as well as unrelated host secrets).
+ */
+export function sanitizeClaudeEnv(env = process.env) {
+  return buildMinimalEnv(env, {
+    extraAllowed: [
+      "CLAUDE_CONFIG_DIR",
+      "CLAUDE_PROJECT_DIR",
+      "GIT_CONFIG_GLOBAL",
+      "GIT_CONFIG_NOSYSTEM",
+      "GIT_TERMINAL_PROMPT",
+    ],
+  });
+}
+
+/**
+ * Allowlist environment for child `codex exec` judge processes.
+ */
+export function sanitizeCodexEnv(env = process.env) {
+  return buildMinimalEnv(env, {
+    extraAllowed: ["CODEX_HOME"],
+  });
+}
+
+/**
+ * Remove the temporary ~/.claude/projects/<encoded-cwd> directory created by
+ * `claude -p` for ephemeral eval sandboxes. Guarded so only `wbs-eval-*` paths
+ * can ever be removed.
+ */
+export function cleanupClaudeProjectDir(dirPath, { projectsDir = join(homedir(), ".claude", "projects") } = {}) {
+  if (!dirPath || typeof dirPath !== "string") return;
+  const candidates = new Set([dirPath]);
+  try {
+    candidates.add(realpathSync(dirPath));
+  } catch {
+    // dirPath may already be removed
+  }
+  for (const candidate of candidates) {
+    const encoded = candidate.replace(/[^a-zA-Z0-9-]/g, "-");
+    if (!encoded.includes("wbs-eval-")) continue;
+    try {
+      rmSync(join(projectsDir, encoded), {
+        recursive: true,
+        force: true,
+      });
+    } catch {
+      // best-effort cleanup
+    }
+  }
+}
+
+const activeCleanups = new Set();
+let signalHandlersInstalled = false;
+
+export function registerCleanup(fn) {
+  if (typeof fn !== "function") return () => {};
+  activeCleanups.add(fn);
+  return () => {
+    activeCleanups.delete(fn);
+  };
+}
+
+export function runRegisteredCleanups() {
+  for (const fn of [...activeCleanups]) {
+    activeCleanups.delete(fn);
+    try {
+      fn();
+    } catch {
+      // ignore cleanup failures during shutdown
+    }
+  }
+}
+
+export function installSignalCleanup() {
+  if (signalHandlersInstalled) return;
+  signalHandlersInstalled = true;
+  for (const [sig, code] of [
+    ["SIGINT", 130],
+    ["SIGTERM", 143],
+  ]) {
+    process.on(sig, () => {
+      runRegisteredCleanups();
+      process.exit(code);
+    });
+  }
 }
 
 export function spawnAsync(
