@@ -57,7 +57,7 @@
     },
     {
       "id": "FR012",
-      "title": "Add to favourites",
+      "title": "Add to favorites",
       "file": "main.js",
       "categories": ["localStorage"]
     },
@@ -69,7 +69,7 @@
     },
     {
       "id": "FR014",
-      "title": "Favourite button reflects what is stored",
+      "title": "Favorite button reflects what is stored",
       "file": "main.js",
       "categories": ["dom", "localStorage"]
     },

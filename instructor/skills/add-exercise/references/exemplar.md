@@ -38,7 +38,7 @@ cost instead:
 
 This is a group project, so the reason is the cost to teammates. In a solo
 project, the reason is usually that a package would do the work the exercise
-practises. Neither reason is a judgment about what students are allowed to learn.
+practices. Neither reason is a judgment about what students are allowed to learn.
 
 ## 3. Which code must students write themselves to learn the module topic?
 
@@ -56,7 +56,7 @@ Each protected topic needs a detector in `guard.mjs`, and each detector belongs
 to a protected topic. An entry on one side without a match on the other is an
 error. See `references/detectors.md`.
 
-## 4. Which requirements make students practise each protected topic?
+## 4. Which requirements make students practice each protected topic?
 
 The first version of the exercise had six week 1 tasks:
 
@@ -65,7 +65,7 @@ The first version of the exercise had six week 1 tasks:
 | FR009 | Fetch popular movies | `main.js` | `fetch`, `dom` |
 | FR010 | Search with dialog | `main.js` | `fetch`, `dom` |
 | FR011 | Movie cards | `main.js` | `dom` |
-| FR012 | Add to favourites | `main.js` | `localStorage` |
+| FR012 | Add to favorites | `main.js` | `localStorage` |
 | FR015 | Journal page display | `journal.js` | `localStorage`, `dom` |
 | FR016 | Personal notes | `journal.js` | `localStorage`, `dom` |
 
@@ -78,7 +78,7 @@ question before it edits.
 ## 5. Which important practice is missing?
 
 Go through the protected topics one at a time. For each one, say what the tasks
-make students practise, then name what they don't.
+make students practice, then name what they don't.
 
 **`fetch`.** FR009 and FR010 both make a successful GET request to TMDB. No task
 covers a failed request. With one shared key in a class of thirty students, TMDB
@@ -93,7 +93,7 @@ refuses requests on the first afternoon. Two candidates:
 changes markup that is already there. Every task works if the student throws the
 list away and renders it again. One candidate:
 
-> **X3** A card's favourite button shows whether the movie is already in the
+> **X3** A card's favorite button shows whether the movie is already in the
 > journal, and switches when you click it, without redrawing the list.
 
 **`localStorage`.** The tasks write to storage, but none of them reads back data
@@ -125,7 +125,7 @@ This list isn't a to-do list for the agent. The student has to ask for a change.
 The agent then asks at least one project-specific question and waits for the
 answer before it edits code.
 
-The decision this group has to make at the kickoff is **what a favourite looks
+The decision this group has to make at the kickoff is **what a favorite looks
 like in `localStorage`**: which fields of the movie get stored. The README states
 the decision itself, not a general instruction to discuss the project. FR012
 stores the fields, and FR014, FR015, and FR017 depend on them. Two teammates who

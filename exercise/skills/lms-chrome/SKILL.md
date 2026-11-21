@@ -54,9 +54,9 @@ student wants:
 - **Questions**: answer questions about this lesson. Explain with the lesson's
   own examples and terms first, and point to the part of the page you used.
   Do not solve the lesson's exercise for them; help them get there.
-- **Practise this exercise**: if the page describes a task, set it up as a
+- **Practice this exercise**: if the page describes a task, set it up as a
   practice exercise.
-- **Practise the topic**: a new small exercise on the same topic.
+- **Practice the topic**: a new small exercise on the same topic.
 
 For either practice option, follow the `exercise:custom` skill. Its files sit
 next to this skill folder, in `../custom/`. Use the lesson to answer the
@@ -75,10 +75,10 @@ somewhere on the LMS page.
 Use the playground code the reader returned to explain the lesson and to write
 `PRACTICE.md`, but do not write it into the project. The reader gets it from the
 page text, which drops the indentation and cuts long files off. For each
-playground file, and each file of lesson code you are missing, create the file
-empty at its place in the project. Ask the student to
-copy each file's content from the playground, or from the LMS page if there is
-no playground, into the matching file, not to paste it into the chat. End your final report
+playground file, and each file of lesson code you are missing, create an empty
+file at its place in the project. Ask the student to copy each file's content
+from the playground (or from the LMS page if there is no playground) into the
+matching file. Tell them not to paste it into the chat. End your final report
 with this as a numbered checklist, after everything else, so it is the last
 thing the student reads. In the student's language, for example:
 

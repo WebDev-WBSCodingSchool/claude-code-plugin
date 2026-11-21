@@ -1,7 +1,7 @@
 # Practice: <topic>
 
-<One or two sentences: what the student wants to practise and what they will
-build to practise it.>
+<One or two sentences: what the student wants to practice and what they will
+build to practice it.>
 
 Language: <language>
 Syntax check: <command, or "none">
