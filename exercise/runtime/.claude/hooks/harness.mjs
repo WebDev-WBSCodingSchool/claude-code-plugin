@@ -7,8 +7,8 @@
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, relative, resolve, sep } from "node:path";
+import { readFileSync, readdirSync, existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 export const root = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 
@@ -16,9 +16,36 @@ export function loadConfig() {
   return JSON.parse(readFileSync(join(root, ".claude/harness", "config.json"), "utf8"));
 }
 
-/** Repo-relative, forward-slashed. Windows gives back backslashes otherwise. */
+/** Resolve symlinks up to the deepest existing ancestor so missing targets still canonicalize. */
+function canonicalPath(targetPath) {
+  const abs = resolve(targetPath);
+  let cur = abs;
+  const missing = [];
+  while (!existsSync(cur)) {
+    const parent = dirname(cur);
+    if (parent === cur) return abs;
+    missing.unshift(basename(cur));
+    cur = parent;
+  }
+  try {
+    return join(realpathSync(cur), ...missing);
+  } catch {
+    return abs;
+  }
+}
+
+/** Repo-relative, forward-slashed. Windows gives backslashes otherwise. */
 export function relPath(p) {
-  return relative(root, resolve(root, p)).split(sep).join("/");
+  return relative(canonicalPath(root), canonicalPath(resolve(root, p)))
+    .split(sep)
+    .join("/");
+}
+
+function normalizeRel(p) {
+  return String(p ?? "")
+    .replace(/\\/g, "/")
+    .replace(/^\.\//, "")
+    .toLowerCase();
 }
 
 /**
@@ -49,8 +76,13 @@ export function relPath(p) {
  * Returns "machinery" | "canonical" | null.
  */
 export function lockedAs(config, rel) {
+  const r = normalizeRel(rel);
   const hit = (list) =>
-    (list ?? []).some((p) => (p.endsWith("/") ? rel.startsWith(p) : rel === p));
+    (list ?? []).some((p) => {
+      const np = normalizeRel(p);
+      if (!np) return false;
+      return np.endsWith("/") ? r.startsWith(np) || r === np.slice(0, -1) : r === np;
+    });
   if (hit(config.writableExceptions)) return null;
   if (hit(config.neverWritable)) return "machinery";
   if (hit(config.canonical)) return "canonical";
@@ -95,7 +127,7 @@ export function lockedPaths(config) {
 //   - The restatement half is unparsed, whatever it contains — code fences, FR
 //     tables, headings that look like anchors. Only an email address reaches this.
 //
-// Two costs, taken knowingly (see wayfinder/tickets/plan-md-shape.md):
+// Two costs, taken knowingly:
 //
 //   An address mentioned in the restatement prose becomes a phantom member and
 //   closes the gate. The block message names it with its line number and the fix
@@ -166,9 +198,9 @@ function nameFrom(line) {
  *
  * ponytail: first names collide with ordinary prose, and this is the reader's
  * second fail-open path. "Renke's idea was…" becomes a phantom CLAIM and OPENS
- * the gate, where plan-md-shape's phantom MEMBER closed it. Taken knowingly:
+ * the gate, where a phantom MEMBER closed it. Taken knowingly:
  * people write first names, which is the whole point. Upgrade path if a real
- * group hits it is full-name-only, which costs the thing the ticket asked for.
+ * group hits it is full-name-only, which costs first-name matching.
  */
 function namesMember(line, name, includeFirstName = true) {
   if (!name) return false;
@@ -184,8 +216,8 @@ export function readPlan(text) {
   const lines = text.split(/\r?\n/);
   const people = new Map();
 
-  // Pass 1 — an address defines a member. Unchanged from plan-md-shape: every
-  // occurrence after the first is a claim, plus the table exception.
+  // Pass 1 — an address defines a member. Every occurrence after the first
+  // is a claim, plus the table exception.
   lines.forEach((line, i) => {
     for (const [match] of line.matchAll(EMAIL)) {
       const email = match.toLowerCase();
@@ -239,7 +271,7 @@ export function taskLines(text) {
     }
     if (!emails.length) return;
     // The title is the line with the addresses and the markdown taken out. Whatever
-    // the group wrote IS the title — this never invents one, per group-referee-stance.
+    // the group wrote IS the title — this never invents one.
     const title = line
       .replace(EMAIL, "")
       .replace(/^[\s|>*+-]+|[\s|]+$/g, "")
@@ -377,7 +409,7 @@ export function git(args) {
 /**
  * Which progress file belongs to the person at this keyboard.
  *
- * Keyed on git identity, per repo-split-expression. That is spoofable — but
+ * Keyed on git identity. That is spoofable — but
  * spoofing it also changes commit authorship, which is public, so the bargain is
  * the usual one. Hashing the complete lowercased email keeps different domains
  * and punctuation distinct while producing a filename safe on every platform.

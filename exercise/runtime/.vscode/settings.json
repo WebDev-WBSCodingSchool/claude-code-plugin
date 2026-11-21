@@ -112,6 +112,7 @@
     ".github/copilot-instructions.md": true,
     ".claude/harness/**": true,
     ".claude/hooks/**": true,
+    ".claude/githooks/**": true,
     ".claude/skills/**": true,
     ".claude/settings.json": true,
     ".vscode/**": true

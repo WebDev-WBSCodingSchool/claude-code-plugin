@@ -24,6 +24,7 @@
     ".claude/settings.json",
     ".claude/settings.local.json",
     ".claude/hooks/",
+    ".claude/githooks/",
     ".claude/skills/",
     ".vscode/"
   ],
