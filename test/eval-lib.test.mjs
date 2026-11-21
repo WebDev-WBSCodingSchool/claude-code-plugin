@@ -235,8 +235,8 @@ test("sandbox invokeGuard and invokeSignoff execute real exercise hooks", () => 
     assert.equal(guardOut.status, 0);
     assert.equal(guardOut.denied, true);
     assert.equal(guardOut.decision?.hookSpecificOutput?.permissionDecision, "deny");
-    assert.match(guardOut.reason, /fetch/);
-    assert.match(guardOut.reason, /dom/);
+    assert.match(guardOut.reason, /fetch/i);
+    assert.match(guardOut.reason, /dom/i);
 
     const statusOut = invokeSignoff(sb, ["--status"]);
     assert.equal(statusOut.status, 0);

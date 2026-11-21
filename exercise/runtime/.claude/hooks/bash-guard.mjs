@@ -151,9 +151,8 @@ try {
   process.exit(0);
 } catch (err) {
   deny(
-    `The harness could not check this command, so it denied it. This is a fault in ` +
-      `the harness, not a judgement about the command. Tell the student and suggest ` +
-      `they mention it to their instructor: ${err?.message ?? err}`,
+    `The harness could not check this command and denied it to stay safe. ` +
+      `Show this message to the student and suggest mentioning it to their instructor: ${err?.message ?? err}`,
     `Harness: bash guard error, command denied (failing closed). ${err?.message ?? err}`,
   );
 }

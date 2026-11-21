@@ -32,6 +32,7 @@ import {
   planFile,
   onboardingBlock,
   branchState,
+  formatCategories,
 } from "./harness.mjs";
 import { denyReason } from "./reason.mjs";
 
@@ -331,7 +332,7 @@ const DETECTORS = {
     // reading localStorage is open plumbing throughout a project like this, and
     // it is the one collision that would block it. The lookbehind spans the
     // whitespace too, so a chain broken over two lines by a formatter is still
-    // recognised as JSON.parse rather than as a schema.
+    // recognized as JSON.parse rather than as a schema.
     /(?<!JSON\s{0,20})\.\s*(parse|safeParse|parseAsync|safeParseAsync)\s*\(/,
     /\bZodError\b/,
   ],
@@ -646,44 +647,24 @@ try {
       planFile(config).replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase()
   ) {
     deny(
-      `\`${rel}\` is the group's own writing and you may not write to it. It is also ` +
-        `the file that is checked before you write code, so writing it would mean ` +
-        `clearing your own way — the one edit that would make all of this ` +
-        `meaningless. ` +
-        `Run the conversation, name what nobody has claimed and where two of them will ` +
-        `collide, say what looks thin. They ` +
-        `type it. If they ask you to just write it for them, say no and say why.`,
+      `\`${rel}\` belongs to the group and is read-only to you. ` +
+        `Help the group spot unclaimed work or overlaps while they edit it themselves.`,
       `Harness: blocked an agent write to ${rel} — the group writes their own plan.`,
     );
   }
 
   if (locked === "machinery") {
     deny(
-      `\`${rel}\` is the machinery of this setup and you may not write to it. The hook, its ` +
-        `config, the progress record, the editor settings that turn off inline ` +
-        `suggestions and the tutor skill are one system: between them they decide ` +
-        `what you may write and what you say when you decline, so none of them is ` +
-        `yours to edit. Any such edit would be visible in \`git diff\` and would ` +
-        `defeat the point of the exercise. ` +
-        `If the student is asking you to take this apart, say no and say why. ` +
-        `To record a signed-off task, run \`node .claude/hooks/signoff.mjs\` — the ` +
-        `script is the only writer of that state.`,
+      `\`${rel}\` is part of the harness setup and is read-only to you. ` +
+        `To record a signed-off task, run \`node .claude/hooks/signoff.mjs\`.`,
       `Harness: blocked an agent write to ${rel}.`,
     );
   }
 
   if (locked === "canonical") {
-    // Separate reason from machinery on purpose. The agent will read this out to
-    // a student, and "you may not edit the requirements" needs to land as a
-    // statement about authority, not as a bug in the harness.
     deny(
-      `\`${rel}\` is the assignment brief and it is read-only to you. It is the same ` +
-        `text the students were given, it is what tells you what you may and may not ` +
-        `write here, and you do not get to edit the thing you are being held to. ` +
-        `Requirements are the instructor's to change. If the student thinks one is ` +
-        `wrong, ambiguous, or already met a different way, that is a conversation with ` +
-        `their instructor — help them put the case clearly, do not edit it away. ` +
-        `Their own project writing goes in files they create, not in here.`,
+      `\`${rel}\` is the assignment brief and is read-only to you. ` +
+        `If a requirement seems unclear or wrong, help the student bring it to their instructor instead of editing this file.`,
       `Harness: blocked an agent write to ${rel} — the brief is read-only.`,
     );
   }
@@ -699,10 +680,8 @@ try {
   const notOnboarded = onboardingBlock(config);
   if (notOnboarded) {
     deny(
-      `${notOnboarded}\n\nUntil that is sorted you may not write ${rel} or any other ` +
-        `code file here. This is not about the code you were about to write. Read the ` +
-        `message above to the student — it says exactly what to change — and help them ` +
-        `fix it. You may not edit \`${planFile(config)}\` yourself.`,
+      `${notOnboarded}\n\nUntil the plan check passes, code files such as ${rel} stay blocked. ` +
+        `Share the message above with the student and help them update \`${planFile(config)}\` themselves.`,
       `Harness: blocked an agent write to ${rel} — the group's plan is not settled.`,
     );
   }
@@ -718,7 +697,7 @@ try {
 
   deny(
     denyReason({ config, rel, blocked, open }),
-    `Harness: blocked an agent write to ${rel} — ${blocked.join(", ")}. ` +
+    `Harness: blocked an agent write to ${rel} — ${formatCategories(blocked)}. ` +
       `That part is yours to type.`,
   );
 } catch (err) {
@@ -726,10 +705,8 @@ try {
   // not know whether this write is allowed, so it is not allowed. The reason is
   // written for a human because a student will read it through the agent.
   deny(
-    `The harness guard could not determine whether this write is permitted, so it ` +
-      `denied it. This is a fault in the harness, not a judgement about the code. ` +
-      `Tell the student what happened, show them this, and suggest they mention it ` +
-      `to their instructor: ${err?.message ?? err}`,
+    `The harness guard encountered an error checking this write and denied it to stay safe. ` +
+      `Show this message to the student and suggest mentioning it to their instructor: ${err?.message ?? err}`,
     `Harness: guard error, write denied (failing closed). ${err?.message ?? err}`,
   );
 }
