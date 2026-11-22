@@ -18,5 +18,5 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 If the student will create the commit, tell them that the trailer is needed and
-offer the line. Do not add it to a commit containing only student-written code.
+offer the line. This includes leaving changes uncommitted: say so in that reply. Do not add it to a commit containing only student-written code.
 Never add the student's `Signed-off-by:` trailer yourself.

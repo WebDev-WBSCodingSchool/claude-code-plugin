@@ -47,8 +47,9 @@ still designing on day two.
 | **FR009** | The site is live on GitHub Pages, and the link is on the repo's front page. |
 | **FR010** | Optional: the site is responsive. Build it for desktop first, and make it work on a phone if you have time. |
 
-You write the bold tasks yourself. In this project, every requirement is bold,
-and all HTML and CSS stays yours for the whole exercise.
+You write the bold tasks yourself. In this project, every id in the table is
+bold, including the optional FR010, so all HTML and CSS stays yours for the whole
+exercise.
 
 FR008 and FR009 are bold for a different reason. They aren't code, so there is
 nothing the agent could write for you. They are also the two tasks that groups

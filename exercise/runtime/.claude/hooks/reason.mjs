@@ -48,8 +48,13 @@ export function denyReason({ config, rel, blocked, open }) {
   const parts = blocked.length > 1 ? "parts" : "part";
   const lines = [];
 
+  // The unlock path goes inside the quoted sentence: evals showed agents relay the quote but drop instructions further down.
+  const firstTask = config.unlockRoute === false ? undefined : config.tasks?.find((t) => blocked.some((c) => (t.categories ?? []).includes(c)));
+  const unlock = firstTask
+    ? ` Once you write one task such as ${firstTask.title}, commit it with --signoff, and explain it to me, I can help here too.`
+    : "";
   lines.push(
-    `Tell the student in their language: "${capWhat} ${verb} the ${parts} of ${rel} you write yourself — I'll help you get there."`,
+    `Tell the student in their language: "${capWhat} ${verb} the ${parts} of ${rel} you write yourself — I'll help you get there.${unlock}"`,
   );
 
   lines.push(
@@ -75,7 +80,7 @@ export function denyReason({ config, rel, blocked, open }) {
       .map((c) => `  - ${categoryLabel(c)}: ${routesTo(config, c).join(", ") || "no task opens this"}`)
       .join("\n");
     lines.push(
-      `Unlock: the student writes one task below, commits it (\`git commit --signoff\`), and explains the branch diff to you (1 open + up to 3 unscored MCQs). Name the task by its title. Then you run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1); never hand the student this command:\n${routes}`,
+      `Unlock: once the student has committed one task below and explained its branch diff (1 open + up to 3 unscored MCQs), you run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1); never hand the student this command:\n${routes}`,
     );
     const openList = [...open];
     lines.push(

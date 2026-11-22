@@ -64,11 +64,11 @@ people. The sections are what you split:
 | **T7** | Get-help call to action, with its form |
 | **T8** | Footer |
 
-You write the bold tasks yourself. For the others, you can ask the agent for help.
-
 The eight sections are the tasks. When this page talks about bold tasks, it means
-T1 to T8. Each one is markup and styling, each one has to meet FR004, FR006, and
-FR009 on its own, and all of them live in `index.html`.
+T1 to T8. You write your first section yourself. For the requirements that aren't
+bold, you can ask the agent for help. Each section is markup and styling, each
+one has to meet FR004, FR006, and FR009 on its own, and all of them live in
+`index.html`.
 
 Nobody writes all eight sections by hand. After you sign off your first section,
 the agent may work on the other sections with you. Each of you takes at least one
@@ -144,8 +144,8 @@ When you finish a bold task:
 3. Explain it. The agent asks what your commit does and up to three short
    follow-up questions (more for larger commits, fewer for small ones).
 
-Explaining your code helps you check your own understanding. It's not graded or
-recorded.
+Explaining your code helps you check your own understanding. Your answers aren't
+graded or saved. The agent only records that you finished the task.
 
 Once you finish and explain one task for a topic, the agent may write that topic
 with you for the rest of the project, including features beyond the

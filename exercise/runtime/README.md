@@ -88,8 +88,9 @@ When you finish a bold task:
 3. Explain it. The agent asks what your commit does and up to three short
    follow-up questions (more for larger commits, fewer for small ones).
 
-Explaining your code helps you check your own understanding. It's not graded or
-recorded.
+Explaining your code helps you check your own understanding. Your answers aren't
+graded or saved. The agent only records that you finished the task. <If
+unlockRoute is false, write instead: "It's not graded or recorded.">
 
 <If unlockRoute is false, delete the next two paragraphs and write instead: "The
 bold tasks stay yours for the whole exercise.">

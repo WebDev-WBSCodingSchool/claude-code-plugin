@@ -51,6 +51,7 @@ into the same patch. Each additional result needs another request.
 Agent-written work appears in a pull request under the student's name, and the
 student may have to explain it to an instructor. When your agent wrote or helped
 write code in a commit, add a `Co-Authored-By:` trailer for your agent (or tell
-the student to include it if they make the commit). Do not add it to commits
+the student to include it if they make the commit). If you leave agent-written
+changes uncommitted, say in your reply that the commit needs this trailer. Do not add it to commits
 containing only student-written code, and never add the student's `Signed-off-by:`
 trailer yourself.

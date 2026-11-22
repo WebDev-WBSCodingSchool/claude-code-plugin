@@ -239,6 +239,11 @@ for (const [category, file, positive, negative] of CASES) {
   assert.match(locked(['getRequests']), /GET requests are the part.*GET requests stay student-written/s);
   assert.match(locked(['dom']), /stays student-written/);
   assert.match(locked(['localStorage']), /"localStorage is the part/);
+  assert.doesNotMatch(locked(['dom']), /Once you write/);
+
+  const tasks = [{ id: 'FR009', title: 'Fetch popular movies', categories: ['dom'] }];
+  const unlockable = denyReason({ config: { tasks }, rel: 'main.js', blocked: ['dom'], open: [] });
+  assert.match(unlockable, /^Tell the student[^\n]*Once you write one task such as Fetch popular movies, commit it with --signoff, and explain it to me/);
 }
 
 console.log(`${CASES.length} detector checks passed`);

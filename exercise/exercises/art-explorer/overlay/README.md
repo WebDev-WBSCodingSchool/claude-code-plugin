@@ -112,8 +112,8 @@ When you finish a bold task:
 3. Explain it. The agent asks what your commit does and up to three short
    follow-up questions (more for larger commits, fewer for small ones).
 
-Explaining your code helps you check your own understanding. It's not graded or
-recorded.
+Explaining your code helps you check your own understanding. Your answers aren't
+graded or saved. The agent only records that you finished the task.
 
 Once you finish and explain one task for a topic, the agent may write that topic
 with you for the rest of the project, including features beyond the
