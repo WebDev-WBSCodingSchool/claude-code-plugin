@@ -75,7 +75,7 @@ export function denyReason({ config, rel, blocked, open }) {
       .map((c) => `  - ${categoryLabel(c)}: ${routesTo(config, c).join(", ") || "no task opens this"}`)
       .join("\n");
     lines.push(
-      `Unlock: write one task below, commit (\`git commit --signoff\`), explain the branch diff (1 open + up to 3 unscored MCQs), then run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1):\n${routes}`,
+      `Unlock: the student writes one task below, commits it (\`git commit --signoff\`), and explains the branch diff to you (1 open + up to 3 unscored MCQs). Name the task by its title. Then you run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1); never hand the student this command:\n${routes}`,
     );
     const openList = [...open];
     lines.push(
