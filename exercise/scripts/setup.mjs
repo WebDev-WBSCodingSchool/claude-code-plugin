@@ -12,7 +12,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { problems } from "./verify.mjs";
@@ -51,9 +51,11 @@ function usage() {
 
 function copyContents(source, destination) {
   for (const entry of readdirSync(source)) {
+    if (entry === ".git") continue;
     cpSync(join(source, entry), join(destination, entry), {
       recursive: true,
       force: true,
+      filter: (src) => basename(src) !== ".git",
     });
   }
 }
@@ -87,10 +89,12 @@ function createProject(exercise, targetArgument) {
     // Offline or unfixable is not a reason to fail setup.
     if (existsSync(join(staging, "package-lock.json"))) {
       try {
+        const auditTimeout = Number(process.env.WBS_NPM_AUDIT_TIMEOUT_MS) || 15_000;
         execFileSync("npm", ["audit", "fix", "--package-lock-only"], {
           cwd: staging,
           stdio: "ignore",
           shell: process.platform === "win32",
+          timeout: auditTimeout,
         });
       } catch {
         console.warn(

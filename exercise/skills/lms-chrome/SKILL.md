@@ -25,11 +25,15 @@ needs Chrome or Edge with the Claude extension installed. As a fallback, offer
 that they paste the lesson text instead, and continue with that text.
 
 Otherwise, read the page with the `exercise:lms-reader` subagent. It runs on
-Haiku, which costs the student far less than reading the page here. Call the
-Agent tool with `subagent_type: "exercise:lms-reader"`, the description
-`Read LMS lesson`, and the link as the whole prompt. Claude Code may run it in
-the background, so tell the student that a helper agent is reading the lesson
-in their browser, and wait for its report before you go on.
+Haiku, which costs the student far less than reading the page here, and uses
+read/DOM tools (without general `computer` UI automation) scoped by
+instructions to `learn.wbscodingschool.com` and `playground.wbscod.in` inside
+the student's signed-in Chrome profile. If the student prefers not to grant
+browser access, offer the paste fallback instead. Call the Agent tool with
+`subagent_type: "exercise:lms-reader"`, the description `Read LMS lesson`, and
+the link as the whole prompt. Claude Code may run it in the background, so tell
+the student that a helper agent is reading the lesson in their browser, and wait
+for its report before you go on.
 
 The reader returns a `STATUS:` line first:
 

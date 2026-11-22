@@ -2,12 +2,12 @@
 //
 // PreToolUse hook on Bash: close the documented hole in the file-tool guard.
 //
-// hooks-research found that permission rules and file-tool hooks do not touch
-// arbitrary subprocesses, so `node -e "fs.writeFileSync('main.js', ...)"` sails
-// straight past guard.mjs. This does not re-implement the content floor — it
-// cannot, since the content is inside a shell string it would have to interpret.
-// It removes the *routes*: eval flags, and shell writes into the files the floor
-// protects.
+// Permission rules and file-tool hooks do not touch arbitrary subprocesses, so
+// `node -e "fs.writeFileSync('main.js', ...)"` sails straight past guard.mjs.
+// This does not re-implement the content floor — it cannot, since the content is
+// inside a shell string it would have to interpret. It removes the *routes*:
+// eval flags, heredocs/piped interpreters, and shell writes into the files the
+// floor protects.
 //
 // Same exit-code contract as guard.mjs: non-zero fails OPEN, so never throw.
 //
@@ -17,22 +17,27 @@
 
 import { loadConfig, lockedPaths } from "./harness.mjs";
 
-// Eval flags: no legitimate use in this project, and the canonical bypass.
-const EVAL = /\b(node|deno|bun|python3?|perl|ruby)\b[^|;&]*?\s(-e|--eval|-p|--print|-c)\b/;
+// Eval flags, heredocs/here-strings, and piped stdin execution: no legitimate use
+// in this project, and the canonical bypasses.
+const EVAL = /\b(node|deno|bun|python3?|perl|ruby)\b[^|;&\n]*(?:\s(?:-e|--eval|-p|--print|-c)\b|<<)/;
+// Flags only (`| node --input-type=module`, `| python3 -u -`): a script path
+// after the interpreter is a real program reading stdin, not piped code.
+const PIPED_INTERPRETER = /\|\s*(?:node|deno|bun|python3?|perl|ruby)(?:\s+-[^\s|;&\n]*)*(?=\s*(?:[|;&\n]|$))/;
 
 function writesInto(command, exts) {
   const e = exts.map((x) => x.replace(".", "\\.")).join("|");
+  const redirectTarget = String.raw`(?:"[^"\n]*(?:${e})"|'[^'\n]*(?:${e})'|[^\s|;&"'<>]*(?:\\ [^\s|;&"'<>]*)*(?:${e})(?=[\s|;&<>]|$))`;
   return [
-    // redirection:  > main.js   >> journal.js
-    new RegExp(String.raw`>>?\s*['"]?[\w./\\-]+(${e})\b`, "i"),
+    // redirection:  > main.js   >> journal.js   >| main.js   > "src/my file.js"
+    new RegExp(String.raw`(?:>>|>\||>)\s*${redirectTarget}`, "i"),
     // tee, in-place sed/perl, and copy/move of a scratch file over a guarded one
-    new RegExp(String.raw`\btee\b[^|;&]*(${e})\b`, "i"),
-    new RegExp(String.raw`\b(sed|perl)\b[^|;&]*\s-i\b`, "i"),
-    new RegExp(String.raw`\b(cp|mv|install|rsync)\b[^|;&]*(${e})\b`, "i"),
+    new RegExp(String.raw`(?:^|[\s;|&(])tee(?=\s)[^|;&\n]*(?:${e})\b`, "i"),
+    new RegExp(String.raw`(?:^|[\s;|&(])(?:sed|perl)(?=\s)[^|;&\n]*\s-i(?:\b|\S*)`, "i"),
+    new RegExp(String.raw`(?:^|[\s;|&(])(?:cp|mv|install|rsync)(?=\s)[^|;&\n]*(?:${e})\b`, "i"),
   ].some((re) => re.test(command));
 }
 
-const WRITE_VERBS = String.raw`tee|cp|mv|install|rsync|truncate|touch`;
+const WRITE_VERBS = String.raw`tee|cp|mv|install|rsync|truncate|touch|rm|unlink|ln`;
 
 /**
  * A shell write into a locked path — the harness's own files, and the brief.
@@ -51,19 +56,35 @@ const WRITE_VERBS = String.raw`tee|cp|mv|install|rsync|truncate|touch`;
  */
 function writesIntoLocked(command, locked) {
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // A directory entry (".claude/harness/") matches anything beneath it; a file entry
-  // matches itself. Both tolerate a leading "./" and surrounding quotes.
-  const targets = locked
-    .map((p) => (p.endsWith("/") ? `${esc(p)}[\\w./-]*` : esc(p)))
-    .join("|");
-  if (!targets) return false;
-  const target = String.raw`['"]?(?:\./)?(?:${targets})['"]?`;
+  // Directory entries (e.g. ".claude/hooks/", ".claude/githooks/") match both the
+  // directory itself (e.g. `rm -rf .claude/githooks`) and anything beneath it.
+  // Allow arbitrary path prefixes (/abs/path/, $PWD/, ./) and quotes around targets.
+  // Either separator: a quoted Windows path keeps its backslashes.
+  const SEP = String.raw`[/\\]`;
+  const pathRe = (s) => esc(s).replace(/\//g, SEP);
+  const parents = new Set();
+  const targets = locked.map((p) => {
+    const clean = p.replace(/\\/g, "/").replace(/^\.\//, "");
+    // Parents of a locked path (`.claude` for `.claude/hooks/`): `rm -rf .claude`
+    // or `mv .claude x` takes every locked file beneath it along.
+    const parts = clean.replace(/\/$/, "").split("/");
+    for (let i = 1; i < parts.length; i++) parents.add(parts.slice(0, i).join("/"));
+    return clean.endsWith("/")
+      ? `${pathRe(clean.slice(0, -1))}(?:${SEP}[^\\s|;&"'<>]*)?`
+      : pathRe(clean);
+  });
+  for (const dir of parents) if (dir && dir !== ".") targets.push(`${pathRe(dir)}${SEP}?`);
+  if (!targets.length) return false;
+  const alternatives = targets.join("|");
+  const unquotedTarget = String.raw`(?:[^\s|;&"'<>]*${SEP})?(?:${alternatives})(?=[\s|;&<>]|$)`;
+  const quotedTarget = (q) => String.raw`${q}(?:[^${q}\n]*${SEP})?(?:${alternatives})${q}`;
+  const target = String.raw`(?:${quotedTarget('"')}|${quotedTarget("'")}|${unquotedTarget})`;
 
   return [
-    // redirection:  > README.md   >> .claude/harness/config.json
-    new RegExp(String.raw`>>?\s*${target}`, "i"),
-    new RegExp(String.raw`\b(${WRITE_VERBS})\b[^|;&]*${target}`, "i"),
-    new RegExp(String.raw`\b(sed|perl)\b[^|;&]*\s-i\b[^|;&]*${target}`, "i"),
+    // redirection:  > README.md   >> .claude/harness/config.json   >| README.md   > /abs/README.md
+    new RegExp(String.raw`(?:>>|>\||>)\s*${target}`, "i"),
+    new RegExp(String.raw`(?:^|[\s;|&(])(?:${WRITE_VERBS})(?=\s)[^|;&\n]*${target}`, "i"),
+    new RegExp(String.raw`(?:^|[\s;|&(])(?:sed|perl)(?=\s)[^|;&\n]*\s-i\S*[^|;&\n]*${target}`, "i"),
   ].some((re) => re.test(command));
 }
 
@@ -105,10 +126,10 @@ try {
     process.exit(0);
   }
 
-  if (EVAL.test(command)) {
+  if (EVAL.test(command) || PIPED_INTERPRETER.test(command)) {
     deny(
-      `Blocked: inline scripts (\`-e\`/\`--eval\`/\`-p\`/\`-c\`) are closed off here — they ` +
-        `are the one route that can write project files without passing the guard, so they ` +
+      `Blocked: inline, heredoc, or piped interpreter scripts (\`-e\`/\`--eval\`/\`-p\`/\`-c\`, \`<<\`) are closed off here — they ` +
+        `can write project files without passing the guard, so they ` +
         `are refused whatever they do. Reading something? Read the file directly. Running ` +
         `the project's own check? That one is allowed by name` +
         (syntaxCheck ? `: \`${syntaxCheck} <file>\`.` : `.`) +

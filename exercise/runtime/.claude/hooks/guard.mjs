@@ -16,16 +16,20 @@
 //
 // What it decides: whether the payload being written matches a gated content
 // category that this student has not yet demonstrated. Not which file it is
-// (per repo-split-expression, globs don't fit FR007) and not which task it is
+// (globs don't cover cross-file tasks) and not which task it is
 // (the FR landmarks are comments with no mechanical authority, and the tickets
 // are student-authored, so intent is not observable — only content is).
 
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
+  root,
   relPath,
   loadConfig,
   readProgress,
   demonstrated,
   lockedAs,
+  normalizeRel,
   planFile,
   onboardingBlock,
   branchState,
@@ -44,6 +48,142 @@ import { denyReason } from "./reason.mjs";
 // is DOM *construction and mutation* — the thing FR011 and FR013 are actually
 // about.
 
+function splitTopLevel(text, openIdx, closeChar, maxScan = 4000) {
+  const limit = Math.min(text.length, openIdx + maxScan);
+  const parts = [];
+  let partStart = openIdx + 1;
+  let paren = closeChar === ")" ? 1 : 0;
+  let brace = closeChar === "}" ? 1 : 0;
+  let bracket = 0;
+  let quote = null;
+  const tmplBraces = [];
+  let lineComment = false;
+  let blockComment = false;
+
+  for (let i = openIdx + 1; i < limit; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (lineComment) {
+      if (ch === "\n") lineComment = false;
+      continue;
+    }
+    if (blockComment) {
+      if (ch === "*" && next === "/") {
+        blockComment = false;
+        i++;
+      }
+      continue;
+    }
+    if (quote) {
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (quote === "`" && ch === "$" && next === "{") {
+        tmplBraces.push(brace);
+        brace++;
+        quote = null;
+        i++;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      continue;
+    }
+
+    if (ch === "/" && next === "/") {
+      lineComment = true;
+      i++;
+      continue;
+    }
+    if (ch === "/" && next === "*") {
+      blockComment = true;
+      i++;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === "`") {
+      quote = ch;
+      continue;
+    }
+
+    if (ch === "(") paren++;
+    else if (ch === ")") {
+      paren--;
+      if (closeChar === ")" && paren === 0) {
+        parts.push(text.slice(partStart, i));
+        return parts;
+      }
+    } else if (ch === "[") bracket++;
+    else if (ch === "]") bracket = Math.max(0, bracket - 1);
+    else if (ch === "{") brace++;
+    else if (ch === "}") {
+      brace--;
+      if (tmplBraces.length && brace === tmplBraces.at(-1)) {
+        tmplBraces.pop();
+        quote = "`";
+      } else if (closeChar === "}" && brace === 0) {
+        parts.push(text.slice(partStart, i));
+        return parts;
+      }
+    } else if (
+      ch === "," &&
+      paren === (closeChar === ")" ? 1 : 0) &&
+      brace === (closeChar === "}" ? 1 : 0) &&
+      bracket === 0
+    ) {
+      parts.push(text.slice(partStart, i));
+      partStart = i + 1;
+    }
+  }
+  return null;
+}
+
+function isGetOptions(optsText) {
+  const trimmed = optsText.trim();
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
+  const props = splitTopLevel(trimmed, 0, "}");
+  if (!props) return false;
+  let hasMethod = false;
+  let methodIsGet = false;
+  // splitTopLevel skips comments while splitting but keeps them in each slice,
+  // so `// create\n method: "POST"` must lose its comment before the checks below.
+  const comments = String.raw`(?:\s|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*`;
+  for (const rawProp of props) {
+    const prop = rawProp.replace(new RegExp(`^${comments}`), "");
+    if (!prop) continue;
+    if (prop.startsWith("...")) return false;
+    const match = prop.match(/^(?:["']method["']|method(?=\s*(?::|$)))\s*(:)?([\s\S]*)$/);
+    if (match) {
+      hasMethod = true;
+      if (!match[1]) return false;
+      methodIsGet = /^["'`]GET["'`]$/i.test(match[2].replace(new RegExp(`${comments}$`), "").trim());
+    }
+  }
+  return !hasMethod || methodIsGet;
+}
+
+function hasGetFetch(text) {
+  const re = /(?<![\w$.])(?:(?:window|globalThis)\s*\.\s*)?fetch\s*\(/g;
+  let match;
+  while ((match = re.exec(text)) !== null) {
+    const openIdx = match.index + match[0].length - 1;
+    const args = splitTopLevel(text, openIdx, ")");
+    if (!args) continue;
+    // A trailing comma (Prettier's multiline style) leaves an empty last slice.
+    if (args.length > 1 && args.at(-1).trim() === "") args.pop();
+    if (args.length === 1 && args[0].trim() !== "") return true;
+    if (args.length >= 2 && isGetOptions(args[1])) return true;
+  }
+  return false;
+}
+
+const TW_VARIANTS =
+  "(?:sm|md|lg|xl|2xl|hover|focus|focus-within|focus-visible|active|disabled|checked|dark|first|last|odd|even|group-hover|peer-focus|motion-safe|motion-reduce|print)";
+const TW_UTILITIES =
+  "(?:flex|inline-flex|grid|inline-grid|block|inline-block|hidden|absolute|relative|fixed|sticky|mx-auto|items-\\w+|justify-\\w+|self-\\w+|gap-[\\d.]|space-[xy]-[\\d.]|grid-cols-\\d|col-span-\\d|row-span-\\d|[mp][xytrbl]?-[\\d.]|w-[\\w./]|h-[\\w./]|max-w-\\w|min-w-\\w|max-h-\\w|min-h-\\w|text-\\w+|font-\\w+|leading-\\w+|tracking-\\w+|bg-\\w+|border-\\w|rounded[\\w-]*|shadow[\\w-]*|opacity-\\d|z-\\d|overflow-\\w+|object-\\w+|transition[\\w-]*|duration-\\d|ease-\\w+|cursor-\\w+)";
+// Template-literal body: any char, a lone `$`, or a whole `${...}` skipped as a unit.
+const TW_TEMPLATE = String.raw`(?:[^\`$]|\$(?!\{)|\$\{[^}\`]*\}){0,400}?`;
+
 const DETECTORS = {
   fetch: [
     /\bfetch\s*\(/,
@@ -51,12 +191,11 @@ const DETECTORS = {
     /\baxios\b/,
   ],
   // HTTP methods are separate teaching steps in assignments that need a GET
-  // sign-off to leave POST, PUT and DELETE closed. These only recognise native
-  // fetch calls with a direct URL and an inline options object. Wrappers and
-  // dynamic options stay open rather than making an ambiguous method block work.
+  // sign-off to leave POST, PUT and DELETE closed. Fetch defaults to GET when
+  // `options` omits `method`, while dynamic options objects stay open rather than
+  // making an ambiguous method block work.
   getRequests: [
-    /(?<![\w$.])(?:(?:window|globalThis)\s*\.\s*)?fetch\s*\(\s*(?:["'][^"'\n]{1,300}["']|`[^`\n]{1,300}`|[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*)\s*\)/,
-    /(?<![\w$.])(?:(?:window|globalThis)\s*\.\s*)?fetch\s*\([\s\S]{1,300}?,\s*\{[\s\S]{0,300}?\bmethod\s*:\s*["'`]GET["'`]/i,
+    { test: hasGetFetch },
   ],
   postRequests: [
     /(?<![\w$.])(?:(?:window|globalThis)\s*\.\s*)?fetch\s*\([\s\S]{1,300}?,\s*\{[\s\S]{0,300}?\bmethod\s*:\s*["'`]POST["'`]/i,
@@ -162,9 +301,11 @@ const DETECTORS = {
   // which names a type the student already wrote rather than writing one.
   typedReact: [
     // A declared shape: `type ArtworkProps = {`, `interface Note {`. The
-    // capitalised name is what keeps `import type { Artwork } from "./x"` out —
+    // capitalized name is what keeps `import type { Artwork } from "./x"` out —
     // there, `type` is followed by a brace rather than by a name.
     /\b(type|interface)\s+[A-Z]\w*\s*[=<{]/,
+    // A typed variable declaration: `const items: Artwork[] = []`, `const label: string = "hi"`.
+    /\b(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*:\s*(?:[A-Z][\w.]*(?:<[^>\n]*>)?(?:\[\])?|(?:string|number|boolean|bigint|symbol|void|unknown|any|never|null|undefined|object)\b|\{)/,
     // A type argument on a hook call: `useState<Artwork[]>(`, `useRef<HTMLElement>(`.
     // Both the closing `>` and the `(` are required, so `useCount < max` cannot fire.
     /\buse[A-Z]\w*\s*<[^<>()\n]{1,80}>\s*\(/,
@@ -172,15 +313,15 @@ const DETECTORS = {
     /\}\s*:\s*[A-Z][\w.]*(\[\]|<[^>\n]*>)?\s*\)/,
     // The annotation on a plain parameter: `(artwork: Artwork)`. An object
     // literal cannot match here: it opens with `{`, not with an identifier.
-    /\(\s*\w+\s*:\s*[A-Z][\w.]*(<[^>\n]*>)?(\[\])?\s*[,)=]/,
+    /\(\s*\w+\??\s*:\s*[A-Z][\w.]*(<[^>\n]*>)?(\[\])?\s*[,)=]/,
     // A return type, which has to be followed by the body it belongs to.
     /\)\s*:\s*(Promise\s*<[^\n]*>|[A-Z][\w.]*(<[^>\n]*>)?(\[\])?)\s*(\{|=>)/,
-    // The same three shapes again for the primitives, which the capitalised
-    // patterns above cannot see. `(q: string)` is a typed parameter and nothing
-    // else — JavaScript has no construct of that shape, so the narrowness that
-    // protects the patterns above is not needed here.
-    /\(\s*\w+\s*:\s*(string|number|boolean|bigint|symbol|void|unknown|any|null|undefined)\b/,
+    // The same shapes again for primitives, which the capitalized patterns above
+    // cannot see. `(q: string)` is a typed parameter and nothing else.
+    /\(\s*\w+\??\s*:\s*(string|number|boolean|bigint|symbol|void|unknown|any|null|undefined)\b/,
     /\)\s*:\s*(string|number|boolean|bigint|symbol|void|unknown|any)\s*(\{|=>)/,
+    // A 2nd+ typed parameter: `(a, b: number)` or `({ a }, b: Artwork)`.
+    /\(\s*(?:(?:[A-Za-z_$][\w$]*(?:\s*=\s*[^,){}\n]+)?|\{[^:(){}\n]*\})\s*,\s*)+[A-Za-z_$][\w$]*\??\s*:\s*(?:[A-Z][\w.]*(?:<[^>\n]*>)?(?:\[\])?|(?:string|number|boolean|bigint|symbol|void|unknown|any|null|undefined|never|object)\b|\{)/,
     // An inline object type on a destructured parameter: `({ query }: { query: string })`.
     /\}\s*:\s*\{/,
     // React's own type names, wherever they are annotated.
@@ -270,16 +411,15 @@ const DETECTORS = {
   // section `class="hero"` is writing markup, not utilities, and an agent
   // reading the file back to them must be able to quote it.
   tailwindStyling: [
-    // A variant prefix inside a class attribute — `md:`, `hover:`, `dark:`,
-    // `2xl:`. `prefix:utility` is the one shape that cannot occur in a
-    // hand-written class name, because a class name cannot contain a colon.
-    // The `[^"']` scan cannot cross the closing quote, so it never runs on into
-    // a neighbouring `style="color: red"`.
-    /\bclass(Name)?\s*=\s*["'][^"']{0,400}?\b(sm|md|lg|xl|2xl|hover|focus|focus-within|focus-visible|active|disabled|checked|dark|first|last|odd|even|group-hover|peer-focus|motion-safe|motion-reduce|print)\s*:\s*[-a-z0-9[\]/.]/i,
-    // A core layout, spacing or type utility as a whole token in the same place.
-    // The list is the utilities this module actually teaches, not all of
-    // Tailwind: a floor, and one a student cannot cross by accident.
-    /\bclass(Name)?\s*=\s*["'][^"']{0,400}?\b(flex|inline-flex|grid|inline-grid|block|inline-block|hidden|absolute|relative|fixed|sticky|mx-auto|items-\w+|justify-\w+|self-\w+|gap-[\d.]|space-[xy]-[\d.]|grid-cols-\d|col-span-\d|row-span-\d|[mp][xytrbl]?-[\d.]|w-[\w./]|h-[\w./]|max-w-\w|min-w-\w|max-h-\w|min-h-\w|text-\w+|font-\w+|leading-\w+|tracking-\w+|bg-\w+|border-\w|rounded[\w-]*|shadow[\w-]*|opacity-\d|z-\d|overflow-\w+|object-\w+|transition[\w-]*|duration-\d|ease-\w+|cursor-\w+)\b/i,
+    // A variant prefix or core utility inside a class / className attribute
+    // (straight quotes, JSX template literals, or JSX braced expressions).
+    // Attributes may span lines. The template-literal scan steps over `${...}`
+    // so an identifier like `hidden` in `${hidden ? ...}` is not read as a
+    // utility; the string literals inside it are covered by the braced patterns.
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"]{0,400}?|'[^']{0,400}?|\{\s*\`${TW_TEMPLATE})\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"]{0,400}?|'[^']{0,400}?|\{\s*\`${TW_TEMPLATE})\b${TW_UTILITIES}\b`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}]{0,400}?(?:"[^"]{0,400}?|'[^']{0,400}?)\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}]{0,400}?(?:"[^"]{0,400}?|'[^']{0,400}?)\b${TW_UTILITIES}\b`, "i"),
   ],
 };
 
@@ -305,6 +445,151 @@ function payloadOf(toolInput) {
   return [toolInput?.content, toolInput?.new_string, toolInput?.new_source]
     .filter((v) => typeof v === "string")
     .join("\n");
+}
+
+function changedNewLineIndices(oldStr, newStr) {
+  const oldLines = oldStr.split(/\r?\n/);
+  const newLines = newStr.split(/\r?\n/);
+
+  let start = 0;
+  while (start < oldLines.length && start < newLines.length && oldLines[start] === newLines[start]) {
+    start++;
+  }
+  let oldEnd = oldLines.length - 1;
+  let newEnd = newLines.length - 1;
+  while (oldEnd >= start && newEnd >= start && oldLines[oldEnd] === newLines[newEnd]) {
+    oldEnd--;
+    newEnd--;
+  }
+
+  if (newEnd < start) return [];
+
+  const m = oldEnd - start + 1;
+  const n = newEnd - start + 1;
+  if (m <= 0 || m * n > 200_000) {
+    return Array.from({ length: n }, (_, k) => start + k);
+  }
+
+  const dp = Array.from({ length: m + 1 }, () => new Uint32Array(n + 1));
+  for (let i = m - 1; i >= 0; i--) {
+    for (let j = n - 1; j >= 0; j--) {
+      dp[i][j] =
+        oldLines[start + i] === newLines[start + j]
+          ? dp[i + 1][j + 1] + 1
+          : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+
+  const changed = [];
+  let i = 0;
+  let j = 0;
+  while (i < m && j < n) {
+    if (oldLines[start + i] === newLines[start + j]) {
+      i++;
+      j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      i++;
+    } else {
+      changed.push(start + j);
+      j++;
+    }
+  }
+  while (j < n) {
+    changed.push(start + j);
+    j++;
+  }
+  return changed;
+}
+
+function lineStartOffsets(text) {
+  const starts = [0];
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "\n") starts.push(i + 1);
+  }
+  return starts;
+}
+
+function fullLineAt(text, offset) {
+  const start = offset <= 0 ? 0 : text.lastIndexOf("\n", offset - 1) + 1;
+  const endIdx = text.indexOf("\n", offset);
+  const end = endIdx === -1 ? text.length : endIdx;
+  return text.slice(start, end).replace(/\r$/, "");
+}
+
+/** The whole lines covering text[start..end], including the line `end` lands on. */
+function linesAround(text, start, end) {
+  const s = start <= 0 ? 0 : text.lastIndexOf("\n", start - 1) + 1;
+  const e = text.indexOf("\n", end);
+  return text.slice(s, e === -1 ? text.length : e);
+}
+
+function detectHits(toolInput, filePath, gated) {
+  if (typeof toolInput?.old_string !== "string" || typeof toolInput?.new_string !== "string") {
+    return categoriesIn(payloadOf(toolInput), gated);
+  }
+
+  const oldString = toolInput.old_string;
+  const newString = toolInput.new_string;
+  // May be empty for a pure deletion; that still needs the region and
+  // whole-file checks below, since deleting text can join or unwrap a call.
+  const changed = changedNewLineIndices(oldString, newString);
+
+  const newLines = newString.split(/\r?\n/);
+  const absPath = resolve(root, filePath);
+
+  if (oldString && existsSync(absPath)) {
+    try {
+      const beforeText = readFileSync(absPath, "utf8");
+      const positions = [];
+      let searchFrom = 0;
+      while (true) {
+        const idx = beforeText.indexOf(oldString, searchFrom);
+        if (idx === -1) break;
+        positions.push(idx);
+        if (toolInput.replace_all !== true) break;
+        searchFrom = idx + oldString.length;
+      }
+
+      if (positions.length > 0) {
+        let afterText = "";
+        let cursor = 0;
+        const afterOffsets = [];
+        for (const pos of positions) {
+          afterText += beforeText.slice(cursor, pos);
+          afterOffsets.push(afterText.length);
+          afterText += newString;
+          cursor = pos + oldString.length;
+        }
+        afterText += beforeText.slice(cursor);
+
+        const newStarts = lineStartOffsets(newString);
+        const hunkLines = [];
+        for (const offset of afterOffsets) {
+          for (const lineIdx of changed) {
+            hunkLines.push(fullLineAt(afterText, offset + newStarts[lineIdx]));
+          }
+        }
+
+        // The whole lines the edit touched, before and after. A category that
+        // appears there only afterwards was made by the edit, even when no new
+        // line was added (`fet\nch(` joined into `fetch(` by deleting a newline).
+        const regionNew = positions.flatMap((pos, i) => {
+          const before = new Set(categoriesIn(linesAround(beforeText, pos, pos + oldString.length), gated));
+          const after = linesAround(afterText, afterOffsets[i], afterOffsets[i] + newString.length);
+          return categoriesIn(after, gated).filter((c) => !before.has(c));
+        });
+
+        const hunkHits = categoriesIn(hunkLines.join("\n"), gated);
+        const beforeHits = new Set(categoriesIn(beforeText, gated));
+        const newlyIntroduced = categoriesIn(afterText, gated).filter((c) => !beforeHits.has(c));
+        return [...new Set([...hunkLines.length ? hunkHits : [], ...regionNew, ...newlyIntroduced])];
+      }
+    } catch {
+      /* fall through to diff-only check */
+    }
+  }
+
+  return categoriesIn(changed.map((idx) => newLines[idx]).join("\n"), gated);
 }
 
 function deny(reason, studentMessage) {
@@ -383,7 +668,10 @@ try {
   // is about the guard and its ledger, and this file is the students'. It gets its
   // own reason, and it comes first: the agent must not be able to open its own gate,
   // and it must be able to say why it won't try.
-  if (locked && rel === planFile(config)) {
+  if (
+    locked &&
+    normalizeRel(rel) === normalizeRel(planFile(config))
+  ) {
     deny(
       `\`${rel}\` is the group's own writing and you may not write to it. It is also ` +
         `the file that is checked before you write code, so writing it would mean ` +
@@ -447,7 +735,7 @@ try {
   }
 
   // 4. Does the payload contain gated content?
-  const hits = categoriesIn(payloadOf(event.tool_input), config.gated ?? []);
+  const hits = detectHits(event.tool_input, filePath, config.gated ?? []);
   if (hits.length === 0) allow(config);
 
   // 5. Has this student demonstrated it?

@@ -3,6 +3,7 @@
     "deny": [
       "Edit(/.claude/harness/**)",
       "Edit(/.claude/hooks/**)",
+      "Edit(/.claude/githooks/**)",
       "Edit(/.claude/skills/**)",
       "Edit(/.claude/settings.json)",
       "Edit(/README.md)",
@@ -14,6 +15,7 @@
 
       "Write(/.claude/harness/**)",
       "Write(/.claude/hooks/**)",
+      "Write(/.claude/githooks/**)",
       "Write(/.claude/skills/**)",
       "Write(/.claude/settings.json)",
       "Write(/README.md)",

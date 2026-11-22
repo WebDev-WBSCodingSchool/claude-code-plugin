@@ -85,8 +85,12 @@ can then ask questions about it, or turn its exercise, or a new one on the same
 topic, into a practice project like `/exercise:custom` does.
 
 It needs Claude in Chrome, which lets Claude Code use your browser and your LMS
-login. You need Google Chrome or Microsoft Edge and a paid Claude plan (Pro,
-Max, Team or Enterprise). Set it up once:
+login. The helper agent runs on Haiku inside your signed-in browser and is
+instructed to read only `learn.wbscodingschool.com` and `playground.wbscod.in`
+(without general UI clicks or typing); if you prefer not to grant browser
+access, paste the lesson text directly into the chat instead. You need Google
+Chrome or Microsoft Edge and a paid Claude plan (Pro, Max, Team or Enterprise).
+Set it up once:
 
 1. Install the [Claude extension](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn)
    and sign in with your Claude account.

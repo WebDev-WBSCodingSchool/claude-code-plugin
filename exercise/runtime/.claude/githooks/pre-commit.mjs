@@ -31,19 +31,25 @@ import { loadConfig, branchState } from "../hooks/harness.mjs";
 /**
  * Ask, and wait for an answer. Anything but a yes is a no.
  *
- * Reads `/dev/tty` rather than stdin, because git gives a hook no usable stdin —
- * the terminal the student is typing into has to be opened directly. When there
- * is no terminal to open, there is nobody to ask: a commit from VS Code's
+ * Reads the controlling terminal (`CONIN$` on Windows, `/dev/tty` elsewhere)
+ * rather than stdin, because git gives a hook no usable stdin — the terminal
+ * the student is typing into has to be opened directly. When there is no
+ * terminal to open, there is nobody to ask: a commit from VS Code's
  * source-control button, or from a script, gets a yes rather than hanging
  * forever on a prompt nobody can see. Same fail-open stance as the sh wrapper.
  */
 function confirmed(question) {
+  const ttyPaths = process.platform === "win32" ? ["CONIN$", "\\\\.\\CONIN$"] : ["/dev/tty"];
   let fd;
-  try {
-    fd = openSync("/dev/tty", "r");
-  } catch {
-    return true;
+  for (const ttyPath of ttyPaths) {
+    try {
+      fd = openSync(ttyPath, "r");
+      break;
+    } catch {
+      /* try next controlling terminal path */
+    }
   }
+  if (fd === undefined) return true;
   try {
     process.stderr.write(question);
     const buf = Buffer.alloc(16);

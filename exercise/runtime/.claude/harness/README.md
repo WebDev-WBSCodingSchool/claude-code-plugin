@@ -100,8 +100,8 @@ evening.
 **This exists for building the harness and it does not ship.** The repos students
 use for real are public, where logging conversations would be indefensible, so
 `false` is the committed default, a test holds it there, and the whole thing is
-built to be deleted rather than configured off. Turn it on in a *run copy*, never
-in this starter (see `red-team/README.md`).
+built to be deleted rather than configured off. Turn it on only in a temporary
+evaluation copy, never in a student starter.
 
 Cutting it out, when the prototype is done, is one file and four greps:
 
@@ -150,5 +150,4 @@ the one write in this repo that nobody asked for. It commits that one path only,
 so anything the student has staged stays staged.
 
 Analysis is a script over the `.jsonl`: one JSON object per line, `type` of `user`
-or `assistant`, with `timestamp`, `cwd` and `gitBranch` on each. Run 3's word
-counts came out of exactly this shape, read out of `~/.claude/projects/`.
+or `assistant`, with `timestamp`, `cwd` and `gitBranch` on each.

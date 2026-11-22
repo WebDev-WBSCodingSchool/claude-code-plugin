@@ -17,10 +17,44 @@ const cases = [
   [`${signoff} FR009`, false],
   [`${signoff} --status`, false],
   [`${signoff} FR009 --review --pr https://github.com/example/project/pull/1 --author teammate`, false],
+  [`${signoff} FR009 --review --pr https://github.com/org/rm-app/pull/1 --author alice`, false],
+  ["cat README.md", false],
+  ["git status", false],
+  ["node --check main.js", false],
+  ["echo hi > notes.txt", false],
+  ["cat main.js 2>/dev/null", false],
   [`${onboard}; echo x > main.js`, true],
   [`${signoff} FR009 && echo '{}' > .claude/harness/config.json`, true],
   [`${onboard}; node -e "console.log('test')"`, true],
   [`echo '${signoff}'; echo '{}' > .claude/harness/config.json`, true],
+  // #11: .claude/githooks/ locked against shell and editor writes
+  ["echo '#!/bin/sh' > .claude/githooks/pre-commit", true],
+  ["echo 'process.exit(0)' > .claude/githooks/pre-commit.mjs", true],
+  ["rm -rf .claude/githooks", true],
+  // #13: rm/unlink/ln, absolute/variable redirections, spaces, >|, heredocs, piped interpreters
+  ["rm .claude/hooks/guard.mjs", true],
+  ["rm -f .claude/harness/config.json", true],
+  ["unlink .claude/hooks/guard.mjs", true],
+  ["ln -sf /tmp/x README.md", true],
+  [`echo x > ${repo}/README.md`, true],
+  ['echo x > "$PWD/README.md"', true],
+  ["echo x >| README.md", true],
+  ['echo x > "src/my file.js"', true],
+  ["echo x >| main.js", true],
+  ["node <<EOF\nconsole.log(1)\nEOF", true],
+  ["python3 <<'EOF'\nopen('main.js','w').write('x')\nEOF", true],
+  ['echo "console.log(1)" | node', true],
+  // Parents of locked paths, piped interpreters with flags, quoted Windows separators
+  ["rm -rf .claude", true],
+  ["rm -rf ./.claude/", true],
+  ["mv .claude .claude-bak", true],
+  ["mv .vscode /tmp/x", true],
+  ['echo "x" | node --input-type=module', true],
+  ['echo "x" | python3 -u -', true],
+  ["rm '.claude\\hooks\\guard.mjs'", true],
+  ["ls .claude", false],
+  ["rm -rf .claude-old", false],
+  ["cat data.json | node scripts/report.mjs", false],
 ];
 
 try {
@@ -40,6 +74,17 @@ try {
     } else {
       assert.equal(result.stdout, "", `blocked a standalone helper: ${command}`);
     }
+  }
+  // #11: verify guard.mjs also denies Write/Edit to .claude/githooks/*
+  for (const githook of [".claude/githooks/pre-commit", ".claude/githooks/pre-commit.mjs"]) {
+    const guardRes = spawnSync(process.execPath, [join(repo, ".claude", "hooks", "guard.mjs")], {
+      cwd: repo,
+      encoding: "utf8",
+      env: { ...process.env, CLAUDE_PROJECT_DIR: repo },
+      input: JSON.stringify({ tool_input: { file_path: githook, content: "exit 0" } }),
+    });
+    assert.equal(guardRes.status, 0, guardRes.stderr);
+    assert.equal(JSON.parse(guardRes.stdout).hookSpecificOutput.permissionDecision, "deny", githook);
   }
   console.log(`${cases.length} bash guard checks passed`);
 } finally {
