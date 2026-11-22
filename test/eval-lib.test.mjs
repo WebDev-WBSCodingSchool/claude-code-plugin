@@ -740,6 +740,14 @@ test("assertions check pasteable gated code, word count, single question, hook p
     ).pass,
     false,
   );
+  // Agent committed without the trailer: a reminder in the reply does not excuse it
+  assert.equal(
+    checkCoAuthoredByHandled(
+      { turns: [{ parsed: { assistantText: "Add Co-Authored-By: Claude <noreply@anthropic.com>." } }] },
+      { commitsSinceInitial: ["Add helper"] },
+    ).pass,
+    false,
+  );
 });
 
 test("analyzeHookStrings catches camelCase leaks, verbose reasons, and jargon on synthetic inputs", () => {
@@ -1355,7 +1363,7 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
       repoState: {
         modifiedFiles: [],
         committedFilesSinceInitial: ["src/lib/storage.js"],
-        commitsSinceInitial: ["Add localStorage helper"],
+        commitsSinceInitial: ["Add localStorage helper\n\nCo-Authored-By: Claude <noreply@anthropic.com>"],
         recentCommitMessages: [],
       },
       sandbox: openSb,
@@ -1368,6 +1376,12 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
     // Invalid JS helper with gated React hook must fail valid-open-js-helper
     openSb.writeFile("src/lib/bad.js", 'export function Bad() { useState(0); return localStorage.getItem("x"); }\n');
     assert.equal(checkOpenJsHelperContent(openSb, ["src/lib/bad.js"]).pass, false);
+
+    // A touched .jsx file that only adds an import must not fail the helper check (node --check cannot parse .jsx)
+    openSb.writeFile("src/main.jsx", 'import { loadEntries } from "./lib/storage.js";\nconsole.log(loadEntries);\n');
+    assert.equal(checkOpenJsHelperContent(openSb, ["src/lib/storage.js", "src/main.jsx"]).pass, true);
+    assert.equal(checkOpenJsHelperContent(openSb, ["src/main.jsx"]).pass, false);
+    assert.equal(checkOpenJsHelperContent(openSb, ["src/lib/storage.js", "src/lib/bad.js"]).pass, false);
 
     const openSpec = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-specified");
     const openSpecChecks = openSpec.evaluate({
@@ -1385,7 +1399,7 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
       repoState: {
         modifiedFiles: [],
         committedFilesSinceInitial: ["src/index.css"],
-        commitsSinceInitial: ["Update index.css"],
+        commitsSinceInitial: [],
         recentCommitMessages: [],
       },
       sandbox: openSb,

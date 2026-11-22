@@ -406,7 +406,7 @@ export function renderDiffTable(diff) {
   }
   for (const r of diff.rows) {
     const hardStr = `${formatPct(r.currHard)} (${fmtDelta(r.hardDelta)})`.padEnd(17);
-    const detHardStr = `${formatPct(r.currDetHard ?? r.currHard)} (${fmtDelta(r.detHardDelta ?? r.hardDelta)})`.padEnd(17);
+    const detHardStr = `${formatPct(r.currDetHard)} (${fmtDelta(r.detHardDelta)})`.padEnd(17);
     const rubHardStr = `${formatPct(r.currRubHard)} (${fmtDelta(r.rubHardDelta)})`.padEnd(17);
     const targetStr = `${formatPct(r.currTarget)} (${fmtDelta(r.targetDelta)})`.padEnd(17);
     const softStr = `${formatPct(r.currSoft)} (${fmtDelta(r.softDelta)})`.padEnd(17);

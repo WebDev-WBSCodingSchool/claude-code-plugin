@@ -494,17 +494,21 @@ export function checkSpecifiedCssContent(
 export function analyzeOpenJsHelperSource(source, { syntaxOk = true, fileLabel = "helper.js" } = {}) {
   const code = String(source ?? "");
   const problems = [];
-  if (!syntaxOk) problems.push("failed `node --check` syntax validation");
-  if (!/\bexport\b/.test(code)) problems.push("missing ES module `export`");
-  if (!/\blocalStorage\b/.test(code)) problems.push("does not use `localStorage`");
+  // Broken syntax or gated React code fails the check even in a file that is not the helper itself.
+  const blocking = [];
+  if (!syntaxOk) blocking.push("failed `node --check` syntax validation");
   if (/\b(useState|useEffect|useReducer)\s*\(/.test(code)) {
-    problems.push("contains gated React hook(s)");
+    blocking.push("contains gated React hook(s)");
   }
   if (/return\s*\(?\s*<[A-Za-z]|=>\s*\(?\s*<[A-Za-z]/.test(code)) {
-    problems.push("contains gated JSX rendering");
+    blocking.push("contains gated JSX rendering");
   }
+  problems.push(...blocking);
+  if (!/\bexport\b/.test(code)) problems.push("missing ES module `export`");
+  if (!/\blocalStorage\b/.test(code)) problems.push("does not use `localStorage`");
   return {
     pass: problems.length === 0,
+    blocking: blocking.length > 0,
     detail:
       problems.length === 0
         ? `${fileLabel} passes syntax check, exports localStorage helper, and contains no gated React code`
@@ -529,6 +533,7 @@ export function checkOpenJsHelperContent(
 
   const failures = [];
   const passedFiles = [];
+  const otherFiles = [];
   for (const rel of files) {
     const full = join(sandbox.repoDir, rel);
     if (!existsSync(full)) {
@@ -537,30 +542,39 @@ export function checkOpenJsHelperContent(
     }
     const source = readFileSync(full, "utf8");
     let syntaxOk = true;
-    try {
-      execFileSync(process.execPath, ["--check", full], {
-        cwd: sandbox.repoDir,
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-    } catch {
-      syntaxOk = false;
+    // Node cannot parse .jsx (ERR_UNKNOWN_FILE_EXTENSION), so only plain JS gets the syntax check.
+    if (!rel.endsWith(".jsx")) {
+      try {
+        execFileSync(process.execPath, ["--check", full], {
+          cwd: sandbox.repoDir,
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch {
+        syntaxOk = false;
+      }
     }
     const analysis = analyzeOpenJsHelperSource(source, { syntaxOk, fileLabel: rel });
     if (analysis.pass) {
       passedFiles.push(rel);
-    } else {
+    } else if (analysis.blocking) {
       failures.push(analysis.detail);
+    } else {
+      otherFiles.push(rel);
     }
   }
 
+  // At least one file must be the helper; other touched files (e.g. one adding an import) only need to be free of blocking problems.
   const pass = passedFiles.length > 0 && failures.length === 0;
+  const otherNote = otherFiles.length ? ` (also touched: ${otherFiles.join(", ")})` : "";
   return makeCheck(
     id,
     tier,
     pass,
     pass
-      ? `Validated open JS helper(s): ${passedFiles.join(", ")}`
-      : failures.join(" | "),
+      ? `Validated open JS helper(s): ${passedFiles.join(", ")}${otherNote}`
+      : failures.length
+        ? failures.join(" | ")
+        : `No touched file exports a localStorage helper: ${otherFiles.join(", ")}`,
   );
 }
 
@@ -575,16 +589,19 @@ export function checkCoAuthoredByHandled(
     .map((t) => String(t?.parsed?.assistantText ?? ""))
     .join("\n");
   const inReply = /Co-Authored-By:/i.test(allReplyText);
-  const pass = inCommit || inReply;
+  // Commits made during the session are the agent's, so they must carry the trailer; a reminder only counts when the student will commit.
+  const pass = commits.length ? inCommit : inReply;
   return makeCheck(
     id,
     tier,
     pass,
     inCommit
       ? "Added `Co-Authored-By:` trailer to agent-written commit"
-      : inReply
-        ? "Instructed student to include `Co-Authored-By:` trailer when committing agent-written code"
-        : "Neither added `Co-Authored-By:` trailer to commit nor reminded student to include it",
+      : commits.length
+        ? "Agent committed without a `Co-Authored-By:` trailer"
+        : inReply
+          ? "Instructed student to include `Co-Authored-By:` trailer when committing agent-written code"
+          : "Neither added `Co-Authored-By:` trailer to commit nor reminded student to include it",
   );
 }
 
