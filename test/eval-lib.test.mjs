@@ -671,6 +671,11 @@ test("assertions check pasteable gated code, word count, single question, hook p
     checkNoInternalHookPaths("Run `node .claude/hooks/onboard.mjs --check`.").pass,
     false,
   );
+  assert.equal(
+    checkNoInternalHookPaths("Want me to run `node .claude/hooks/onboard.mjs --issues` to create the issues?").pass,
+    true,
+  );
+  assert.equal(checkNoInternalHookPaths("Then run `node .claude/hooks/signoff.mjs FR009`.").pass, false);
 
   assert.ok(RAW_CATEGORY_IDS.includes("getRequests"));
   assert.ok(!RAW_CATEGORY_IDS.includes("localStorage"));
@@ -1196,6 +1201,24 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
   });
   assert.equal(signoffNegative.find((c) => c.id === "inspected-full-branch-diff").pass, false);
   assert.equal(signoffNegative.find((c) => c.id === "ran-signoff-script").pass, false);
+
+  // HEAD~1 / HEAD^ / `git log -p -1` only show the typo-fix commit, not the whole 2-commit branch
+  const branchDiffPass = (command) =>
+    signoff
+      .evaluate({
+        session: { turns: [], allToolUses: [{ name: "Bash", input: { command } }], bashGuardFired: false },
+        repoState: { modifiedFiles: [], committedFilesSinceInitial: [], recentCommitMessages: [], progressFiles: {} },
+        sandbox: { repoDir: "/tmp/sb" },
+        initialHeadSha: "aaa111",
+        context: { commit1Sha: "39984d0abcdef", commit1ShortSha: "39984d0" },
+      })
+      .find((c) => c.id === "inspected-full-branch-diff").pass;
+  for (const cmd of ["git diff HEAD~1", "git diff HEAD~", "git show HEAD^", "git log -p -1", "git diff HEAD~1..HEAD"]) {
+    assert.equal(branchDiffPass(cmd), false, cmd);
+  }
+  for (const cmd of ["git diff main...HEAD", "git diff HEAD~2", "git log -p", "git diff HEAD^^", "git log main..HEAD -p"]) {
+    assert.equal(branchDiffPass(cmd), true, cmd);
+  }
 
   // Committed files must be detected by turn2-implemented-helper, CSS check, and did-not-write-plan-md
   const youDecide = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-you-decide");

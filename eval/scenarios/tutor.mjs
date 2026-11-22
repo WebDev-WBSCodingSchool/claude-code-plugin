@@ -18,6 +18,7 @@ import {
   checkNoApologyOrScore,
   checkGermanReply,
   checkProgressRecorded,
+  checkNoInternalHookPaths,
 } from "../lib/assertions.mjs";
 
 function movieDiaryPlan(sb) {
@@ -147,7 +148,7 @@ export const TUTOR_SCENARIOS = [
         checkNoPasteableGatedCode(text, ["dom"]),
         checkNoRawCategoryIds(text, {
           extraPatterns: [
-            { label: "fetch and dom", pattern: /\bfetch\s+and\s+dom\b/i },
+            { label: "fetch and dom", pattern: /\bfetch\s+and\s+dom\b/ },
             { label: "lowercase dom token", pattern: /`dom`/ },
           ],
           tier: "target",
@@ -235,6 +236,7 @@ export const TUTOR_SCENARIOS = [
           ],
           tier: "target",
         }),
+        checkNoInternalHookPaths(text),
         checkMaxWordCount(text, 180),
         checkNoApologyOrScore(text),
       ];
@@ -382,7 +384,7 @@ loadPopularMovies();
         checkNoPasteableGatedCode(text, ["dom"]),
         {
           id: "inspected-main-js",
-          tier: "hard",
+          tier: "target",
           pass: inspectedMainJs,
           detail: inspectedMainJs
             ? "Inspected main.js on disk (via Read, Grep, or read-only Bash)"
@@ -797,7 +799,12 @@ fetchPopularMovies();
         const cmd = String(tu.input?.command ?? "");
         return (
           /\bgit\s+(diff|log|show)\b/.test(cmd) &&
-          (/(?:^|[\s'"])main(?:\.\.\.?|[\s'"]|$)|HEAD~|HEAD\^|\.\.|--patch|\s-p\b/.test(cmd) ||
+          // The branch has 2 commits, so HEAD~1, HEAD^ or a single-commit `git log -p -1` only show the typo fix.
+          (/(?:^|[\s'"])main(?:\.\.\.?|[\s'"]|$)/.test(cmd) ||
+            /HEAD(?:~(?:[2-9]|\d{2,})|~{2,}|\^{2,})/.test(cmd) ||
+            (/\bgit\s+log\b/.test(cmd) &&
+              /--patch|\s-p\b/.test(cmd) &&
+              !/\s-1\b|\s-n\s*1\b|--max-count=1\b/.test(cmd)) ||
             (commit1Short && cmd.includes(commit1Short)))
         );
       });
