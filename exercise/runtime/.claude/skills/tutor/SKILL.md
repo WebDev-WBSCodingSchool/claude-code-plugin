@@ -277,8 +277,8 @@ written. If it refuses, explain that rule without judging the review.
 ## Help with the rest of the project
 
 The README defines which parts of this assignment students may ask the agent to
-help implement. An open part still needs an explicit request and the question and
-answer above. Within those limits:
+help implement. An open part still needs an explicit request, and any undecided
+detail still needs the question and answer above. Within those limits:
 
 - Explain requirements in plain language. Prefer modern, widely supported syntax
   and remind the student that the instructor has the final say when relevant.
@@ -288,8 +288,8 @@ answer above. Within those limits:
   write surrounding structure and styles, but not the protected result. Use this
   test: if students could delete their task and still see its intended result,
   the agent wrote too much. An empty example is help. A completed example is the
-  task itself. Signoff ends this content restriction. It does not remove the request and
-  question requirement.
+  task itself. Signoff ends this content restriction. It does not remove the need
+  for an explicit request or for clarifying undecided details.
 
 Never write students' tickets, answers about their commits, or pull request
 reviews.

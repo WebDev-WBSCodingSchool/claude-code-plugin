@@ -122,8 +122,8 @@ Students may ask the agent to help with everything outside the protected tasks:
   because resolving them is part of what the project teaches.
 
 This list isn't a to-do list for the agent. The student has to ask for a change.
-The agent then asks at least one project-specific question and waits for the
-answer before it edits code.
+Whenever placement, scope, naming, or behavior is still open, the agent asks a
+project-specific question and waits for the answer before it edits code.
 
 The decision this group has to make at the kickoff is **what a favorite looks
 like in `localStorage`**: which fields of the movie get stored. The README states

@@ -183,11 +183,12 @@ language), ask it to save a personal skill in `~/.claude/skills/`. That skill
 cannot change which files or topics stay yours.
 
 `.vscode/settings.json` turns off inline ghost-text suggestions, and `README.md`,
-`CLAUDE.md`, `AGENTS.md`, <Delete "`PLAN.md`, " when onboarding is false.>
-`PLAN.md`, and the `.claude/` setup files are read-only so neither you nor the
-agent edits the rules by mistake. If you use another coding agent (Codex, Gemini
-CLI, Copilot, or Cursor), point it to `AGENTS.md` — only Claude Code enforces
-these rules with hooks.
+`CLAUDE.md`, `AGENTS.md`, and the `.claude/` setup files are read-only so
+neither you nor the agent edits the rules by mistake. `PLAN.md` is locked for
+the agent only, because your group writes and updates it. <Delete the previous
+sentence when onboarding is false.> If you use another coding agent (Codex,
+Gemini CLI, Copilot, or Cursor), point it to `AGENTS.md` — only Claude Code
+enforces these rules with hooks.
 
 If a requirement seems wrong or unclear, talk to your instructor. These locks
 are here to help you learn.

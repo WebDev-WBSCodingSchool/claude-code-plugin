@@ -42,8 +42,9 @@ function routesTo(config, category) {
 
 export function denyReason({ config, rel, blocked, open }) {
   const what = formatCategories(blocked);
-  const capWhat = what.startsWith("localStorage") ? what : `${what[0].toUpperCase()}${what.slice(1)}`;
-  const verb = isPluralCategories(blocked) ? "are" : "is";
+  const capWhat = what.startsWith("localStorage") ? what : `${what.charAt(0).toUpperCase()}${what.slice(1)}`;
+  const plural = isPluralCategories(blocked);
+  const verb = plural ? "are" : "is";
   const parts = blocked.length > 1 ? "parts" : "part";
   const lines = [];
 
@@ -64,7 +65,7 @@ export function denyReason({ config, rel, blocked, open }) {
 
   if (config.unlockRoute === false) {
     lines.push(
-      `**${capWhat} stays student-written for the whole assignment** (no unlock or sign-off). When it works, offer unscored understanding questions once as an optional self-check.`,
+      `**${capWhat} ${plural ? "stay" : "stays"} student-written for the whole assignment** (no unlock or sign-off). When it works, offer unscored understanding questions once as an optional self-check.`,
     );
     lines.push(
       `Open work in README.md stays available: wait for a request and clarify undecided details first.`,

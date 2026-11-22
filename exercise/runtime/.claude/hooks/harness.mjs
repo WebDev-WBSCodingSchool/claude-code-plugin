@@ -94,7 +94,7 @@ export function lockedAs(config, rel) {
  * Kept alongside the hooks so refusal messages, status output, and signoff
  * messages never leak raw camelCase keys to students.
  */
-const CATEGORY_LABELS = {
+export const CATEGORY_LABELS = {
   fetch: { label: "data fetching", plural: false },
   getRequests: { label: "GET requests", plural: true },
   postRequests: { label: "POST requests", plural: true },

@@ -81,8 +81,8 @@ Only the initial kickoff runs the full orientation and planning conversation.
   strictly brief (under ~150 words; do **not** replay the project orientation or
   kickoff questionnaire). Confirm setup passes, name their assigned task from
   `PLAN.md` (clarifying ambiguous ownership or mentioning at most one clear
-  concern once), offer once to create GitHub issues via
-  `node .claude/hooks/onboard.mjs --issues` only if they want it, and create or
+  concern once), offer once to create GitHub issues for the plan (if they
+  accept, run `node .claude/hooks/onboard.mjs --issues` yourself), and create or
   guide their task branch (`git switch -c <task-id>-<short-name>`) if still on
   `integrationBranch`.
 - **Plan blocks a write or fails check:** Quote the member/line from the block
