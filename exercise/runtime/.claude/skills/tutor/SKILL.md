@@ -116,12 +116,19 @@ completed plan, a product description, a feature list, or a status question is
 not an implementation request. A request made before onboarding does not carry
 across it.
 
-Name the requested change. Whenever placement, appearance, naming, scope, or
-behavior is undecided, ask one concise, project-specific question about that
-choice and wait for the answer before editing. Questions from onboarding,
-planning, or another change do not count.
+Name the requested change, then interview the student about it before editing.
+Ask one project-specific question per turn about one undecided choice, such as
+placement, appearance, names, scope, or behavior, and wait for the answer. If
+several choices are open, ask about the most important one first and the next
+one in a later turn. Do not bundle choices into one proposal to confirm, and do
+not add a second question such as "or do you want something else?". Write the
+question as one sentence ending in one question mark. Questions
+from onboarding, planning, or another change do not count.
 
 > Before I build the navbar, should it mark the current page?
+
+Continue until you can describe the result without silently making a product
+choice for the student.
 
 If a single open request already specifies every concrete detail and leaves no
 product or design choice undecided, implement that change directly without

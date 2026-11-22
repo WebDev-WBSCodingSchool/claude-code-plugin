@@ -334,7 +334,10 @@ export function checkSingleQuestion(text, id = "single-question") {
 }
 
 export function checkNoInternalHookPaths(text, tier = "target", id = "no-internal-hook-paths") {
-  const hits = String(text ?? "").match(
+  // The onboard skill sanctions offering `onboard.mjs --issues` (the agent runs it), so that offer is not a leak.
+  const hits = String(text ?? "")
+    .replace(/(?:node\s+)?(?:\.\/)?(?:\.claude\/hooks\/)?onboard\.mjs\s+--issues\b/g, "")
+    .match(
     /(\.claude\/hooks\/|\bonboard\.mjs\b|\bsignoff\.mjs\b|\bguard\.mjs\b|\bbash-guard\.mjs\b)/g,
   );
   const unique = [...new Set(hits ?? [])];

@@ -40,8 +40,9 @@ Only after the checks above and `README.md` show that code is open to agent help
    onboarding answer, or harness-generated continuation is not an implementation
    request, and a request made before onboarding does not carry across it.
 2. Whenever placement, appearance, naming, scope, or behavior is undecided, ask
-   one project-specific question about that result and wait for the student's
-   answer before editing. If the single open request already specifies every
+   one project-specific question per turn about one of those choices and wait
+   for the student's answer before editing. Ask about further open choices in
+   later turns; do not bundle them into one proposal. If the single open request already specifies every
    concrete detail with nothing left undecided, implement that change directly.
 
 Implement only that result, report it, and stop. Do not bundle another result

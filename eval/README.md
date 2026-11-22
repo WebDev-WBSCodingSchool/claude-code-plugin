@@ -24,7 +24,7 @@ node eval/run.mjs --suite smoke --models sonnet --trials 1 --judges claude:sonne
 
 # 3. Full baseline capture (saved to gitignored eval/results/ + committed eval/baselines/)
 node eval/run.mjs --suite full --models sonnet,opus --trials 3 \
-  --judges claude:sonnet,codex --save-baseline v0.14.1
+  --judges claude:sonnet,codex --save-baseline v<next-version>
 
 # 4. Run specific scenario(s) (defaults to suite=custom, skipping unrelated static lint)
 node eval/run.mjs --scenario tutor-signoff-multi-commit,tutor-german-review --models sonnet --trials 1
@@ -47,7 +47,7 @@ node eval/run.mjs --scenario tutor-signoff-multi-commit,tutor-german-review --mo
 
 ```sh
 # Side-by-side metric delta & regression check (pass --fail-on-regression to exit 1 on regressions)
-node eval/compare.mjs eval/baselines/v0.14.1.json eval/results/<run>/summary.json --fail-on-regression
+node eval/compare.mjs eval/baselines/v0.14.2.json eval/results/<run>/summary.json --fail-on-regression
 
 # Blind swapped-order A/B pairwise comparison (requires two local full.json runs under gitignored eval/results/;
 # defaults to trial 1, add --all-trials for all)
@@ -58,4 +58,6 @@ node eval/compare.mjs eval/results/<baseline-run>/full.json eval/results/<candid
 ## Storage & Git Hygiene
 
 - `eval/results/` is gitignored and holds full run transcripts (`full.json`, `summary.json`, `report.md`).
+- The current baseline is `eval/baselines/v0.14.2` (git `52c8697`). Name a new baseline after the version the release workflow will bump to, not the current `plugin.json` version. The earlier `v0.14.1` baseline was removed because its run predates the judge-transcript truncation fix (`48d8b24`).
+- Comprehension runs once per exercise × model and ignores `--trials`.
 - `eval/baselines/` holds compact, git-tracked summaries (`<label>.json` + `<label>.md`) with zero raw transcripts so colleagues can review conclusions and diff changes directly on GitHub.
