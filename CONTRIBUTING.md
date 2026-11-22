@@ -83,7 +83,7 @@ course. The command reads the assessment but never changes it. It runs in these 
    upstream branch after a fetch. If any check fails, it stops and names the
    problem.
 2. **Interview.** It asks ten questions, one at a time: what the project is built
-   with, which code students must write themselves, which requirements practise
+   with, which code students must write themselves, which requirements practice
    that code, which files students create locally, and so on. If you get stuck,
    it offers an example answer. Afterwards it summarizes every answer and shows
    which part of the exercise each one produces. Nothing is written until you
@@ -100,7 +100,7 @@ course. The command reads the assessment but never changes it. It runs in these 
 It hands back the path of the new entry, the path of the generated project, and
 a list of requirements the assessment left unclear. It does not commit or push.
 
-If the exercise needs the harness to recognise a new kind of protected code, the
+If the exercise needs the harness to recognize a new kind of protected code, the
 command proposes a change to the shared `exercise/runtime/.claude/hooks/guard.mjs`
 first.
 That change must be reviewed and committed before packaging, because packaging
@@ -142,7 +142,7 @@ It then builds the starter in the folder you chose, checks it with
 `exercise/scripts/verify.mjs`, and commits it locally. An adjusted exercise gets
 the changes as a second commit, so `git show` in the starter lists what this
 batch changed. The harness itself stays as shipped: a protected topic the hooks
-cannot yet recognise needs a shared harness change first, as described under
+cannot yet recognize needs a shared harness change first, as described under
 `/instructor:add-exercise`. The command does not push the starter.
 
 ## Change the shared harness

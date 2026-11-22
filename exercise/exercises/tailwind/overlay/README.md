@@ -127,73 +127,58 @@ You can ask the agent to help with everything else:
   one layout approach will cause problems later
 - your own notes, except `PLAN.md`, and the presentation
 
-The agent only acts when you ask it to. An empty file or a finished task list
-doesn't count as a request. Before each code change, it asks you at least one
-question about the change and waits for your answer.
+The agent edits code only when you ask — an empty file or task list isn't a
+request. Whenever placement, scope, naming, or behavior is still open, it asks
+you a question and waits for your answer before editing.
 
-This list also tells you what you could get from a browser chat instead. That's
-intentional. The rules are written down, and following them is your choice.
+These rules are also written down so you know what a regular browser chat could
+give away. Following the workflow here is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written a bold task:
+When you finish a bold task:
 
 1. Write the code.
 2. Commit it with
    `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
-3. Explain it. The agent asks what your commit does, then up to three short
-   follow-up questions. A large commit gets more questions, a small one fewer.
+3. Explain it. The agent asks what your commit does and up to three short
+   follow-up questions (more for larger commits, fewer for small ones).
 
-Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
+Explaining your code helps you check your own understanding. It's not graded or
+recorded.
 
-Once you have written and explained one piece of a kind of code, the agent may
-write that kind of code with you for the rest of the project. That includes
-features beyond the requirements.
+Once you finish and explain one task for a topic, the agent may write that topic
+with you for the rest of the project, including features beyond the
+requirements.
 
-The agent records each completed task in a file under
-`.claude/harness/progress/`, filed under your git email. Commit that file with your
-work. You can ask the agent at any time which tasks you have completed.
+The agent tracks completed tasks per git email under `.claude/harness/progress/`.
+Commit that file with your work. Ask the agent at any time which tasks you have
+completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds this line to the commit message:
-
-```
-Signed-off-by: Lea Müller <lea.mueller@example.com>
-```
-
-The line says that you wrote the code. Many open-source projects require it.
-Nothing in this repo checks it, but use it on all your own commits, not only on the
-bold tasks.
-
-When the agent wrote a commit or helped with it, the agent adds a
-`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+`git commit --signoff` adds a `Signed-off-by: Name <email>` line to show you
+wrote the code (use it on all your own commits). When the agent writes or helps
+with a commit, it adds `Co-Authored-By: Claude …` instead so `git log` shows
 who wrote what.
 
 ### Reviewing a teammate's code counts
 
-When a teammate has written one of their bold tasks, you can review their Pull
-Request on GitHub and then answer the agent's questions about their code. After
-that, the agent may write that kind of code with you too, even if the Pull Request
-is already merged. Tell the agent which Pull Request you reviewed.
-
-You can never have more reviewed tasks than written ones. So everyone writes their
-first task themselves.
+You can also unlock a topic by reviewing a teammate's Pull Request on GitHub
+(even if already merged) and answering the agent's questions about their code.
+You can never have more reviewed tasks than written ones, so everyone writes
+their first task themselves.
 
 ## Before any of that: PLAN.md
 
 The agent writes no code for anyone in the group until `PLAN.md` exists and every
-member listed in it has at least one task. Meet first, in one call with one shared
-screen, and write it together.
+member listed in it has at least one task. Meet first on a shared screen and
+write it together.
 
-`PLAN.md` has two parts. First, describe in your own words what you are building,
-who uses it, and how much of it you will build. Name the parts you leave out on
-purpose. This is where two of you find out that you imagined different amounts of
-work, so write down what you agree on.
-
-Second, the split. List every member with their git email, which is the address
-`git config user.email` prints. Then list each task with the name of the person
-who took it:
+`PLAN.md` has two parts: first, a short description in your own words of what
+you are building, who uses it, and what is in or out of scope; second, the
+initial split listing every member with their `git config user.email` and every
+task with its owner's name:
 
 ```markdown
 ## Members
@@ -207,10 +192,7 @@ who took it:
 - Hero and property search bar (T2) — Mo Ahmadi
 ```
 
-You can use a list, a table, or prose, in German or English. Each member appears
-twice: once in the member list with their git email, and once on a task. On the
-task line, a name is enough. The agent stores progress under the email, so the
-email has to appear once.
+Use a list, table, or prose in German or English.
 
 While you are all together, answer these four questions as a group. Groups often
 find out on day four that they disagreed about them:
@@ -224,61 +206,40 @@ find out on day four that they disagreed about them:
 - When is a section done? Make it concrete enough that you know when to open the
   Pull Request instead of polishing further.
 
-Write down what you agree on. It doesn't have to be perfect, but everyone has to
-use the same answers.
+Write down what you agree on — it doesn't have to be perfect, just shared.
 
-Run `/onboard`, and the agent guides the conversation. It points out work nobody
-has taken and places where two of you will edit the same code, and it checks the
-file. It won't write any of `PLAN.md`, because the check reads that file, and an
-agent that wrote it could unlock itself.
-
-The agent reads `PLAN.md` again before every code change. If you edit it so that a
-member has no task, the agent stops writing code for everyone until you fix it. If
-someone has left the group, remove them from the member list.
-
-A rough plan is enough, and you can change it later.
+Run `/onboard` to check `PLAN.md` — the agent points out unclaimed work or
+overlaps, and re-reads it live on every code write. If someone leaves the group,
+remove them from the member list.
 
 ## Splitting the work
 
-After the kickoff, your tasks live in GitHub Issues in your group's repo, not in
-`PLAN.md`. `/onboard` can create the issues from your task lines, or you can
-create them by hand. Nothing syncs them back to `PLAN.md`.
-
-Write the issues yourselves. The agent won't break the work down for you. Once you
-have a draft, it tells you if one person has much more work than the others, if a
-task waits on two other people, or if two of you are about to edit the same code.
+After kickoff, move active tasks into GitHub Issues (`/onboard` can create them
+from `PLAN.md`; changes don't sync back). Write issues yourselves — the agent
+can flag uneven loads, dependencies, or shared files.
 
 All eight sections live in `index.html`, so every one of you edits that file all
 week. No project in the course causes more merge conflicts, and no way of
 splitting the work avoids them. Keep your sections in the order they appear on the
 page. Pull `main` before you start and again before you open the Pull Request.
-Resolve merge conflicts together.
-
-Ask for help if you are stuck for more than 30 minutes. Use the daily stand-ups.
+Resolve merge conflicts together. Ask for help if you are stuck for more than
+30 minutes, and use the daily stand-ups.
 
 ## Running it
 
-Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
-Code loads this repo's settings only from the root folder. Without them, the agent
-may write code that you are supposed to write.
+Open this folder at the repository root in VS Code and start Claude Code there
+(not in a subfolder, or hooks and settings won't load). Keep the same git email
+on every machine so your progress stays under one record.
 
-Use the same git email on every computer. The agent stores your progress under that
-email, and work you do under a second email won't count.
+To adjust how the agent talks to you (such as shorter answers or simpler
+language), ask it to save a personal skill in `~/.claude/skills/`. That skill
+cannot change which files or topics stay yours.
 
-To change how the agent talks to you, for example with simpler language or shorter
-answers, tell it, and ask it to save that as a personal skill in
-`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
-change which code you write yourself.
+`.vscode/settings.json` turns off inline ghost-text suggestions, and `README.md`,
+`CLAUDE.md`, `AGENTS.md`, `PLAN.md`, and the `.claude/` setup files are read-only
+so neither you nor the agent edits the rules by mistake. If you use another
+coding agent (Codex, Gemini CLI, Copilot, or Cursor), point it to `AGENTS.md` —
+only Claude Code enforces these rules with hooks.
 
-Some files in this repo are read-only for you and the agent:
-
-- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
-  like Copilot show while you type. Those suggestions write code without you
-  asking for it.
-- `README.md` and `CLAUDE.md` say which code you write yourself and where the
-  agent may help. The agent must not change them.
-- `PLAN.md` belongs to your group, and the `PLAN.md` check reads it.
-
-If you think a requirement is wrong or unclear, talk to your instructor.
-
-You can get around these locks, but they are here to help you to learn.
+If a requirement seems wrong or unclear, talk to your instructor. These locks
+are here to help you learn.

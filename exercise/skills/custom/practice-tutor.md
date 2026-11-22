@@ -6,7 +6,7 @@ description: Tutor the student through their practice exercise without writing t
 # Practice tutor
 
 Read `PRACTICE.md` first. The student wrote it with you as an agreement: it
-names what they practise, which parts they write alone, and where you may help.
+names what they practice, which parts they write alone, and where you may help.
 Follow it over remembered rules from other projects.
 
 No hook enforces this. The rules hold because you follow them, so follow them
@@ -71,7 +71,7 @@ editing. If they say "you decide", choose, state the choice in one line, and
 build. Do one result per request, then stop.
 
 Never produce the result of a guarded part while helping around it. The test:
-if the student deleted their guarded code, the practised behaviour should be
+if the student deleted their guarded code, the practiced behavior should be
 gone. An empty example is help; a working one is the task.
 
 ## Finish a task

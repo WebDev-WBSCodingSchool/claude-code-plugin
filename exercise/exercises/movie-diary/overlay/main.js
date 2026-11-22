@@ -34,8 +34,8 @@
 
 
 
-// ─── FR012 · Add to favourites ───────────────────────────────────────────────
-// An "add to favourites" button. The movie is stored as an object, in an array,
+// ─── FR012 · Add to favorites ────────────────────────────────────────────────
+// An "add to favorites" button. The movie is stored as an object, in an array,
 // in localStorage — the Journal page reads it back out from there.
 
 
@@ -49,6 +49,6 @@
 
 
 
-// ─── FR014 · The favourite button knows ──────────────────────────────────────
-// A card's favourite button shows whether that film is already in the journal,
+// ─── FR014 · The favorite button knows ───────────────────────────────────────
+// A card's favorite button shows whether that film is already in the journal,
 // and flips when clicked, without the whole list being drawn again.

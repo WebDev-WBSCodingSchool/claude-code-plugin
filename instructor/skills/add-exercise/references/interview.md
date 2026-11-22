@@ -20,7 +20,7 @@ This produces the README title, duration, description, and variant note.
 In a group project, give the cost to teammates as the reason. A new package, build
 tool, or framework can stop teammates' clones from working until everyone changes
 their setup. In a solo project, the reason is usually that a package would do the
-work the exercise practises. Neither reason is a judgment about what students are
+work the exercise practices. Neither reason is a judgment about what students are
 allowed to learn.
 
 Draft one setup-limit sentence and read it back. This belongs in README prose,
@@ -34,7 +34,7 @@ This defines the protected topics. Use camelCase topic names such as
 This produces `gated` in `.claude/harness/config.json` and the README explanation
 of what students type themselves.
 
-## 4. Which requirements make students practise each protected topic?
+## 4. Which requirements make students practice each protected topic?
 
 Review the assessment requirements one at a time. Map each protected requirement
 to one topic and one file. Record requirements that are vague, overlap, or hide
@@ -57,7 +57,7 @@ to the requirements-clarity list.
 ## 5. Which important practice is missing?
 
 Review each protected topic separately. First state what the mapped tasks make
-students practise. Then name one concrete gap, if there is one. The instructor
+students practice. Then name one concrete gap, if there is one. The instructor
 accepts or declines every suggestion.
 
 Write accepted additions as user-visible behavior. Use IDs such as `X1` and `X2`

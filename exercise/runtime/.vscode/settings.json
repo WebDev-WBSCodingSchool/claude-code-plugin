@@ -138,7 +138,7 @@
     "README.md": "CLAUDE.md, AGENTS.md, GEMINI.md, .gitignore"
   },
 
-  // ---------- SIGNALLING ----------
+  // ---------- SIGNALING ----------
 
   // Left at the default so you still get the ESLint / Prettier / Claude Code
   // recommendation prompt on first open.

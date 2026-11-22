@@ -46,6 +46,7 @@ import {
   demonstrated,
   coverage,
   branchState,
+  formatCategories,
 } from "./harness.mjs";
 
 function fail(message) {
@@ -69,7 +70,7 @@ if (process.argv.includes("--status")) {
   console.log(`\nStudent: ${key}`);
   console.log(
     config.unlockRoute === false
-      ? `On this assignment nothing gets handed over — the code below stays yours throughout.`
+      ? `On this assignment, protected code stays yours to write for the whole exercise.`
       : `On this assignment, signing off a task lets you ask the agent for help with that kind of code.`,
   );
   console.log(`\nTasks:`);
@@ -79,8 +80,12 @@ if (process.argv.includes("--status")) {
     const mark = row ? `signed off (${row.route}, ${lastCommit})` : "not yet";
     console.log(`  ${t.title.padEnd(24)} ${t.id}  ${mark}`);
   }
-  console.log(`\nYou may ask the agent for help with these: ${[...open].join(", ") || "none of them yet"}`);
-  console.log(`Still yours to type: ${(config.gated ?? []).filter((c) => !open.has(c)).join(", ") || "nothing"}`);
+  const openList = [...open];
+  const remaining = (config.gated ?? []).filter((c) => !open.has(c));
+  console.log(
+    `\nYou may ask the agent for help with: ${openList.length ? formatCategories(openList) : "none of them yet"}`,
+  );
+  console.log(`Still yours to type: ${remaining.length ? formatCategories(remaining) : "nothing"}`);
 
   // The group line, and the only place the agent can read it. README.md states
   // what this project is built out of; until the core is covered, the tutor holds
@@ -91,7 +96,7 @@ if (process.argv.includes("--status")) {
     console.log(
       `\n${coreLabel}: ${
         core.complete
-          ? "yes — the setup ceiling in README.md is a remark from here on, not a hold"
+          ? "yes — all core tasks are written, so the setup restriction in README.md no longer blocks requested changes"
           : `not yet — still to be written by someone: ${core.missing
               .map((id) => `${taskById(config, id)?.title ?? id} (${id})`)
               .join(", ")}`
@@ -109,8 +114,8 @@ if (process.argv.includes("--status")) {
 
 if (config.unlockRoute === false) {
   fail(
-    `Nothing gets handed over on this assignment. Writing a task and explaining it ` +
-      `changes nothing here — that code stays yours for the whole exercise.`,
+    `Protected code stays yours to write for the whole exercise. Writing a task and explaining it ` +
+      `does not unlock categories here.`,
   );
 }
 
@@ -143,9 +148,7 @@ if (reviewed) {
   if (reviews + 1 > written) {
     fail(
       `Not yet — reviewed tasks can't outnumber written ones, and you have ` +
-        `${written} written / ${reviews} reviewed. Write one of your own tasks first.\n\n` +
-        `This is the balance rule, not a judgement of the review. It exists so that a ` +
-        `group can't have one person write everything while everyone else reviews.`,
+        `${written} written / ${reviews} reviewed. Write one of your own tasks first so each member writes and reviews evenly.`,
     );
   }
   const pr = arg("--pr");
@@ -207,12 +210,9 @@ if (!reviewed) {
   if (dirtyFiles.length) {
     const addArgs = dirtyFiles.map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(" ");
     fail(
-      `${dirtyFiles.join(", ")} has uncommitted changes. Commit it first, then run this again.\n\n` +
-        `  git add ${addArgs}\n  git commit -m "${task.id}: ${task.title}"\n\n` +
-        `This isn't bureaucracy. The commit has to happen before the agent is allowed ` +
-        `to help refine the code, so that the history shows your version first and the ` +
-        `assisted version after it. That ordering is the only record of who wrote what, ` +
-        `and it's the reason nothing you said explaining it needs to be stored anywhere.`,
+      `${dirtyFiles.join(", ")} has uncommitted changes. Commit it first, then run this again:\n\n` +
+        `  git add ${addArgs}\n  git commit --signoff -m "${task.id}: ${task.title}"\n\n` +
+        `Commit your version before asking the agent to help refine it so git history clearly shows what you wrote first.`,
     );
   }
   // Only the task's configured path(s) are checked. A student with unrelated
@@ -300,10 +300,10 @@ writeProgress(config, unlocks);
 console.log(`\n${task.title} (${task.id}) signed off, ${row.route}. Recorded in ${progressPath(config).replace(root, ".")}`);
 console.log(
   opened.length
-    ? `You may now ask the agent for help with ${opened.join(", ")} code, including in features beyond the core. It still asks a project-specific question before editing.`
+    ? `You may now ask the agent for help with ${formatCategories(opened)}, including in features beyond the core. Ask specifically and clarify open details before editing.`
     : (task.categories ?? []).length === 0
       ? `Recorded. This task does not gate any additional category.`
-      : `Nothing new. You could already ask the agent for help with ${task.categories.join(", ")}.`,
+      : `Recorded. You could already ask the agent for help with ${formatCategories(task.categories)}.`,
 );
 console.log(`Commit that file along with your work.\n`);
 for (const p of bs.problems) console.log(`  ${p.text}\n`);

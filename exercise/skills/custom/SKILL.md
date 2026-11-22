@@ -1,24 +1,23 @@
 ---
 name: custom
-description: Create a custom practice exercise from what the student wants to practise, with a contract file and a light AI tutor that leaves the practised parts to the student. Use when the student wants to practise a topic of their own choosing rather than a packaged WBS exercise.
+description: Create a custom practice exercise from what the student wants to practice, with a contract file and a light AI tutor that leaves the practiced parts to the student. Use when the student wants to practice a topic of their own choosing rather than a packaged WBS exercise.
 argument-hint: "[topic]"
 ---
 
 # Set up a custom practice exercise
 
-Interview the student about what they want to practise, then write a contract,
+Interview the student about what they want to practice, then write a contract,
 `PRACTICE.md`, and a tutor skill that holds the agent to it. Nothing here is
 enforced by hooks. The contract and the tutor skill are the whole mechanism.
 
 ## Interview
 
 Ask one question per turn and wait for the answer. Reply in the student's
-language. Every question you write is said out loud, so keep notes about how to
-handle an answer out of the question itself.
+language.
 
 Find out, in roughly this order, skipping anything the student already said:
 
-1. What they want to practise, and what they already know about it.
+1. What they want to practice, and what they already know about it.
 2. The language: JavaScript, TypeScript, HTML/CSS, Python or C#.
 3. A small, concrete thing to build that exercises the topic. Offer one or two
    ideas if they have none, sized for an afternoon rather than a project.
