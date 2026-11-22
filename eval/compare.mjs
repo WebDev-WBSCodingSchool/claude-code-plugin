@@ -81,12 +81,18 @@ export function computeSummaryDiff(baseline, candidate) {
       comparedSections++;
       const baseHard = b.tiers?.hard?.passRate ?? null;
       const currHard = c.tiers?.hard?.passRate ?? null;
+      const baseDetHard = b.deterministicTiers?.hard?.passRate ?? null;
+      const currDetHard = c.deterministicTiers?.hard?.passRate ?? null;
+      const baseRubHard = b.rubricTiers?.hard?.passRate ?? null;
+      const currRubHard = c.rubricTiers?.hard?.passRate ?? null;
       const baseTarget = b.tiers?.target?.passRate ?? null;
       const currTarget = c.tiers?.target?.passRate ?? null;
       const baseSoft = b.tiers?.soft?.passRate ?? null;
       const currSoft = c.tiers?.soft?.passRate ?? null;
 
       const hardDelta = delta(baseHard, currHard);
+      const detHardDelta = delta(baseDetHard, currDetHard);
+      const rubHardDelta = delta(baseRubHard, currRubHard);
       const targetDelta = delta(baseTarget, currTarget);
       const softDelta = delta(baseSoft, currSoft);
       const agreementDelta = delta(b.agreementRate, c.agreementRate);
@@ -101,6 +107,12 @@ export function computeSummaryDiff(baseline, candidate) {
         baseHard,
         currHard,
         hardDelta,
+        baseDetHard,
+        currDetHard,
+        detHardDelta,
+        baseRubHard,
+        currRubHard,
+        rubHardDelta,
         baseTarget,
         currTarget,
         targetDelta,
@@ -116,25 +128,78 @@ export function computeSummaryDiff(baseline, candidate) {
       };
       rows.push(row);
 
-      if (typeof baseHard === "number" && currHard === null) {
+      let flaggedHard = false;
+      if (typeof baseDetHard === "number" && currDetHard === null) {
+        flaggedHard = true;
         regressions.push({
           scenarioId,
           model,
           tier: "hard",
-          base: baseHard,
+          source: "deterministic",
+          base: baseDetHard,
           curr: null,
           delta: null,
-          reason: "pass rate dropped to null",
+          reason: "deterministic hard pass rate dropped to null",
         });
-      } else if (typeof hardDelta === "number" && hardDelta < 0) {
+      } else if (typeof detHardDelta === "number" && detHardDelta < 0) {
+        flaggedHard = true;
         regressions.push({
           scenarioId,
           model,
           tier: "hard",
-          base: baseHard,
-          curr: currHard,
-          delta: hardDelta,
+          source: "deterministic",
+          base: baseDetHard,
+          curr: currDetHard,
+          delta: detHardDelta,
+          reason: "deterministic hard invariant drop",
         });
+      }
+      if (typeof baseRubHard === "number" && currRubHard === null) {
+        flaggedHard = true;
+        regressions.push({
+          scenarioId,
+          model,
+          tier: "hard",
+          source: "rubric",
+          base: baseRubHard,
+          curr: null,
+          delta: null,
+          reason: "rubric hard pass rate dropped to null",
+        });
+      } else if (typeof rubHardDelta === "number" && rubHardDelta < 0) {
+        flaggedHard = true;
+        regressions.push({
+          scenarioId,
+          model,
+          tier: "hard",
+          source: "rubric",
+          base: baseRubHard,
+          curr: currRubHard,
+          delta: rubHardDelta,
+          reason: "behavioral rubric hard drop",
+        });
+      }
+      if (!flaggedHard) {
+        if (typeof baseHard === "number" && currHard === null) {
+          regressions.push({
+            scenarioId,
+            model,
+            tier: "hard",
+            base: baseHard,
+            curr: null,
+            delta: null,
+            reason: "pass rate dropped to null",
+          });
+        } else if (typeof hardDelta === "number" && hardDelta < 0) {
+          regressions.push({
+            scenarioId,
+            model,
+            tier: "hard",
+            base: baseHard,
+            curr: currHard,
+            delta: hardDelta,
+          });
+        }
       }
       if (typeof baseTarget === "number" && currTarget === null) {
         regressions.push({
@@ -324,26 +389,48 @@ export function computeSummaryDiff(baseline, candidate) {
 
 export function renderDiffTable(diff) {
   const lines = [];
-  lines.push(`\n=== Comparison: ${diff.baseLabel} -> ${diff.currLabel} ===`);
-  lines.push(
-    `Scenario                     Model    Hard (Δ)          Target (Δ)        Soft (Δ)          Words (Δ)    Agree`,
+  const hasSplitHard = diff.rows.some(
+    (r) => typeof r.currDetHard === "number" || typeof r.currRubHard === "number",
   );
-  lines.push("-".repeat(108));
+  lines.push(`\n=== Comparison: ${diff.baseLabel} -> ${diff.currLabel} ===`);
+  if (hasSplitHard) {
+    lines.push(
+      `Scenario                     Model    DetHard (Δ)       RubHard (Δ)       Target (Δ)        Soft (Δ)          Words (Δ)    Agree`,
+    );
+    lines.push("-".repeat(126));
+  } else {
+    lines.push(
+      `Scenario                     Model    Hard (Δ)          Target (Δ)        Soft (Δ)          Words (Δ)    Agree`,
+    );
+    lines.push("-".repeat(108));
+  }
   for (const r of diff.rows) {
     const hardStr = `${formatPct(r.currHard)} (${fmtDelta(r.hardDelta)})`.padEnd(17);
+    const detHardStr = `${formatPct(r.currDetHard ?? r.currHard)} (${fmtDelta(r.detHardDelta ?? r.hardDelta)})`.padEnd(17);
+    const rubHardStr = `${formatPct(r.currRubHard)} (${fmtDelta(r.rubHardDelta)})`.padEnd(17);
     const targetStr = `${formatPct(r.currTarget)} (${fmtDelta(r.targetDelta)})`.padEnd(17);
     const softStr = `${formatPct(r.currSoft)} (${fmtDelta(r.softDelta)})`.padEnd(17);
     const wDelta = r.wordsDelta === null ? "—" : r.wordsDelta > 0 ? `+${r.wordsDelta}` : `${r.wordsDelta}`;
     const wordsStr = `${r.currWords ?? "—"} (${wDelta})`.padEnd(12);
     const isReg =
+      (typeof r.detHardDelta === "number" && r.detHardDelta < 0) ||
+      (typeof r.baseDetHard === "number" && r.currDetHard === null) ||
+      (typeof r.rubHardDelta === "number" && r.rubHardDelta < 0) ||
+      (typeof r.baseRubHard === "number" && r.currRubHard === null) ||
       (typeof r.hardDelta === "number" && r.hardDelta < 0) ||
       (typeof r.baseHard === "number" && r.currHard === null) ||
       (typeof r.targetDelta === "number" && r.targetDelta < -0.05) ||
       (typeof r.baseTarget === "number" && r.currTarget === null);
     const flag = isReg ? "  [REGRESSION]" : "";
-    lines.push(
-      `${r.scenarioId.padEnd(28)} ${r.model.padEnd(8)} ${hardStr} ${targetStr} ${softStr} ${wordsStr} ${formatPct(r.currAgreement)}${flag}`,
-    );
+    if (hasSplitHard) {
+      lines.push(
+        `${r.scenarioId.padEnd(28)} ${r.model.padEnd(8)} ${detHardStr} ${rubHardStr} ${targetStr} ${softStr} ${wordsStr} ${formatPct(r.currAgreement)}${flag}`,
+      );
+    } else {
+      lines.push(
+        `${r.scenarioId.padEnd(28)} ${r.model.padEnd(8)} ${hardStr} ${targetStr} ${softStr} ${wordsStr} ${formatPct(r.currAgreement)}${flag}`,
+      );
+    }
   }
 
   if ((diff.missingScenarios ?? []).length) {
@@ -486,7 +573,7 @@ export function parseCompareArgs(argv) {
     ab: false,
     allTrials: false,
     failOnRegression: false,
-    judges: ["claude:sonnet", "codex"],
+    judges: ["codex", "agy:gemini-4-neon-medium"],
     allowPartial: false,
     concurrency: 2,
     help: false,
@@ -532,7 +619,7 @@ Options:
   --ab                         Run blind swapped-order A/B pairwise comparison on full.json runs
   --all-trials                 In --ab mode, compare all trials instead of trial 1 only
   --concurrency <n>            Parallel pairs in --ab mode (default: 2)
-  --judges <spec,...>          Judge panel for --ab mode (default: claude:sonnet,codex)
+  --judges <spec,...>          Judge panel for --ab mode (default: codex,agy:gemini-4-neon-medium)
   --allow-partial-judges       Skip unavailable judges in --ab mode`,
     );
     process.exit(0);

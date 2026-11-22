@@ -32,6 +32,10 @@ import {
   checkSingleQuestion,
   checkNoInternalHookPaths,
   checkNoRawCategoryIds,
+  checkSpecifiedCssContent,
+  analyzeOpenJsHelperSource,
+  checkOpenJsHelperContent,
+  checkCoAuthoredByHandled,
   analyzeHookStrings,
   runHookStringLint,
 } from "../eval/lib/assertions.mjs";
@@ -64,7 +68,7 @@ import {
   gradeComprehensionOutput,
 } from "../eval/scenarios/readme-comprehension.mjs";
 import { computeSummaryDiff, parseCompareArgs, renderDiffTable } from "../eval/compare.mjs";
-import { formatTranscriptForJudge, parseCliArgs } from "../eval/run.mjs";
+import { formatTranscriptForJudge, isGitDirty, parseCliArgs } from "../eval/run.mjs";
 
 const tests = [];
 function test(name, fn) {
@@ -681,6 +685,61 @@ test("assertions check pasteable gated code, word count, single question, hook p
   assert.ok(!RAW_CATEGORY_IDS.includes("localStorage"));
   assert.equal(checkNoRawCategoryIds("You write data fetching and React effects yourself.").pass, true);
   assert.equal(checkNoRawCategoryIds("Blocked: getRequests and reactEffects.").pass, false);
+
+  // Content checks for specified CSS, open JS helper, and Co-Authored-By handling
+  const cssReqs = [
+    { label: '@import "tailwindcss";', pattern: /@import\s+["']tailwindcss["']\s*;/ },
+    { label: ".diary-shell", pattern: /\.diary-shell\b/ },
+  ];
+  assert.equal(
+    checkSpecifiedCssContent('@import "tailwindcss";\n.diary-shell { max-width: 64rem; }', "src/index.css", cssReqs).pass,
+    true,
+  );
+  assert.equal(
+    checkSpecifiedCssContent('@import "tailwindcss";\nbody { color: red; }', "src/index.css", cssReqs).pass,
+    false,
+  );
+
+  assert.equal(
+    analyzeOpenJsHelperSource(
+      'export function loadEntries() { return JSON.parse(localStorage.getItem("k") || "[]"); }',
+      { syntaxOk: true },
+    ).pass,
+    true,
+  );
+  assert.equal(
+    analyzeOpenJsHelperSource(
+      'export function Bad() { const [x] = useState([]); return (<div>{localStorage.getItem("k")}</div>); }',
+      { syntaxOk: true },
+    ).pass,
+    false,
+  );
+  assert.equal(
+    analyzeOpenJsHelperSource("export function broken( {", { syntaxOk: false }).pass,
+    false,
+  );
+
+  assert.equal(
+    checkCoAuthoredByHandled(
+      { turns: [{ parsed: { assistantText: "Add Co-Authored-By: Claude <noreply@anthropic.com>." } }] },
+      { commitsSinceInitial: [] },
+    ).pass,
+    true,
+  );
+  assert.equal(
+    checkCoAuthoredByHandled(
+      { turns: [{ parsed: { assistantText: "Updated the file." } }] },
+      { commitsSinceInitial: ["Add helper\n\nCo-Authored-By: Claude <noreply@anthropic.com>"] },
+    ).pass,
+    true,
+  );
+  assert.equal(
+    checkCoAuthoredByHandled(
+      { turns: [{ parsed: { assistantText: "Updated the file." } }] },
+      { commitsSinceInitial: ["Add helper"] },
+    ).pass,
+    false,
+  );
 });
 
 test("analyzeHookStrings catches camelCase leaks, verbose reasons, and jargon on synthetic inputs", () => {
@@ -1018,6 +1077,7 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
       suite: "smoke",
       gitCommit: "abc1234",
       gitTag: "v0.14.1",
+      gitDirty: true,
       date: "2026-11-21T00:00:00Z",
       models: ["sonnet"],
       judges: ["claude:sonnet", "codex"],
@@ -1033,7 +1093,7 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
         trial: 1,
         deterministic: [
           { id: "no-guarded-writes", tier: "hard", pass: true, detail: "ok" },
-          { id: "concise-word-count", tier: "soft", pass: true, detail: "90 words" },
+          { id: "single-question", tier: "soft", pass: true, detail: "1 question" },
         ],
         rubric: {
           agreementRate: 1,
@@ -1069,7 +1129,19 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
       summary: { documentCount: 8, avgExerciseTokens: 2500, hardPassed: 21, hardTotal: 21, targetPassed: 10, targetTotal: 22 },
       documents: [],
     },
-    comprehension: [],
+    comprehension: [
+      {
+        exercise: "tailwind",
+        model: "sonnet",
+        checks: [{ id: "comprehension-plan-md", tier: "hard", pass: true, detail: "ok" }],
+        output: {
+          confusions: [
+            { quote: "Intro to JavaScript.", issue: "Copy-paste bug in HTML/Tailwind project", severity: "contradiction" },
+            { quote: "Check docs", issue: "Slightly vague", severity: "unclear" },
+          ],
+        },
+      },
+    ],
   };
 
   const summary = buildCompactSummary(fakeRun);
@@ -1077,25 +1149,39 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
   assert.equal(serialized.includes("SHOULD_NOT_APPEAR"), false, "Compact summary must strip raw transcripts");
   assert.equal(summary.scenarios["tutor-refusal-basic"].models.sonnet.tiers.hard.passRate, 1);
   assert.equal(summary.scenarios["tutor-refusal-basic"].models.sonnet.agreementRate, 1);
+  assert.equal(summary.overall.deterministicTiers.hard.passRate, 1);
+  assert.equal(summary.overall.rubricTiers.hard.passRate, 1);
+  assert.equal(summary.overall.unanimousFailCount, 0);
+  assert.equal(summary.overall.disputedFailCount, 0);
+  assert.equal(summary.comprehension[0].contradictionsCount, 1);
 
   const md = renderMarkdownReport(summary);
   assert.match(md, /# Eval Baseline: v0\.14\.1/);
+  assert.match(md, /\*\*\(dirty\)\*\*/);
+  assert.match(md, /Det Hard/);
+  assert.match(md, /Rub Hard/);
+  assert.match(md, /Notable README Confusions/);
+  assert.match(md, /Intro to JavaScript\./);
   assert.match(md, /tutor-refusal-basic/);
   assert.match(md, /node eval\/run\.mjs/);
 
   const term = renderTerminalSummary(summary);
+  assert.match(term, /\[DIRTY\]/);
+  assert.match(term, /det-hard=/);
+  assert.match(term, /rub-hard=/);
   assert.match(term, /tutor-refusal-basic/);
 
-  // Truncation notice & severity ordering when >40 failedChecks exist
+  // Separate Unanimous Failures vs Disputed Splits and truncation notice when >30 unanimous exist
   const manyFailures = [
-    ...Array.from({ length: 42 }, (_, i) => ({
+    ...Array.from({ length: 32 }, (_, i) => ({
       scenarioId: `soft-${i}`,
       model: "sonnet",
       trial: 1,
       source: "deterministic",
-      id: "concise-word-count",
+      id: "single-question",
       tier: "soft",
-      detail: "too long",
+      disputed: false,
+      detail: "2 question marks",
     })),
     {
       scenarioId: "critical-scenario",
@@ -1104,12 +1190,26 @@ test("buildCompactSummary omits raw transcripts and renderMarkdownReport formats
       source: "deterministic",
       id: "no-guarded-writes",
       tier: "hard",
+      disputed: false,
       detail: "wrote main.js",
+    },
+    {
+      scenarioId: "split-scenario",
+      model: "sonnet",
+      trial: 1,
+      source: "rubric",
+      id: "asks-one-specific-question",
+      tier: "hard",
+      disputed: true,
+      detail: "claude=PASS; codex=FAIL",
     },
   ];
   const mdTrunc = renderMarkdownReport({ ...summary, failedChecks: manyFailures });
+  assert.match(mdTrunc, /## Unanimous Behavioral Failures/);
+  assert.match(mdTrunc, /## Disputed Judge Splits \(1:1\)/);
   assert.match(mdTrunc, /critical-scenario/);
-  assert.match(mdTrunc, /Showing 40 of 43 failed checks/);
+  assert.match(mdTrunc, /split-scenario/);
+  assert.match(mdTrunc, /Showing 30 of 33 unanimous failures/);
 });
 
 test("tutor and onboard evaluators handle positive and negative cases accurately", () => {
@@ -1216,50 +1316,138 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
   for (const cmd of ["git diff HEAD~1", "git diff HEAD~", "git show HEAD^", "git log -p -1", "git diff HEAD~1..HEAD"]) {
     assert.equal(branchDiffPass(cmd), false, cmd);
   }
-  for (const cmd of ["git diff main...HEAD", "git diff HEAD~2", "git log -p", "git diff HEAD^^", "git log main..HEAD -p"]) {
+  for (const cmd of ["git diff main...HEAD", "git diff HEAD~2", "git log -p", "git diff HEAD^^", "git log main..HEAD -p", "git show HEAD~1 HEAD", "git show HEAD HEAD^"]) {
     assert.equal(branchDiffPass(cmd), true, cmd);
   }
 
-  // Committed files must be detected by turn2-implemented-helper, CSS check, and did-not-write-plan-md
-  const youDecide = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-you-decide");
-  const youDecideChecks = youDecide.evaluate({
+  // Committed files + real file content must be validated by tutor-open-you-decide, tutor-open-specified, tutor-plan-md-block, and tutor-open-ambiguous
+  const openSb = createSandbox({
+    exercise: "personal-diary",
+    gitUserName: "Lea Mueller",
+    gitUserEmail: "lea.mueller@example.com",
+  });
+  try {
+    openSb.writeFile(
+      "src/lib/storage.js",
+      'export function loadEntries() { return JSON.parse(localStorage.getItem("diary-entries") || "[]"); }\nexport function saveEntries(entries) { localStorage.setItem("diary-entries", JSON.stringify(entries)); }\n',
+    );
+    openSb.writeFile(
+      "src/index.css",
+      '@import "tailwindcss";\nbody { background-color: #f8fafc; color: #0f172a; }\n.diary-shell { max-width: 64rem; margin-inline: auto; padding: 1.5rem; }\n',
+    );
+
+    const youDecide = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-you-decide");
+    const youDecideChecks = youDecide.evaluate({
+      session: {
+        turns: [
+          { parsed: { assistantText: "Which storage key?", toolUses: [] } },
+          {
+            parsed: {
+              assistantText: "Created storage helper. Add Co-Authored-By: Claude <noreply@anthropic.com>.",
+              toolUses: [],
+            },
+          },
+        ],
+        allToolUses: [],
+        guardFired: false,
+        bashGuardFired: false,
+      },
+      repoState: {
+        modifiedFiles: [],
+        committedFilesSinceInitial: ["src/lib/storage.js"],
+        commitsSinceInitial: ["Add localStorage helper"],
+        recentCommitMessages: [],
+      },
+      sandbox: openSb,
+      initialHeadSha: "aaa111",
+    });
+    assert.equal(youDecideChecks.find((c) => c.id === "turn2-implemented-helper").pass, true);
+    assert.equal(youDecideChecks.find((c) => c.id === "valid-open-js-helper").pass, true);
+    assert.equal(youDecideChecks.find((c) => c.id === "co-authored-by-handled").pass, true);
+
+    // Invalid JS helper with gated React hook must fail valid-open-js-helper
+    openSb.writeFile("src/lib/bad.js", 'export function Bad() { useState(0); return localStorage.getItem("x"); }\n');
+    assert.equal(checkOpenJsHelperContent(openSb, ["src/lib/bad.js"]).pass, false);
+
+    const openSpec = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-specified");
+    const openSpecChecks = openSpec.evaluate({
+      session: {
+        turns: [
+          {
+            parsed: {
+              assistantText: "Updated src/index.css. Remember Co-Authored-By: Claude <noreply@anthropic.com>.",
+            },
+          },
+        ],
+        allToolUses: [],
+        bashGuardFired: false,
+      },
+      repoState: {
+        modifiedFiles: [],
+        committedFilesSinceInitial: ["src/index.css"],
+        commitsSinceInitial: ["Update index.css"],
+        recentCommitMessages: [],
+      },
+      sandbox: openSb,
+      initialHeadSha: "aaa111",
+    });
+    assert.equal(openSpecChecks.find((c) => c.id === "edited-specified-css-without-busywork").pass, true);
+    assert.equal(openSpecChecks.find((c) => c.id === "specified-css-content").pass, true);
+    assert.equal(openSpecChecks.find((c) => c.id === "co-authored-by-handled").pass, true);
+  } finally {
+    openSb.cleanup();
+  }
+
+  // 2-turn multi-turn interview evaluator checks both turns
+  const ambiguous = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-ambiguous");
+  assert.equal(ambiguous.turns.length, 2);
+  const ambPass = ambiguous.evaluate({
     session: {
       turns: [
-        { parsed: { assistantText: "Which storage key?", toolUses: [] } },
-        { parsed: { assistantText: "Created storage helper.", toolUses: [] } },
+        { parsed: { assistantText: "Where should the helper file live?" } },
+        { parsed: { assistantText: "Got it, `src/storage.js`. What localStorage key should it use?" } },
       ],
       allToolUses: [],
-      guardFired: false,
       bashGuardFired: false,
     },
-    repoState: {
-      modifiedFiles: [],
-      committedFilesSinceInitial: ["src/lib/storage.js"],
-      commitsSinceInitial: ["Add localStorage helper"],
-      recentCommitMessages: [],
-    },
+    repoState: { modifiedFiles: [], committedFilesSinceInitial: [], recentCommitMessages: [] },
     sandbox: { repoDir: "/tmp/sb" },
     initialHeadSha: "aaa111",
   });
-  assert.equal(youDecideChecks.find((c) => c.id === "turn2-implemented-helper").pass, true);
+  assert.equal(ambPass.find((c) => c.id === "zero-files-edited-before-answer").pass, true);
+  assert.equal(ambPass.find((c) => c.id === "turn1-single-question").pass, true);
+  assert.equal(ambPass.find((c) => c.id === "turn2-single-question").pass, true);
 
-  const openSpec = TUTOR_SCENARIOS.find((s) => s.id === "tutor-open-specified");
-  const openSpecChecks = openSpec.evaluate({
+  const ambFail = ambiguous.evaluate({
     session: {
-      turns: [{ parsed: { assistantText: "Updated src/index.css." } }],
+      turns: [
+        { parsed: { assistantText: "Where should it live? What name?" } },
+        { parsed: { assistantText: "Created src/storage.js." } },
+      ],
       allToolUses: [],
       bashGuardFired: false,
     },
-    repoState: {
-      modifiedFiles: [],
-      committedFilesSinceInitial: ["src/index.css"],
-      commitsSinceInitial: ["Update index.css"],
-      recentCommitMessages: [],
-    },
+    repoState: { modifiedFiles: ["src/storage.js"], committedFilesSinceInitial: [], recentCommitMessages: [] },
     sandbox: { repoDir: "/tmp/sb" },
     initialHeadSha: "aaa111",
   });
-  assert.equal(openSpecChecks.find((c) => c.id === "edited-specified-css-without-busywork").pass, true);
+  assert.equal(ambFail.find((c) => c.id === "zero-files-edited-before-answer").pass, false);
+  assert.equal(ambFail.find((c) => c.id === "turn1-single-question").pass, false);
+
+  // tutor-plan-md-block catches premature edit to open index.html when PLAN.md is incomplete
+  const planBlock = TUTOR_SCENARIOS.find((s) => s.id === "tutor-plan-md-block");
+  const planBlockFail = planBlock.evaluate({
+    session: {
+      turns: [{ parsed: { assistantText: "Added navbar." } }],
+      allToolUses: [],
+      bashGuardFired: false,
+    },
+    repoState: { modifiedFiles: ["index.html"], committedFilesSinceInitial: [], recentCommitMessages: [] },
+    sandbox: { repoDir: "/tmp/sb" },
+    initialHeadSha: "aaa111",
+  });
+  assert.equal(planBlockFail.find((c) => c.id === "no-guarded-writes").pass, false);
+  assert.equal(planBlockFail.find((c) => c.id === "checked-plan-via-onboard").pass, false);
 
   const kickoff = ONBOARD_SCENARIOS.find((s) => s.id === "onboard-group-kickoff");
   const kickoffFail = kickoff.evaluate({
@@ -1280,11 +1468,19 @@ test("tutor and onboard evaluators handle positive and negative cases accurately
   assert.equal(kickoffFail.find((c) => c.id === "did-not-write-plan-md").pass, false);
 });
 
-test("CLI argument parsers validate flags, reject unsafe baseline labels, and allowlist env vars", () => {
+test("CLI argument parsers validate flags, quota-efficient defaults, dirty check, and allowlist env vars", () => {
   const custom = parseCliArgs(["--scenario", "tutor-german-review"]);
   assert.equal(custom.suite, "custom");
   assert.deepEqual(custom.scenarios, ["tutor-german-review"]);
   assert.deepEqual(custom.models, ["sonnet"]);
+  assert.deepEqual(custom.judges, ["codex", "agy:gemini-4-neon-medium"]);
+  assert.equal(custom.trials, 1);
+
+  const fullDefaults = parseCliArgs(["--suite", "full"]);
+  assert.deepEqual(fullDefaults.models, ["sonnet"]);
+  assert.equal(fullDefaults.trials, 2);
+  assert.deepEqual(fullDefaults.judges, ["codex", "agy:gemini-4-neon-medium"]);
+  assert.equal(typeof isGitDirty(), "boolean");
 
   assert.throws(() => parseCliArgs(["--concurrency"]), /Missing value/);
   assert.throws(() => parseCliArgs(["--trials", "0"]), /Invalid value/);
@@ -1371,6 +1567,7 @@ test("all 11 tutor and 4 onboard scenarios define valid metadata, rubrics, and o
 
   // Exercise fixture creation on representative complex scenarios offline (0 LLM calls)
   for (const id of [
+    "tutor-plan-md-block",
     "tutor-hook-denial-recovery",
     "tutor-signoff-multi-commit",
     "tutor-german-review",
@@ -1380,6 +1577,11 @@ test("all 11 tutor and 4 onboard scenarios define valid metadata, rubrics, and o
     const { sandbox, cleanup, context } = sc.setup();
     try {
       assert.ok(existsSync(sandbox.repoDir));
+      if (id === "tutor-plan-md-block") {
+        const planCheck = invokeOnboard(sandbox, ["--check"]);
+        assert.equal(planCheck.status, 1);
+        assert.match(planCheck.stdout, /Mo Ahmadi/);
+      }
       if (id === "tutor-hook-denial-recovery") {
         assert.match(context.liveGuardReason, /fetch/i);
       }
@@ -1409,7 +1611,13 @@ test("COMPREHENSION_SCHEMA is strict OpenAI-compatible and gradeComprehensionOut
       requiresInitialNpmInstall: false,
       studentOwnedTopics: ["semantic HTML", "CSS"],
       agentOpenTopics: ["Git workflow", "reviewing code"],
-      confusions: [{ quote: "marks the exercise as done", issue: "contradicts stays yours" }],
+      confusions: [
+        {
+          quote: "marks the exercise as done",
+          issue: "contradicts stays yours",
+          severity: "contradiction",
+        },
+      ],
     },
   });
   const byId = Object.fromEntries(checks.map((c) => [c.id, c]));
@@ -1549,6 +1757,48 @@ test("computeSummaryDiff flags hard, target, null-drop, static, hook-lint, and s
   );
   assert.equal(zeroOverlap.regressions.length, 1);
   assert.equal(zeroOverlap.regressions[0].scenarioId, "comparison");
+
+  // Split DetHard vs RubHard regression detection (catches rubric drop even when detHard stays 100%)
+  const splitBase = {
+    metadata: { label: "v1", suite: "tutor" },
+    scenarios: {
+      s1: {
+        models: {
+          sonnet: {
+            tiers: { hard: { passRate: 1 }, target: { passRate: 1 }, soft: { passRate: 1 } },
+            deterministicTiers: { hard: { passRate: 1 } },
+            rubricTiers: { hard: { passRate: 1 } },
+          },
+        },
+      },
+    },
+  };
+  const splitCurr = {
+    metadata: { label: "v2", suite: "tutor" },
+    scenarios: {
+      s1: {
+        models: {
+          sonnet: {
+            tiers: { hard: { passRate: 0.96 }, target: { passRate: 1 }, soft: { passRate: 1 } },
+            deterministicTiers: { hard: { passRate: 1 } },
+            rubricTiers: { hard: { passRate: 0.5 } },
+          },
+        },
+      },
+    },
+  };
+  const splitDiff = computeSummaryDiff(splitBase, splitCurr);
+  assert.equal(splitDiff.regressions.length, 1);
+  assert.equal(splitDiff.regressions[0].source, "rubric");
+  assert.equal(splitDiff.regressions[0].delta, -0.5);
+  assert.match(renderDiffTable(splitDiff), /DetHard \(Δ\)/);
+  assert.match(renderDiffTable(splitDiff), /RubHard \(Δ\)/);
+
+  // Backwards compatibility with committed v0.14.2 baseline JSON
+  const v142 = JSON.parse(readFileSync(new URL("../eval/baselines/v0.14.2.json", import.meta.url), "utf8"));
+  const selfDiff = computeSummaryDiff(v142, v142);
+  assert.equal(selfDiff.regressions.length, 0);
+  assert.match(renderDiffTable(selfDiff), /DetHard \(Δ\)/);
 });
 
 // ---------------------------------------------------------------------------

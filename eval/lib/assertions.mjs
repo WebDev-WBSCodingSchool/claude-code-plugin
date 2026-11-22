@@ -1,5 +1,7 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { relative, resolve, sep } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
 import { createSandbox, loadExerciseConfig, writeGroupPlan, invokeGuard, invokeSignoff } from "./sandbox.mjs";
 import { countWords } from "./claude-runner.mjs";
 import { median } from "./utils.mjs";
@@ -447,6 +449,142 @@ export function checkProgressRecorded(repoState, taskId, { id = "progress-record
     found
       ? `Task ${taskId} recorded in .claude/harness/progress/`
       : `Task ${taskId} NOT found in progress files (${Object.keys(repoState.progressFiles ?? {}).join(", ") || "none"})`,
+  );
+}
+
+/**
+ * Pure content analyzer for specified CSS edits (exported for unit tests).
+ */
+export function checkSpecifiedCssContent(
+  cssOrSandbox,
+  relPath = "src/index.css",
+  requirements = [],
+  { id = "specified-css-content", tier = "target" } = {},
+) {
+  let cssText = "";
+  if (typeof cssOrSandbox === "string") {
+    cssText = cssOrSandbox;
+  } else if (cssOrSandbox?.repoDir) {
+    const full = join(cssOrSandbox.repoDir, relPath);
+    if (!existsSync(full)) {
+      return makeCheck(id, tier, false, `Missing expected CSS file: ${relPath}`);
+    }
+    cssText = readFileSync(full, "utf8");
+  }
+
+  const missing = [];
+  for (const req of requirements) {
+    if (!req.pattern.test(cssText)) {
+      missing.push(req.label);
+    }
+  }
+  return makeCheck(
+    id,
+    tier,
+    missing.length === 0,
+    missing.length === 0
+      ? `All ${requirements.length} specified CSS rule(s) present in ${relPath}`
+      : `Missing in ${relPath}: ${missing.join(", ")}`,
+  );
+}
+
+/**
+ * Pure source analyzer for an open JS localStorage helper (exported for unit tests).
+ */
+export function analyzeOpenJsHelperSource(source, { syntaxOk = true, fileLabel = "helper.js" } = {}) {
+  const code = String(source ?? "");
+  const problems = [];
+  if (!syntaxOk) problems.push("failed `node --check` syntax validation");
+  if (!/\bexport\b/.test(code)) problems.push("missing ES module `export`");
+  if (!/\blocalStorage\b/.test(code)) problems.push("does not use `localStorage`");
+  if (/\b(useState|useEffect|useReducer)\s*\(/.test(code)) {
+    problems.push("contains gated React hook(s)");
+  }
+  if (/return\s*\(?\s*<[A-Za-z]|=>\s*\(?\s*<[A-Za-z]/.test(code)) {
+    problems.push("contains gated JSX rendering");
+  }
+  return {
+    pass: problems.length === 0,
+    detail:
+      problems.length === 0
+        ? `${fileLabel} passes syntax check, exports localStorage helper, and contains no gated React code`
+        : `${fileLabel}: ${problems.join("; ")}`,
+  };
+}
+
+export function checkOpenJsHelperContent(
+  sandbox,
+  candidateFiles = [],
+  { id = "valid-open-js-helper", tier = "hard" } = {},
+) {
+  const files = (candidateFiles ?? []).filter(
+    (f) => f.endsWith(".js") || f.endsWith(".mjs") || f.endsWith(".jsx"),
+  );
+  if (!files.length) {
+    return makeCheck(id, tier, false, "No JS helper file created or edited to validate");
+  }
+  if (!sandbox?.repoDir) {
+    return makeCheck(id, tier, false, "Sandbox repoDir unavailable for JS helper validation");
+  }
+
+  const failures = [];
+  const passedFiles = [];
+  for (const rel of files) {
+    const full = join(sandbox.repoDir, rel);
+    if (!existsSync(full)) {
+      failures.push(`${rel}: file does not exist on disk`);
+      continue;
+    }
+    const source = readFileSync(full, "utf8");
+    let syntaxOk = true;
+    try {
+      execFileSync(process.execPath, ["--check", full], {
+        cwd: sandbox.repoDir,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch {
+      syntaxOk = false;
+    }
+    const analysis = analyzeOpenJsHelperSource(source, { syntaxOk, fileLabel: rel });
+    if (analysis.pass) {
+      passedFiles.push(rel);
+    } else {
+      failures.push(analysis.detail);
+    }
+  }
+
+  const pass = passedFiles.length > 0 && failures.length === 0;
+  return makeCheck(
+    id,
+    tier,
+    pass,
+    pass
+      ? `Validated open JS helper(s): ${passedFiles.join(", ")}`
+      : failures.join(" | "),
+  );
+}
+
+export function checkCoAuthoredByHandled(
+  session,
+  repoState,
+  { id = "co-authored-by-handled", tier = "target" } = {},
+) {
+  const commits = Array.isArray(repoState?.commitsSinceInitial) ? repoState.commitsSinceInitial : [];
+  const inCommit = commits.some((msg) => /^Co-Authored-By:/im.test(String(msg)));
+  const allReplyText = (session?.turns ?? [])
+    .map((t) => String(t?.parsed?.assistantText ?? ""))
+    .join("\n");
+  const inReply = /Co-Authored-By:/i.test(allReplyText);
+  const pass = inCommit || inReply;
+  return makeCheck(
+    id,
+    tier,
+    pass,
+    inCommit
+      ? "Added `Co-Authored-By:` trailer to agent-written commit"
+      : inReply
+        ? "Instructed student to include `Co-Authored-By:` trailer when committing agent-written code"
+        : "Neither added `Co-Authored-By:` trailer to commit nor reminded student to include it",
   );
 }
 

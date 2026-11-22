@@ -28,7 +28,7 @@ const REPO_ROOT = resolve(EVAL_ROOT, "..");
 
 const SMOKE_SCENARIO_IDS = [
   "tutor-refusal-basic",
-  "tutor-hook-refusal-live",
+  "tutor-plan-md-block",
   "tutor-open-you-decide",
   "onboard-solo-fresh",
 ];
@@ -39,10 +39,10 @@ function usage() {
 Options:
   --suite <smoke|tutor|onboard|readability|full>   Suite to run (default: smoke)
   --scenario <id,...>                              Comma-separated scenario ID filter
-  --models <list>                                  Subject models (default: sonnet for smoke, sonnet,opus otherwise)
-  --trials <n>                                     Trials per scenario × model (default: 1, or 3 for full)
+  --models <list>                                  Subject models (default: sonnet; pass sonnet,opus for release baselines)
+  --trials <n>                                     Trials per scenario × model (default: 1, or 2 for full)
   --concurrency <n>                                Parallel trials (default: 2)
-  --judges <spec,...>                              Judge panel (default: claude:sonnet,codex)
+  --judges <spec,...>                              Judge panel (default: codex,agy:gemini-4-neon-medium; e.g. claude:sonnet,codex)
   --allow-partial-judges                           Skip unavailable judges instead of aborting
   --no-judge                                       Run deterministic checks + static lint only
   --static-only                                    Run static README + #29 hook-string lint only (0 LLM calls)
@@ -74,7 +74,7 @@ export function parseCliArgs(argv) {
     models: null,
     trials: null,
     concurrency: 2,
-    judges: ["claude:sonnet", "codex"],
+    judges: ["codex", "agy:gemini-4-neon-medium"],
     allowPartialJudges: false,
     noJudge: false,
     staticOnly: false,
@@ -142,10 +142,10 @@ export function parseCliArgs(argv) {
     throw new Error("Invalid --models (empty list)");
   }
   if (!opts.models) {
-    opts.models = opts.suite === "smoke" || opts.suite === "custom" ? ["sonnet"] : ["sonnet", "opus"];
+    opts.models = ["sonnet"];
   }
   if (!opts.trials) {
-    opts.trials = opts.suite === "full" ? 3 : 1;
+    opts.trials = opts.suite === "full" ? 2 : 1;
   }
   return opts;
 }
@@ -157,6 +157,19 @@ function safeCmd(bin, args, cwd = REPO_ROOT) {
       .split("\n")[0];
   } catch {
     return null;
+  }
+}
+
+export function isGitDirty(cwd = REPO_ROOT) {
+  try {
+    const out = execFileSync("git", ["status", "--porcelain"], {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    return out.trim().length > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -358,6 +371,12 @@ async function main() {
   const label = opts.saveBaseline ?? `${timestamp}-${opts.suite}`;
   const gitCommit = safeCmd("git", ["rev-parse", "--short", "HEAD"]);
   const gitTag = safeCmd("git", ["describe", "--tags", "--always"]);
+  const gitDirty = isGitDirty(REPO_ROOT);
+  if (gitDirty && opts.saveBaseline) {
+    console.warn(
+      `[warn] Working tree has uncommitted changes — baseline "${opts.saveBaseline}" will be marked dirty (${gitCommit}). Commit first for a clean release baseline.`,
+    );
+  }
 
   const cliVersions = {
     node: process.version,
@@ -450,13 +469,12 @@ async function main() {
     }
   });
 
-  // 3. Simulated-student README comprehension
+  // 3. Simulated-student README comprehension (runs once per exercise on the primary model to avoid redundant Opus spend)
   const compJobs = [];
   if (runComprehension) {
+    const compModel = opts.models[0] ?? "sonnet";
     for (const exerciseId of listComprehensionExercises()) {
-      for (const model of opts.models) {
-        compJobs.push({ exerciseId, model });
-      }
+      compJobs.push({ exerciseId, model: compModel });
     }
   }
 
@@ -498,6 +516,7 @@ async function main() {
       suite: opts.suite,
       gitCommit,
       gitTag,
+      gitDirty,
       date: new Date().toISOString(),
       models: opts.models,
       judges: activeJudges.map((j) => j.spec),
