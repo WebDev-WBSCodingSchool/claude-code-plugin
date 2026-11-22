@@ -51,7 +51,7 @@ export function denyReason({ config, rel, blocked, open }) {
   // The unlock path goes inside the quoted sentence: evals showed agents relay the quote but drop instructions further down.
   const firstTask = config.unlockRoute === false ? undefined : config.tasks?.find((t) => blocked.some((c) => (t.categories ?? []).includes(c)));
   const unlock = firstTask
-    ? ` Once you write one task such as ${firstTask.title}, commit it with --signoff, and explain it to me, I can help here too.`
+    ? ` Once you write one task such as ${firstTask.title}, commit it with --signoff, and explain it, I can help here too.`
     : "";
   lines.push(
     `Tell the student in their language: "${capWhat} ${verb} the ${parts} of ${rel} you write yourself — I'll help you get there.${unlock}"`,
@@ -80,11 +80,11 @@ export function denyReason({ config, rel, blocked, open }) {
       .map((c) => `  - ${categoryLabel(c)}: ${routesTo(config, c).join(", ") || "no task opens this"}`)
       .join("\n");
     lines.push(
-      `Unlock: once the student has committed one task below and explained its branch diff (1 open + up to 3 unscored MCQs), you run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1); never hand the student this command:\n${routes}`,
+      `Unlock: after the student commits one task below and explains its branch diff (1 open + up to 3 unscored MCQs), you run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1); never hand the student this command:\n${routes}`,
     );
     const openList = [...open];
     lines.push(
-      `${openList.length ? `Unlocked: ${formatCategories(openList)}.` : `None unlocked yet.`} For open work in README.md, wait for a request and clarify undecided details first.`,
+      `${openList.length ? `Unlocked: ${formatCategories(openList)}.` : `None unlocked yet.`} For open work in README.md, wait for a request and clarify undecided details.`,
     );
   }
 

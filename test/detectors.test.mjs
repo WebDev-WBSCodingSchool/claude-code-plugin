@@ -243,7 +243,7 @@ for (const [category, file, positive, negative] of CASES) {
 
   const tasks = [{ id: 'FR009', title: 'Fetch popular movies', categories: ['dom'] }];
   const unlockable = denyReason({ config: { tasks }, rel: 'main.js', blocked: ['dom'], open: [] });
-  assert.match(unlockable, /^Tell the student[^\n]*Once you write one task such as Fetch popular movies, commit it with --signoff, and explain it to me/);
+  assert.match(unlockable, /^Tell the student[^\n]*Once you write one task such as Fetch popular movies, commit it with --signoff, and explain it, I can help/);
 }
 
 console.log(`${CASES.length} detector checks passed`);
