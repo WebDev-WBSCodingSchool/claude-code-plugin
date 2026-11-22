@@ -35,10 +35,11 @@ export const COMPREHENSION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["quote", "issue"],
+        required: ["quote", "issue", "severity"],
         properties: {
           quote: { type: "string" },
           issue: { type: "string" },
+          severity: { type: "string", enum: ["contradiction", "unclear"] },
         },
       },
     },
@@ -57,7 +58,7 @@ Questions to answer in the structured JSON response:
 5. \`requiresInitialNpmInstall\`: Does initial setup (Week 1 / before writing code) require running \`npm install\` or \`npm ci\`?
 6. \`studentOwnedTopics\`: Short list of topics/code you must write yourself.
 7. \`agentOpenTopics\`: Short list of work you can ask the AI agent to help with.
-8. \`confusions\`: Any contradictions, unclear instructions, wrong task IDs, or leftover copy-paste bugs you notice (quote the exact phrase and explain the issue; empty array if none).
+8. \`confusions\`: Any contradictions, unclear instructions, wrong task IDs, or leftover copy-paste bugs you notice (quote the exact phrase, explain the issue, and set \`severity\` to \`"contradiction"\` for genuine rule conflicts or copy-paste bugs vs. \`"unclear"\` for minor ambiguities; empty array if none).
 
 --- BEGIN README (${exerciseId}) ---
 ${readmeText}

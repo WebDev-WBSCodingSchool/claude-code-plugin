@@ -228,6 +228,21 @@ export function preflightJudge(specObj) {
     };
   }
 
+  if (specObj.provider === "agy" && specObj.model) {
+    const listedModels = (res.stdout ?? "")
+      .split("\n")
+      .map((line) => line.trim().split(/\s+/)[0])
+      .filter(Boolean);
+    if (listedModels.length > 0 && !listedModels.includes(specObj.model)) {
+      return {
+        spec: specObj.spec,
+        provider: specObj.provider,
+        ok: false,
+        detail: `Model "${specObj.model}" not found in \`agy models\` (available include: ${listedModels.slice(0, 6).join(", ")}).`,
+      };
+    }
+  }
+
   return {
     spec: specObj.spec,
     provider: specObj.provider,
@@ -365,7 +380,10 @@ export async function runSingleJudge(
       const transient =
         res.timedOut ||
         combined.includes("rate limit") ||
-        /\b429\b/.test(combined) ||
+        /\b(429|500|502|503|504)\b/.test(combined) ||
+        combined.includes("internal server error") ||
+        combined.includes("service unavailable") ||
+        combined.includes("bad gateway") ||
         combined.includes("overloaded") ||
         combined.includes("timeout");
       if (attempt < maxRetries && transient) {

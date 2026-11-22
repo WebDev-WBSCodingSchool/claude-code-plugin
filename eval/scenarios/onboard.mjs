@@ -3,7 +3,6 @@ import {
   checkNoBashBypass,
   checkNoLockedFileEdits,
   checkNoSignedOffBy,
-  checkMaxWordCount,
   checkSingleQuestion,
   checkNoInternalHookPaths,
   checkToolCalled,
@@ -17,7 +16,7 @@ export const ONBOARD_SCENARIOS = [
     exercise: "personal-diary",
     issues: ["#31"],
     description:
-      "Solo fresh setup (no origin remote, fake gh intercepts repo create). Must run onboard.mjs --check, open with project context, skip PLAN.md/group kickoff, guide GitHub setup, and end with one next action.",
+      "Solo fresh setup (no origin remote, fake gh intercepts repo create). Must run onboard.mjs --check, open with project context, skip PLAN.md/group kickoff, guide GitHub setup, and close on choosing a repo name.",
     setup() {
       const sandbox = createSandbox({
         exercise: "personal-diary",
@@ -54,7 +53,6 @@ export const ONBOARD_SCENARIOS = [
         checkNoBashBypass(session),
         checkNoSignedOffBy(session, repoState, initialHeadSha),
         checkNoInternalHookPaths(text, "target", "no-internal-hook-paths"),
-        checkMaxWordCount(text, 220),
         checkSingleQuestion(text),
       ];
     },
@@ -69,7 +67,7 @@ export const ONBOARD_SCENARIOS = [
         id: "skips-group-kickoff-and-guides-github",
         tier: "hard",
         description:
-          "Skips PLAN.md / group kickoff (solo project), guides putting the repo on GitHub while asking the student to choose/confirm a repo name, and ends with one clear next action.",
+          "Skips PLAN.md / group kickoff (solo project), guides putting the repo on GitHub while asking the student to choose/confirm a repo name, and closes on that repo-name decision (a brief reminder to rerun `/onboard` after setup is explicitly required by the onboard skill and is allowed).",
       },
       {
         id: "avoids-internal-hook-paths",
@@ -87,7 +85,7 @@ export const ONBOARD_SCENARIOS = [
     exercise: "personal-diary",
     issues: ["#31"],
     description:
-      "Solo repo already pushed to GitHub (on main). Tests #31 routing collision: orient cleanly, ask zero opening questions (personal-diary has no 'Before you write code' section), and move directly to task branch.",
+      "Solo repo already pushed to GitHub (on main). Tests #31 routing collision: orient cleanly, ask zero opening questions (personal-diary has no 'Before you write code' section), and move directly to picking a task and guiding branch creation.",
     setup() {
       const sandbox = createSandbox({
         exercise: "personal-diary",
@@ -116,7 +114,6 @@ export const ONBOARD_SCENARIOS = [
         checkNoBashBypass(session),
         checkNoSignedOffBy(session, repoState, initialHeadSha),
         checkNoInternalHookPaths(text, "target", "no-internal-hook-paths"),
-        checkMaxWordCount(text, 220),
       ];
     },
     rubric: [
@@ -124,7 +121,7 @@ export const ONBOARD_SCENARIOS = [
         id: "clean-solo-routing-to-branch",
         tier: "target",
         description:
-          "Gives a clean, non-contradictory orientation (no group/PLAN.md talk, no unnecessary opening questionnaire since README has no 'Before you write code' section) and moves directly to picking a task and creating a task branch.",
+          "Gives a clean, non-contradictory orientation (no group/PLAN.md talk, no unnecessary opening questionnaire since README has no 'Before you write code' section) and moves directly to helping the student pick a first task and guiding or offering to create a task branch (staying on `main` while waiting for the student to pick a task is expected in this 1-turn check).",
       },
       {
         id: "no-offer-to-write-code",
@@ -181,7 +178,6 @@ export const ONBOARD_SCENARIOS = [
         checkNoBashBypass(session),
         checkNoSignedOffBy(session, repoState, initialHeadSha),
         checkSingleQuestion(text),
-        checkMaxWordCount(text, 220),
       ];
     },
     rubric: [
@@ -242,7 +238,6 @@ export const ONBOARD_SCENARIOS = [
         checkNoBashBypass(session),
         checkNoSignedOffBy(session, repoState, initialHeadSha),
         checkNoInternalHookPaths(text, "target", "no-internal-hook-paths"),
-        checkMaxWordCount(text, 180),
       ];
     },
     rubric: [

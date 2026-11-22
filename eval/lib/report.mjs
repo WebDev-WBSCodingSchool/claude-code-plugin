@@ -173,26 +173,38 @@ export function buildCompactSummary(runData) {
   }
 
   // Summarize comprehension trials compactly
-  const comprehensionSummary = (runData.comprehension ?? []).map((c) => ({
-    exercise: c.exercise,
-    model: c.model,
-    checks: c.checks,
-    confusionsCount: (c.output?.confusions ?? []).length,
-    confusions: (c.output?.confusions ?? []).slice(0, 3).map((cf) => ({
-      quote: clip(cf.quote, 90),
-      issue: clip(cf.issue, 130),
-    })),
-    durationMs: c.durationMs ?? null,
-    totalCostUsd: c.totalCostUsd ?? null,
-  }));
+  const comprehensionSummary = (runData.comprehension ?? []).map((c) => {
+    const rawConfusions = Array.isArray(c.output?.confusions) ? c.output.confusions : [];
+    const contradictions = rawConfusions.filter((cf) => cf?.severity === "contradiction");
+    const sortedConfusions = [
+      ...contradictions,
+      ...rawConfusions.filter((cf) => cf?.severity !== "contradiction"),
+    ];
+    return {
+      exercise: c.exercise,
+      model: c.model,
+      checks: c.checks,
+      confusionsCount: rawConfusions.length,
+      contradictionsCount: contradictions.length,
+      confusions: sortedConfusions.slice(0, 5).map((cf) => ({
+        severity: cf.severity ?? "unclear",
+        quote: clip(cf.quote, 90),
+        issue: clip(cf.issue, 130),
+      })),
+      durationMs: c.durationMs ?? null,
+      totalCostUsd: c.totalCostUsd ?? null,
+    };
+  });
 
-  const overallCombined = [
+  const allDeterministicAll = [
     ...allDetChecks,
-    ...allRubricItems,
     ...(runData.hookStringLint?.checks ?? []),
     ...(runData.staticReadability?.documents ?? []).flatMap((d) => d.checks ?? []),
     ...comprehensionSummary.flatMap((c) => c.checks ?? []),
   ];
+  const overallCombined = [...allDeterministicAll, ...allRubricItems];
+  const unanimousFailCount = failedChecks.filter((f) => !f.disputed).length;
+  const disputedFailCount = failedChecks.filter((f) => Boolean(f.disputed)).length;
 
   const compactStaticReadability = runData.staticReadability
     ? {
@@ -213,11 +225,17 @@ export function buildCompactSummary(runData) {
     metadata: runData.metadata ?? {},
     overall: {
       tiers: summarizeChecksByTier(overallCombined),
+      deterministicTiers: summarizeChecksByTier(allDeterministicAll),
+      rubricTiers: summarizeChecksByTier(allRubricItems),
       behavioralTiers: summarizeChecksByTier([...allDetChecks, ...allRubricItems]),
+      behavioralDeterministicTiers: summarizeChecksByTier(allDetChecks),
+      behavioralRubricTiers: summarizeChecksByTier(allRubricItems),
       agreementRate: allAgreements.length
         ? Number((allAgreements.reduce((s, v) => s + v, 0) / allAgreements.length).toFixed(4))
         : null,
       disputedCount: disputedItems.length,
+      unanimousFailCount,
+      disputedFailCount,
     },
     scenarios,
     hookStringLint: runData.hookStringLint ?? null,
@@ -234,10 +252,11 @@ export function buildCompactSummary(runData) {
 export function renderMarkdownReport(summary) {
   const m = summary.metadata ?? {};
   const lines = [];
+  const dirtySuffix = m.gitDirty ? " **(dirty)**" : "";
   lines.push(`# Eval Baseline: ${m.label ?? m.gitTag ?? "run"}`);
   lines.push("");
   lines.push(`- **Date:** ${m.date ?? "unknown"}`);
-  lines.push(`- **Git:** \`${m.gitCommit ?? "unknown"}\` (${m.gitTag ?? "untagged"})`);
+  lines.push(`- **Git:** \`${m.gitCommit ?? "unknown"}\`${dirtySuffix} (${m.gitTag ?? "untagged"})`);
   lines.push(`- **Suite:** \`${m.suite ?? "unknown"}\` | **Trials:** ${m.trials ?? 1}`);
   lines.push(`- **Subject Models:** ${(m.models ?? []).join(", ") || "none"}`);
   lines.push(`- **Judge Panel:** ${(m.judges ?? []).join(", ") || "none"}`);
@@ -253,21 +272,44 @@ export function renderMarkdownReport(summary) {
   }
   lines.push("");
 
-  // Overall tier summary
+  // Overall tier summary (split into Deterministic Invariants vs. Behavioral Rubrics)
   const ov = summary.overall?.tiers ?? {};
+  const ovDet = summary.overall?.deterministicTiers ?? null;
+  const ovRub = summary.overall?.rubricTiers ?? null;
   lines.push("## Overall Summary");
   lines.push("");
-  lines.push("| Tier | Passed | Total | Pass Rate |");
-  lines.push("| --- | ---: | ---: | ---: |");
-  for (const tier of ["hard", "target", "soft"]) {
-    const t = ov[tier] ?? { passed: 0, total: 0, passRate: null };
-    lines.push(`| \`${tier}\` | ${t.passed} | ${t.total} | ${formatPct(t.passRate)} |`);
+  if (ovDet && ovRub) {
+    lines.push("| Tier | Deterministic (Safety/Contract) | Rubric (Behavior) | Combined |");
+    lines.push("| --- | ---: | ---: | ---: |");
+    for (const tier of ["hard", "target", "soft"]) {
+      const d = ovDet[tier] ?? { passed: 0, total: 0, passRate: null };
+      const r = ovRub[tier] ?? { passed: 0, total: 0, passRate: null };
+      const c = ov[tier] ?? { passed: 0, total: 0, passRate: null };
+      const fmtCell = (x) => (x.total ? `${formatPct(x.passRate)} (${x.passed}/${x.total})` : "—");
+      lines.push(`| \`${tier}\` | ${fmtCell(d)} | ${fmtCell(r)} | ${fmtCell(c)} |`);
+    }
+  } else {
+    lines.push("| Tier | Passed | Total | Pass Rate |");
+    lines.push("| --- | ---: | ---: | ---: |");
+    for (const tier of ["hard", "target", "soft"]) {
+      const t = ov[tier] ?? { passed: 0, total: 0, passRate: null };
+      lines.push(`| \`${tier}\` | ${t.passed} | ${t.total} | ${formatPct(t.passRate)} |`);
+    }
   }
+  const metaNotes = [];
   if (summary.overall?.agreementRate !== null && summary.overall?.agreementRate !== undefined) {
-    lines.push("");
-    lines.push(
-      `Inter-judge agreement: **${formatPct(summary.overall.agreementRate)}** (${summary.overall.disputedCount ?? 0} disputed rubric item(s)).`,
+    metaNotes.push(
+      `Inter-judge agreement: **${formatPct(summary.overall.agreementRate)}** (${summary.overall.disputedCount ?? 0} disputed rubric item(s))`,
     );
+  }
+  if (typeof summary.overall?.unanimousFailCount === "number") {
+    metaNotes.push(
+      `Behavioral failures: **${summary.overall.unanimousFailCount}** unanimous, **${summary.overall.disputedFailCount ?? 0}** disputed`,
+    );
+  }
+  if (metaNotes.length) {
+    lines.push("");
+    lines.push(`${metaNotes.join(" | ")}.`);
   }
   lines.push("");
 
@@ -276,12 +318,18 @@ export function renderMarkdownReport(summary) {
   if (scenarioEntries.length) {
     lines.push("## Behavioral Scenarios");
     lines.push("");
-    lines.push("| Scenario | Model | Hard | Target | Soft | Agreement | Med Words | Guard Fired |");
-    lines.push("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |");
+    lines.push(
+      "_Note: `Med Words` is an orientation metric (~150–180w guideline, not a failure check). `Guard Fired` is diagnostic (`0/N` = proactive refusal; `>0` = live PreToolUse hook intervened)._",
+    );
+    lines.push("");
+    lines.push("| Scenario | Model | Det Hard | Rub Hard | Target | Soft | Agree | Med Words | Guard Fired |");
+    lines.push("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
     for (const [id, sc] of scenarioEntries) {
       for (const [model, st] of Object.entries(sc.models ?? {})) {
+        const detHard = st.deterministicTiers?.hard?.passRate ?? st.tiers?.hard?.passRate ?? null;
+        const rubHard = st.rubricTiers?.hard?.passRate ?? null;
         lines.push(
-          `| \`${id}\` | ${model} | ${formatPct(st.tiers.hard.passRate)} | ${formatPct(st.tiers.target.passRate)} | ${formatPct(st.tiers.soft.passRate)} | ${formatPct(st.agreementRate)} | ${st.medianWords} | ${st.guardFiredTrials}/${st.trials} |`,
+          `| \`${id}\` | ${model} | ${formatPct(detHard)} | ${formatPct(rubHard)} | ${formatPct(st.tiers.target.passRate)} | ${formatPct(st.tiers.soft.passRate)} | ${formatPct(st.agreementRate)} | ${st.medianWords} | ${st.guardFiredTrials}/${st.trials} |`,
         );
       }
     }
@@ -324,38 +372,86 @@ export function renderMarkdownReport(summary) {
   if ((summary.comprehension ?? []).length) {
     lines.push("## Simulated-Student README Comprehension");
     lines.push("");
-    lines.push("| Exercise | Model | Checks Passed | Confusions Reported |");
-    lines.push("| --- | --- | ---: | ---: |");
+    lines.push("| Exercise | Model | Checks Passed | Contradictions | Total Confusions |");
+    lines.push("| --- | --- | ---: | ---: | ---: |");
     for (const c of summary.comprehension) {
       const passed = (c.checks ?? []).filter((x) => x.pass).length;
       const total = (c.checks ?? []).length;
-      lines.push(`| \`${c.exercise}\` | ${c.model} | ${passed}/${total} | ${c.confusionsCount} |`);
+      const contradictions =
+        typeof c.contradictionsCount === "number" ? c.contradictionsCount : "—";
+      lines.push(
+        `| \`${c.exercise}\` | ${c.model} | ${passed}/${total} | ${contradictions} | ${c.confusionsCount} |`,
+      );
+    }
+    const highlightedConfusions = [];
+    for (const c of summary.comprehension) {
+      const severe = (c.confusions ?? []).filter((cf) => cf.severity === "contradiction");
+      const list = severe.length ? severe : (c.confusions ?? []).slice(0, 1);
+      for (const cf of list.slice(0, 2)) {
+        highlightedConfusions.push({
+          exercise: c.exercise,
+          model: c.model,
+          severity: cf.severity ?? "unclear",
+          quote: cf.quote,
+          issue: cf.issue,
+        });
+      }
+    }
+    if (highlightedConfusions.length) {
+      lines.push("");
+      lines.push("### Notable README Confusions");
+      lines.push("");
+      for (const cf of highlightedConfusions.slice(0, 20)) {
+        lines.push(`- \`${cf.exercise}\` (${cf.model}) [\`${cf.severity}\`] "${cf.quote}": ${cf.issue}`);
+      }
     }
     lines.push("");
   }
 
-  // Highlighted failures & disputes (hard -> target -> soft, with truncation notice)
+  // Highlighted failures: separate Unanimous Failures from Disputed 1:1 Splits
   if ((summary.failedChecks ?? []).length) {
     const tierOrder = { hard: 0, target: 1, soft: 2 };
-    const sortedFailures = [...summary.failedChecks].sort(
-      (a, b) => (tierOrder[a.tier] ?? 9) - (tierOrder[b.tier] ?? 9),
-    );
-    const maxListed = 40;
-    lines.push("## Highlighted Behavioral Failures");
-    lines.push("");
-    for (const f of sortedFailures.slice(0, maxListed)) {
-      const disp = f.disputed ? " *(disputed)*" : "";
-      lines.push(
-        `- \`${f.scenarioId}\` (${f.model}, trial ${f.trial}) [\`${f.tier}\` / ${f.source}] \`${f.id}\`${disp}: ${f.detail}`,
-      );
-    }
-    if (sortedFailures.length > maxListed) {
+    const sortByTier = (list) =>
+      [...list].sort((a, b) => (tierOrder[a.tier] ?? 9) - (tierOrder[b.tier] ?? 9));
+
+    const unanimous = sortByTier(summary.failedChecks.filter((f) => !f.disputed));
+    const disputed = sortByTier(summary.failedChecks.filter((f) => Boolean(f.disputed)));
+
+    if (unanimous.length) {
+      const maxListed = 30;
+      lines.push("## Unanimous Behavioral Failures");
       lines.push("");
-      lines.push(
-        `> _Showing ${maxListed} of ${sortedFailures.length} failed checks (sorted by tier: hard → target → soft). See the JSON summary for the complete list._`,
-      );
+      for (const f of unanimous.slice(0, maxListed)) {
+        lines.push(
+          `- \`${f.scenarioId}\` (${f.model}, trial ${f.trial}) [\`${f.tier}\` / ${f.source}] \`${f.id}\`: ${f.detail}`,
+        );
+      }
+      if (unanimous.length > maxListed) {
+        lines.push("");
+        lines.push(
+          `> _Showing ${maxListed} of ${unanimous.length} unanimous failures (sorted by tier: hard → target → soft). See the JSON summary for the complete list._`,
+        );
+      }
+      lines.push("");
     }
-    lines.push("");
+
+    if (disputed.length) {
+      const maxDisputed = 20;
+      lines.push("## Disputed Judge Splits (1:1)");
+      lines.push("");
+      for (const f of disputed.slice(0, maxDisputed)) {
+        lines.push(
+          `- \`${f.scenarioId}\` (${f.model}, trial ${f.trial}) [\`${f.tier}\` / ${f.source}] \`${f.id}\` *(disputed)*: ${f.detail}`,
+        );
+      }
+      if (disputed.length > maxDisputed) {
+        lines.push("");
+        lines.push(
+          `> _Showing ${maxDisputed} of ${disputed.length} disputed splits. See the JSON summary for the complete list._`,
+        );
+      }
+      lines.push("");
+    }
   }
 
   return `${lines.join("\n").trim()}\n`;
@@ -367,17 +463,28 @@ export function renderMarkdownReport(summary) {
 export function renderTerminalSummary(summary) {
   const lines = [];
   const ov = summary.overall?.tiers ?? {};
+  const ovDet = summary.overall?.deterministicTiers ?? null;
+  const ovRub = summary.overall?.rubricTiers ?? null;
+  const dirtyTag = summary.metadata?.gitDirty ? " [DIRTY]" : "";
   lines.push(
-    `\n=== Eval Summary (${summary.metadata?.label ?? summary.metadata?.suite ?? "run"}) ===`,
+    `\n=== Eval Summary (${summary.metadata?.label ?? summary.metadata?.suite ?? "run"}${dirtyTag}) ===`,
   );
-  lines.push(
-    `Overall: hard=${formatPct(ov.hard?.passRate)} (${ov.hard?.passed ?? 0}/${ov.hard?.total ?? 0}) | target=${formatPct(ov.target?.passRate)} (${ov.target?.passed ?? 0}/${ov.target?.total ?? 0}) | soft=${formatPct(ov.soft?.passRate)} (${ov.soft?.passed ?? 0}/${ov.soft?.total ?? 0}) | judge-agree=${formatPct(summary.overall?.agreementRate)}`,
-  );
+  if (ovDet && ovRub) {
+    lines.push(
+      `Overall: det-hard=${formatPct(ovDet.hard?.passRate)} (${ovDet.hard?.passed ?? 0}/${ovDet.hard?.total ?? 0}) | rub-hard=${formatPct(ovRub.hard?.passRate)} (${ovRub.hard?.passed ?? 0}/${ovRub.hard?.total ?? 0}) | target=${formatPct(ov.target?.passRate)} (${ov.target?.passed ?? 0}/${ov.target?.total ?? 0}) | soft=${formatPct(ov.soft?.passRate)} (${ov.soft?.passed ?? 0}/${ov.soft?.total ?? 0}) | judge-agree=${formatPct(summary.overall?.agreementRate)}`,
+    );
+  } else {
+    lines.push(
+      `Overall: hard=${formatPct(ov.hard?.passRate)} (${ov.hard?.passed ?? 0}/${ov.hard?.total ?? 0}) | target=${formatPct(ov.target?.passRate)} (${ov.target?.passed ?? 0}/${ov.target?.total ?? 0}) | soft=${formatPct(ov.soft?.passRate)} (${ov.soft?.passed ?? 0}/${ov.soft?.total ?? 0}) | judge-agree=${formatPct(summary.overall?.agreementRate)}`,
+    );
+  }
 
   for (const [id, sc] of Object.entries(summary.scenarios ?? {})) {
     for (const [model, st] of Object.entries(sc.models ?? {})) {
+      const detHard = st.deterministicTiers?.hard?.passRate ?? st.tiers?.hard?.passRate ?? null;
+      const rubHard = st.rubricTiers?.hard?.passRate ?? null;
       lines.push(
-        `  ${id.padEnd(28)} ${model.padEnd(7)} hard=${formatPct(st.tiers.hard.passRate).padStart(4)}  target=${formatPct(st.tiers.target.passRate).padStart(4)}  soft=${formatPct(st.tiers.soft.passRate).padStart(4)}  words=${String(st.medianWords).padStart(3)}  agree=${formatPct(st.agreementRate).padStart(4)}`,
+        `  ${id.padEnd(28)} ${model.padEnd(7)} det=${formatPct(detHard).padStart(4)}  rub=${formatPct(rubHard).padStart(4)}  target=${formatPct(st.tiers.target.passRate).padStart(4)}  soft=${formatPct(st.tiers.soft.passRate).padStart(4)}  words=${String(st.medianWords).padStart(3)}  agree=${formatPct(st.agreementRate).padStart(4)}`,
       );
     }
   }
