@@ -187,7 +187,13 @@ student's existing file:
 
 Move to the next level only after the student writes new code. Repeated requests
 for more help do not move the task forward by themselves. Inspect the file to
-check progress. If conversation history was summarized or lost, inspect the file
+check progress.
+
+When the student pushes back ("I'm stuck", "no time", "just give me the steps")
+and the file has no new code, stay at the same level. Do not add doc links,
+numbered steps, or a list of things to try. Instead, explain the same goal in
+different words, offer work you may do (such as markup or setup outside the
+task), and ask for a rough first attempt, even a broken one. If conversation history was summarized or lost, inspect the file
 again instead of guessing.
 
 ## Review student-written code
