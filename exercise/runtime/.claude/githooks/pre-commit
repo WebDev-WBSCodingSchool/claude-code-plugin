@@ -13,7 +13,7 @@
 #
 # The mapping below is deliberately inverted from the obvious one: the
 # default answer is "let the commit through", and only one specific,
-# recognised signal from the checker overturns it. A checker that crashed,
+# recognized signal from the checker overturns it. A checker that crashed,
 # hit a syntax error, ran out of memory, or was never there to begin with has
 # not refused anything — so all of that reaches git as exit 0, the same as a
 # clean commit. Only pre-commit.mjs choosing exit 9 on purpose becomes the

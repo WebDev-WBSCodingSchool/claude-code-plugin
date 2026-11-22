@@ -107,6 +107,46 @@ try {
   const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
   assert.deepEqual(Object.keys(manifest).sort(), ["author", "description", "name", "version"]);
 
+  // #18: every curriculum exercise must appear in root README.md table in order
+  const rootReadme = readFileSync(resolve(pluginRoot, "..", "README.md"), "utf8");
+  let lastReadmePos = -1;
+  for (const id of curriculum) {
+    const marker = `\`${id}\``;
+    const idx = rootReadme.indexOf(marker);
+    assert.notEqual(idx, -1, `root README.md is missing curriculum exercise ${id}`);
+    assert.ok(idx > lastReadmePos, `root README.md lists ${id} out of curriculum order`);
+    lastReadmePos = idx;
+  }
+
+  // Validate marketplace, plugin manifests, and skill/agent frontmatter
+  const repoRoot = resolve(pluginRoot, "..");
+  const marketplace = JSON.parse(readFileSync(join(repoRoot, ".claude-plugin", "marketplace.json"), "utf8"));
+  assert.ok(marketplace.name && Array.isArray(marketplace.plugins) && marketplace.plugins.length >= 2);
+  for (const entry of marketplace.plugins) {
+    const manifestPath = join(repoRoot, entry.source, ".claude-plugin", "plugin.json");
+    const m = JSON.parse(readFileSync(manifestPath, "utf8"));
+    assert.equal(m.name, entry.name);
+    assert.match(m.version, /^\d+\.\d+\.\d+$/);
+    assert.ok(m.description && m.author?.name);
+  }
+  for (const dir of [
+    ...readdirSync(join(pluginRoot, "skills"), { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => join(pluginRoot, "skills", d.name, "SKILL.md")),
+    ...readdirSync(join(pluginRoot, "agents"))
+      .filter((f) => f.endsWith(".md"))
+      .map((f) => join(pluginRoot, "agents", f)),
+    ...readdirSync(join(repoRoot, "instructor", "skills"), { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => join(repoRoot, "instructor", "skills", d.name, "SKILL.md")),
+  ]) {
+    const md = readFileSync(dir, "utf8");
+    const fm = md.match(/^---\n([\s\S]*?)\n---/);
+    assert.ok(fm, `Missing YAML frontmatter in ${dir}`);
+    assert.match(fm[1], /^name:\s+\S+/m, `Missing name in ${dir}`);
+    assert.match(fm[1], /^description:\s+\S+/m, `Missing description in ${dir}`);
+  }
+
   const rejected = spawnSync(process.execPath, [setup, "setup", "not-an-exercise"], {
     cwd: scratch,
     encoding: "utf8",

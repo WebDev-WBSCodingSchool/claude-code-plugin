@@ -4,7 +4,7 @@
 
 
 // ─── FR015 · Journal page display ────────────────────────────────────────────
-// Read the favourites back out of localStorage and list them: image, title,
+// Read the favorites back out of localStorage and list them: image, title,
 // info. Think about what this page should say when there aren't any yet.
 
 

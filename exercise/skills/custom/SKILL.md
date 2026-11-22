@@ -1,24 +1,23 @@
 ---
 name: custom
-description: Create a custom practice exercise from what the student wants to practise, with a contract file and a light AI tutor that leaves the practised parts to the student. Use when the student wants to practise a topic of their own choosing rather than a packaged WBS exercise.
+description: Create a custom practice exercise from what the student wants to practice, with a contract file and a light AI tutor that leaves the practiced parts to the student. Use when the student wants to practice a topic of their own choosing rather than a packaged WBS exercise.
 argument-hint: "[topic]"
 ---
 
 # Set up a custom practice exercise
 
-Interview the student about what they want to practise, then write a contract,
+Interview the student about what they want to practice, then write a contract,
 `PRACTICE.md`, and a tutor skill that holds the agent to it. Nothing here is
 enforced by hooks. The contract and the tutor skill are the whole mechanism.
 
 ## Interview
 
 Ask one question per turn and wait for the answer. Reply in the student's
-language. Every question you write is said out loud, so keep notes about how to
-handle an answer out of the question itself.
+language.
 
 Find out, in roughly this order, skipping anything the student already said:
 
-1. What they want to practise, and what they already know about it.
+1. What they want to practice, and what they already know about it.
 2. The language: JavaScript, TypeScript, HTML/CSS, Python or C#.
 3. A small, concrete thing to build that exercises the topic. Offer one or two
    ideas if they have none, sized for an afternoon rather than a project.
@@ -51,13 +50,18 @@ function or section.
 
 Pick the syntax check for the language:
 
-| Language   | Syntax check                      |
-| ---------- | --------------------------------- |
-| JavaScript | `node --check <file>`             |
-| TypeScript | `npx tsc --noEmit <file>`         |
-| Python     | `python3 -m py_compile <file>`    |
-| C#         | `dotnet build`                    |
-| HTML/CSS   | none                              |
+| Language   | Syntax check                   |
+| ---------- | ------------------------------ |
+| JavaScript | `node --check <file>`          |
+| TypeScript | `npx tsc --noEmit`             |
+| Python     | `python3 -m py_compile <file>` |
+| C#         | `dotnet build`                 |
+| HTML/CSS   | none                           |
+
+For TypeScript, use `npx tsc --noEmit` whenever a `tsconfig.json` exists; passing
+an explicit `<file>` argument causes `tsc` to ignore `tsconfig.json` and breaks
+JSX and module settings. Use `npx tsc --noEmit <file>` only when no
+`tsconfig.json` is present.
 
 Show the draft to the student and change it until they accept it.
 
@@ -77,7 +81,9 @@ In the target folder:
    cp "<skill folder>/practice-tutor.md" .claude/skills/practice-tutor/SKILL.md
    ```
 
-4. Append to `CLAUDE.md`, creating it if missing:
+4. Update `CLAUDE.md`, creating it if missing. Only append the block below if
+   `CLAUDE.md` does not already reference both `PRACTICE.md` and
+   `.claude/skills/practice-tutor/SKILL.md`:
 
    ```markdown
    @PRACTICE.md
@@ -86,7 +92,9 @@ In the target folder:
    `.claude/skills/practice-tutor/SKILL.md`.
    ```
 
-5. Append to `AGENTS.md`, creating it if missing:
+5. Update `AGENTS.md`, creating it if missing. Only append the block below if
+   `AGENTS.md` does not already reference both `PRACTICE.md` and
+   `.claude/skills/practice-tutor/SKILL.md`:
 
    ```markdown
    This folder holds a practice exercise. Before answering any request that could

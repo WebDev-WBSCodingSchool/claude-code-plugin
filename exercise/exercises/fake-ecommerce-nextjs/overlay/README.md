@@ -12,8 +12,9 @@ looks like.
 
 ## How you work
 
-1. Run `/onboard`. It puts this repo on GitHub under your account and checks your
-   setup. This step is done when all checks pass.
+1. Run `npm install`, then `/onboard`. `/onboard` puts this repo on GitHub under
+   your account and checks your setup. This step is done when all checks pass
+   and `npm run dev` shows the app.
 2. Pick a task and create a branch for it, for example
    `git switch -c FR001-home-page`.
 3. Write the code, commit it, and explain it to the agent. This step is done when
@@ -53,9 +54,10 @@ URLs, so the code can't go anywhere else:
 - `src/app/layout.tsx` for FR003, FR005, and X2
 - `src/app/cart/page.tsx` for FR006
 
-Your commit for a task must change its file. You decide where everything else goes
-and what it's called, including your components, the cart context, and your helper
-functions.
+Your commit for a task must change its route file (or, for `FR003`, `FR004`,
+`FR005`, and `X2`, any source file under `src/` such as your cart context, navbar,
+or product card component). You decide where everything else goes and what it's
+called, including your components, the cart context, and your helper functions.
 
 ### Things the requirements don't mention
 
@@ -131,71 +133,56 @@ You can ask the agent to help with everything else:
 - features beyond these requirements
 - explaining errors and hydration warnings, and finding answers in the Next.js docs
 
-The agent only acts when you ask it to. An empty file or a finished task list
-doesn't count as a request. Before each code change, it asks you at least one
-question about the change and waits for your answer.
+The agent edits code only when you ask — an empty file or task list isn't a
+request. Whenever placement, scope, naming, or behavior is still open, it asks
+you a question and waits for your answer before editing.
 
-This list also tells you what you could get from a browser chat instead. That's
-intentional. The rules are written down, and following them is your choice.
+These rules are also written down so you know what a regular browser chat could
+give away. Following the workflow here is your choice.
 
 ## Write it, commit it, explain it
 
-When you have written a bold task:
+When you finish a bold task:
 
 1. Write the code.
 2. Commit it with
    `git add <file> && git commit --signoff -m "<task id>: <what it does>"`.
-3. Explain it. The agent asks what your commit does, then up to three short
-   follow-up questions. A large commit gets more questions, a small one fewer.
+3. Explain it. The agent asks what your commit does and up to three short
+   follow-up questions (more for larger commits, fewer for small ones).
 
-Explaining your own code shows you whether you understood it. This is for your own understanding only. It's not graded, or recorded.
+Explaining your code helps you check your own understanding. It's not graded or
+recorded.
 
-Once you have written and explained one piece of a kind of code, the agent may
-write that kind of code with you for the rest of the project. That includes
-features beyond the requirements.
+Once you finish and explain one task for a topic, the agent may write that topic
+with you for the rest of the project, including features beyond the
+requirements.
 
-The agent records each completed task in a file under
-`.claude/harness/progress/`, filed under your git email. Commit that file with your
-work. You can ask the agent at any time which tasks you have completed.
+The agent tracks completed tasks per git email under `.claude/harness/progress/`.
+Commit that file with your work. Ask the agent at any time which tasks you have
+completed.
 
 ### Signing your commits
 
-`git commit --signoff` adds this line to the commit message:
-
-```
-Signed-off-by: Lea Müller <lea.mueller@example.com>
-```
-
-The line says that you wrote the code. Many open-source projects require it.
-Nothing in this repo checks it, but use it on all your own commits, not only on the
-bold tasks.
-
-When the agent wrote a commit or helped with it, the agent adds a
-`Co-Authored-By: Claude …` line instead. With both lines in place, `git log` shows
+`git commit --signoff` adds a `Signed-off-by: Name <email>` line to show you
+wrote the code (use it on all your own commits). When the agent writes or helps
+with a commit, it adds `Co-Authored-By: Claude …` instead so `git log` shows
 who wrote what.
 
 ## Running it
 
-Open this folder in VS Code and start Claude Code here, not in a subfolder. Claude
-Code loads this repo's settings only from the root folder. Without them, the agent
-may write code that you are supposed to write.
+Open this folder at the repository root in VS Code and start Claude Code there
+(not in a subfolder, or hooks and settings won't load). Keep the same git email
+on every machine so your progress stays under one record.
 
-Use the same git email on every computer. The agent stores your progress under that
-email, and work you do under a second email won't count.
+To adjust how the agent talks to you (such as shorter answers or simpler
+language), ask it to save a personal skill in `~/.claude/skills/`. That skill
+cannot change which files or topics stay yours.
 
-To change how the agent talks to you, for example with simpler language or shorter
-answers, tell it, and ask it to save that as a personal skill in
-`~/.claude/skills/`. The skill also applies in your later projects. It doesn't
-change which code you write yourself.
+`.vscode/settings.json` turns off inline ghost-text suggestions, and `README.md`,
+`CLAUDE.md`, `AGENTS.md`, and the `.claude/` setup files are read-only so neither
+you nor the agent edits the rules by mistake. If you use another coding agent
+(Codex, Gemini CLI, Copilot, or Cursor), point it to `AGENTS.md` — only Claude
+Code enforces these rules with hooks.
 
-Some files in this repo are read-only for you and the agent:
-
-- `.vscode/settings.json` turns off inline suggestions, the gray code that tools
-  like Copilot show while you type. Those suggestions write code without you
-  asking for it.
-- `README.md` and `CLAUDE.md` say which code you write yourself and where the
-  agent may help. The agent must not change them.
-
-If you think a requirement is wrong or unclear, talk to your instructor.
-
-You can get around these locks, but they are here to help you to learn.
+If a requirement seems wrong or unclear, talk to your instructor. These locks
+are here to help you learn.

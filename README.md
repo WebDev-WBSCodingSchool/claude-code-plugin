@@ -45,14 +45,15 @@ Set up the movie-diary exercise
 /exercise:setup movie-diary ./my-movie-diary
 ```
 
-| Exercise             | Title                      |
-| -------------------- | -------------------------- |
-| `html`               | From concept to deployment |
-| `tailwind`           | Figma and Tailwind CSS     |
-| `movie-diary`        | Movie Diary                |
-| `personal-diary`     | Personal Diary             |
-| `event-scheduler-js` | Event Scheduler            |
-| `art-explorer`       | Art Institute Explorer     |
+| Exercise                | Title                      |
+| ----------------------- | -------------------------- |
+| `html`                  | From concept to deployment |
+| `tailwind`              | Figma and Tailwind CSS     |
+| `movie-diary`           | Movie Diary                |
+| `personal-diary`        | Personal Diary             |
+| `event-scheduler-js`    | Event Scheduler            |
+| `art-explorer`          | Art Institute Explorer     |
+| `fake-ecommerce-nextjs` | Fake eCommerce Site        |
 
 Then open Claude Code in the new folder and run `/onboard`. It puts the project
 on GitHub and walks you through the start of the assignment.
@@ -60,16 +61,16 @@ on GitHub and walks you through the start of the assignment.
 In a group project, only one member runs setup. The others clone that member's
 GitHub repository and run `/onboard` there.
 
-## Practise your own topic
+## Practice your own topic
 
-To practise something that is not a packaged exercise, run `/exercise:custom`,
+To practice something that is not a packaged exercise, run `/exercise:custom`,
 optionally with the topic:
 
 ```text
 /exercise:custom recursion in Python
 ```
 
-Claude asks what you want to practise, in which language (JavaScript,
+Claude asks what you want to practice, in which language (JavaScript,
 TypeScript, HTML/CSS, Python or C#), which parts you want to write yourself, and
 whether to create a new folder or use the current one. It then writes
 `PRACTICE.md`, the agreement that lists your parts and a few tasks, and a small
@@ -104,7 +105,7 @@ Then pass the link of the lesson page:
 /exercise:lms-chrome https://learn.wbscodingschool.com/courses/.../topic/...
 ```
 
-## Practise your own topic in Codex
+## Practice your own topic in Codex
 
 `/exercise:custom` also works in Codex. The packaged exercises do not yet. To
 install the plugin, run these two commands once:
@@ -123,5 +124,5 @@ codex plugin add exercise@wbs-cs
 ```
 
 To use it, start Codex in the folder where you keep your projects. Type `$`,
-pick `exercise:custom`, and describe what you want to practise. It runs the
+pick `exercise:custom`, and describe what you want to practice. It runs the
 same interview and creates the same files as in Claude Code.

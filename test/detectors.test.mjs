@@ -223,4 +223,22 @@ for (const [category, file, positive, negative] of CASES) {
   }
 }
 
+// A detector without a label leaks its camelCase ID into refusal messages.
+{
+  const hooks = join(pluginRoot, 'runtime', '.claude', 'hooks');
+  const { CATEGORY_LABELS } = await import(join(hooks, 'harness.mjs'));
+  const { denyReason } = await import(join(hooks, 'reason.mjs'));
+  assert.deepEqual(
+    Object.keys(CATEGORY_LABELS).sort(),
+    [...new Set(CASES.map(([category]) => category))].sort(),
+    'every detector needs a CASES row and a CATEGORY_LABELS entry in harness.mjs',
+  );
+
+  const locked = (blocked) => denyReason({ config: { unlockRoute: false }, rel: 'main.js', blocked, open: [] });
+  assert.match(locked(['semanticHtml', 'css']), /Semantic HTML and CSS are the parts.*\*\*Semantic HTML and CSS stay student-written/s);
+  assert.match(locked(['getRequests']), /GET requests are the part.*GET requests stay student-written/s);
+  assert.match(locked(['dom']), /stays student-written/);
+  assert.match(locked(['localStorage']), /"localStorage is the part/);
+}
+
 console.log(`${CASES.length} detector checks passed`);

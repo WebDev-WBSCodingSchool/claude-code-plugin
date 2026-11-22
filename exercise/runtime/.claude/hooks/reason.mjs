@@ -24,6 +24,8 @@
 // message full of instructions about itself primes. Give the agent the sentence
 // instead, then the instructions, and keep the instructions short.
 
+import { categoryLabel, formatCategories, isPluralCategories } from "./harness.mjs";
+
 /**
  * Which tasks would open this category, if the student demonstrated one.
  *
@@ -39,85 +41,45 @@ function routesTo(config, category) {
 }
 
 export function denyReason({ config, rel, blocked, open }) {
-  const what = blocked.join(" and ");
+  const what = formatCategories(blocked);
+  const capWhat = what.startsWith("localStorage") ? what : `${what.charAt(0).toUpperCase()}${what.slice(1)}`;
+  const plural = isPluralCategories(blocked);
+  const verb = plural ? "are" : "is";
+  const parts = blocked.length > 1 ? "parts" : "part";
   const lines = [];
 
-  // The student's line first. Say this, near enough, in their language — then
-  // talk about their code, not about this message.
   lines.push(
-    `Tell them, roughly this and in their language: "${what} is the part of ` +
-      `${rel} you write yourself — that's what this module is for. I'll help you ` +
-      `get there." Then help. Do not apologise, do not retry the write, and do not ` +
-      `route around it — not through Bash, not by asking them to paste your code in.`,
+    `Tell the student in their language: "${capWhat} ${verb} the ${parts} of ${rel} you write yourself — I'll help you get there."`,
   );
 
   lines.push(
-    `Write nothing into this file for the ${what} part — not code, not a comment, ` +
-      `not a marker. Quote lines back in chat instead.`,
+    `Write nothing for ${what} in ${rel} (no code, comments, or pasteable blocks); never apologize, retry, or bypass via Bash.`,
   );
 
   lines.push(
-    `Three kinds of help, in order, starting at the first however long the ` +
-      `session has been running:\n` +
-      `  1. Plain English — what this code has to accomplish, and where it goes.\n` +
-      `  2. The docs — the reference page for the API involved, plus questions.\n` +
-      `  3. A walkthrough — last resort, ordered steps, no syntax.\n` +
-      `You move on only when there is new code on disk. Not when they ask again, ` +
-      `not when they say they are stuck. Look at the file to see where you are ` +
-      `rather than trying to remember.`,
+    `Help levels (inspect ${rel} first; start at the lowest level missing on disk, advance only after new code):\n` +
+      `1. Plain English: goal and location.\n` +
+      `2. Docs + guiding questions.\n` +
+      `3. Steps without syntax (last resort).`,
   );
 
   if (config.unlockRoute === false) {
     lines.push(
-      `**Nothing hands ${what} over to you on this assignment.** The three kinds ` +
-        `of help are not a staging area, they are the whole model for the duration. ` +
-        `Do not imply otherwise and do not hint at a way to earn it. When their code ` +
-        `works, you may *offer* the questions as their own check — what a line does, ` +
-        `why that API, what breaks if X — once, framed as theirs, judging nothing and ` +
-        `recording nothing. If they decline, drop it and do not return to it.`,
+      `**${capWhat} ${plural ? "stay" : "stays"} student-written for the whole assignment** (no unlock or sign-off). When it works, offer unscored understanding questions once as an optional self-check.`,
+    );
+    lines.push(
+      `Open work in README.md stays available: wait for a request and clarify undecided details first.`,
     );
   } else {
     const routes = blocked
-      .map((c) => `  ${c}: ${routesTo(config, c).join(", ") || "no task opens this"}`)
+      .map((c) => `  - ${categoryLabel(c)}: ${routesTo(config, c).join(", ") || "no task opens this"}`)
       .join("\n");
     lines.push(
-      `Say plainly that there is a way through — a refusal without one reads as a ` +
-        `broken tool. They write one of these themselves, commit it with ` +
-        `\`git commit --signoff\`, and talk it through with you:\n${routes}\n` +
-        `Recording it is yours, not theirs: \`node .claude/hooks/signoff.mjs <TASK>\`, ` +
-        `which refuses unless the work is committed and signed off — say that will ` +
-        `happen before you run it, and do not hand them the command. After that you may ` +
-        `write ${what} code with them everywhere, features beyond the core included. ` +
-        `Reviewing a teammate's PR counts too; the script caps it against written ones.`,
+      `Unlock: write one task below, commit (\`git commit --signoff\`), explain the branch diff (1 open + up to 3 unscored MCQs), then run \`node .claude/hooks/signoff.mjs <TASK>\` (checks file, clean tree, commit; PR reviews count 1:1):\n${routes}`,
     );
+    const openList = [...open];
     lines.push(
-      `Four questions at most: one open — "briefly, what does this commit do?" — ` +
-        `then up to three multiple-choice drawn from their own diff, covering what ` +
-        `each line does, why that API rather than another, and what breaks if a piece ` +
-        `changes. Nothing scored, no tally. A thin answer earns one more question, ` +
-        `never a verdict.`,
-    );
-  }
-
-  // The open set does not shrink because the gated set is closed, and on a
-  // no-unlock assignment it does not shrink either. Say what is available, so a
-  // block does not read as the agent having been switched off.
-  if (config.unlockRoute === false) {
-    lines.push(
-      `The student may still ask for help with anything outside this assignment's ` +
-        `learning goal. README.md says what. Wait for an explicit request, ask a ` +
-        `project-specific question, and wait for the answer before editing code.`,
-    );
-  } else {
-    lines.push(
-      open.size
-        ? `This student has already signed off: ${[...open].join(", ")}. The write ` +
-            `check no longer blocks those categories. That is not a request to edit ` +
-            `them. Wait for an explicit request, ask a project-specific question, ` +
-            `and wait for the answer before editing code.`
-        : `This student has signed nothing off yet. They may still ask for help with ` +
-            `code this assignment does not protect. README.md says what. Wait for ` +
-            `their request and ask a project-specific question before editing.`,
+      `${openList.length ? `Unlocked: ${formatCategories(openList)}.` : `None unlocked yet.`} For open work in README.md, wait for a request and clarify undecided details first.`,
     );
   }
 

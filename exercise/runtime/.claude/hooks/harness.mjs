@@ -90,13 +90,57 @@ export function lockedAs(config, rel) {
 }
 
 /**
+ * Human-readable labels for detector categories in `guard.mjs`.
+ * Kept alongside the hooks so refusal messages, status output, and signoff
+ * messages never leak raw camelCase keys to students.
+ */
+export const CATEGORY_LABELS = {
+  fetch: { label: "data fetching", plural: false },
+  getRequests: { label: "GET requests", plural: true },
+  postRequests: { label: "POST requests", plural: true },
+  putRequests: { label: "PUT requests", plural: true },
+  deleteRequests: { label: "DELETE requests", plural: true },
+  dom: { label: "DOM manipulation", plural: false },
+  localStorage: { label: "localStorage", plural: false },
+  reactRendering: { label: "React component rendering", plural: false },
+  reactState: { label: "React state", plural: false },
+  reactEffects: { label: "React effects", plural: true },
+  clientComponents: { label: "Client Components", plural: true },
+  reactContext: { label: "React Context", plural: false },
+  reactRouting: { label: "React Router navigation", plural: false },
+  errorHandling: { label: "error handling", plural: false },
+  frontendAuth: { label: "frontend authentication", plural: false },
+  typedReact: { label: "TypeScript annotations", plural: true },
+  runtimeValidation: { label: "runtime validation", plural: false },
+  semanticHtml: { label: "semantic HTML", plural: false },
+  css: { label: "CSS", plural: false },
+  tailwindStyling: { label: "Tailwind styling", plural: false },
+  esModules: { label: "ES modules", plural: true },
+  viteConfig: { label: "Vite configuration", plural: false },
+};
+
+const LIST_FORMAT = new Intl.ListFormat("en", { style: "long", type: "conjunction" });
+
+export function categoryLabel(id) {
+  return CATEGORY_LABELS[id]?.label ?? id;
+}
+
+export function formatCategories(ids) {
+  return LIST_FORMAT.format(ids.map(categoryLabel));
+}
+
+export function isPluralCategories(ids) {
+  return ids.length > 1 || Boolean(CATEGORY_LABELS[ids[0]]?.plural);
+}
+
+/**
  * Every locked path, both lists, for the shell-side check.
  *
  * The exceptions are NOT subtracted here: the shell check is a coarse "does this
  * command write into locked territory", and a command can name several paths at
  * once. Over-blocking a `cp` into an exempt skill directory is a nuisance the
  * student can work around with Write; under-blocking is a hole. The file-tool
- * guard, which sees exactly one path, is where the exception is honoured.
+ * guard, which sees exactly one path, is where the exception is honored.
  */
 export function lockedPaths(config) {
   return [...(config.neverWritable ?? []), ...(config.canonical ?? [])];
@@ -146,7 +190,7 @@ const HAS_EMAIL = new RegExp(EMAIL_RE, "i");
  * claim on its own, first occurrence or not.
  *
  * This exists for the shape a group writes when nobody told them otherwise: one
- * who-does-what table, `| Priya | priya.n@mail.com | FR009 fetch, FR012 favourites |`,
+ * who-does-what table, `| Priya | priya.n@mail.com | FR009 fetch, FR012 favorites |`,
  * where everyone appears exactly once and the plain count rule would block a group
  * that planned fine. A member table stays a member table — `| Lena | lena.b@mail.de |`
  * has one other cell, not two.
@@ -284,13 +328,10 @@ export function taskLines(text) {
 }
 
 const PLAN_FIX =
-  "Give them a task line — their name or their address, either reads — or take " +
-  "them out of the member list if they are not on this project. Nothing to re-run: " +
-  "`PLAN.md` is read again on the next write.";
+  "Give them a task line — their name or their address — or remove them from " +
+  "the member list if they are not on this project. `PLAN.md` is re-read on the next write.";
 
-const PLAN_TAIL =
-  "Until then I'm not writing code for anyone in this group: the plan is the " +
-  "group's, so this is too.";
+const PLAN_TAIL = "Fix that line before requesting code changes for the group.";
 
 /**
  * The message the gate produces when it is shut. This is the single most important
@@ -322,11 +363,9 @@ export function planBlock(text /* null when PLAN.md is absent */, plan = "PLAN.m
 
   if (people.length === 0) {
     return (
-      `\`${plan}\` exists but contains no email addresses, so I can't tell who is on ` +
-      `this project or who is doing what. Each member's **git** email — the one ` +
-      `\`git config user.email\` prints — goes in the member list. On the tasks, your ` +
-      `name is enough. That address is how your progress gets filed, so it has to be ` +
-      `the git one, not a nicer one.`
+      `\`${plan}\` exists but contains no email addresses. List each member's **git** email ` +
+      `(\`git config user.email\`) in the member list — progress is stored under that address — ` +
+      `and put a name or email on each task line.`
     );
   }
 
