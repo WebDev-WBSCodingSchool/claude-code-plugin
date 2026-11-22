@@ -20,7 +20,9 @@ import { loadConfig, lockedPaths } from "./harness.mjs";
 // Eval flags, heredocs/here-strings, and piped stdin execution: no legitimate use
 // in this project, and the canonical bypasses.
 const EVAL = /\b(node|deno|bun|python3?|perl|ruby)\b[^|;&\n]*(?:\s(?:-e|--eval|-p|--print|-c)\b|<<)/;
-const PIPED_INTERPRETER = /\|\s*(?:node|deno|bun|python3?|perl|ruby)(?:\s+-)?(?=\s*(?:[|;&\n]|$))/;
+// Flags only (`| node --input-type=module`, `| python3 -u -`): a script path
+// after the interpreter is a real program reading stdin, not piped code.
+const PIPED_INTERPRETER = /\|\s*(?:node|deno|bun|python3?|perl|ruby)(?:\s+-[^\s|;&\n]*)*(?=\s*(?:[|;&\n]|$))/;
 
 function writesInto(command, exts) {
   const e = exts.map((x) => x.replace(".", "\\.")).join("|");
@@ -57,17 +59,25 @@ function writesIntoLocked(command, locked) {
   // Directory entries (e.g. ".claude/hooks/", ".claude/githooks/") match both the
   // directory itself (e.g. `rm -rf .claude/githooks`) and anything beneath it.
   // Allow arbitrary path prefixes (/abs/path/, $PWD/, ./) and quotes around targets.
-  const targets = locked
-    .map((p) => {
-      const clean = p.replace(/\\/g, "/");
-      return clean.endsWith("/")
-        ? `${esc(clean.slice(0, -1))}(?:/[^\\s|;&"'<>]*)?`
-        : esc(clean);
-    })
-    .join("|");
-  if (!targets) return false;
-  const unquotedTarget = String.raw`(?:[^\s|;&"'<>]*/)?(?:${targets})(?=[\s|;&<>]|$)`;
-  const quotedTarget = (q) => String.raw`${q}(?:[^${q}\n]*/)?(?:${targets})${q}`;
+  // Either separator: a quoted Windows path keeps its backslashes.
+  const SEP = String.raw`[/\\]`;
+  const pathRe = (s) => esc(s).replace(/\//g, SEP);
+  const parents = new Set();
+  const targets = locked.map((p) => {
+    const clean = p.replace(/\\/g, "/").replace(/^\.\//, "");
+    // Parents of a locked path (`.claude` for `.claude/hooks/`): `rm -rf .claude`
+    // or `mv .claude x` takes every locked file beneath it along.
+    const parts = clean.replace(/\/$/, "").split("/");
+    for (let i = 1; i < parts.length; i++) parents.add(parts.slice(0, i).join("/"));
+    return clean.endsWith("/")
+      ? `${pathRe(clean.slice(0, -1))}(?:${SEP}[^\\s|;&"'<>]*)?`
+      : pathRe(clean);
+  });
+  for (const dir of parents) if (dir && dir !== ".") targets.push(`${pathRe(dir)}${SEP}?`);
+  if (!targets.length) return false;
+  const alternatives = targets.join("|");
+  const unquotedTarget = String.raw`(?:[^\s|;&"'<>]*${SEP})?(?:${alternatives})(?=[\s|;&<>]|$)`;
+  const quotedTarget = (q) => String.raw`${q}(?:[^${q}\n]*${SEP})?(?:${alternatives})${q}`;
   const target = String.raw`(?:${quotedTarget('"')}|${quotedTarget("'")}|${unquotedTarget})`;
 
   return [

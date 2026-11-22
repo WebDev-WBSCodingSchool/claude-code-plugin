@@ -44,6 +44,17 @@ const cases = [
   ["node <<EOF\nconsole.log(1)\nEOF", true],
   ["python3 <<'EOF'\nopen('main.js','w').write('x')\nEOF", true],
   ['echo "console.log(1)" | node', true],
+  // Parents of locked paths, piped interpreters with flags, quoted Windows separators
+  ["rm -rf .claude", true],
+  ["rm -rf ./.claude/", true],
+  ["mv .claude .claude-bak", true],
+  ["mv .vscode /tmp/x", true],
+  ['echo "x" | node --input-type=module', true],
+  ['echo "x" | python3 -u -', true],
+  ["rm '.claude\\hooks\\guard.mjs'", true],
+  ["ls .claude", false],
+  ["rm -rf .claude-old", false],
+  ["cat data.json | node scripts/report.mjs", false],
 ];
 
 try {

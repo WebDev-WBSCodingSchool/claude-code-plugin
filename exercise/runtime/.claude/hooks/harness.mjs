@@ -41,7 +41,7 @@ export function relPath(p) {
     .join("/");
 }
 
-function normalizeRel(p) {
+export function normalizeRel(p) {
   return String(p ?? "")
     .replace(/\\/g, "/")
     .replace(/^\.\//, "")

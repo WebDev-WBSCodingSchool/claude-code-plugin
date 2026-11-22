@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { delimiter, join, resolve } from "node:path";
+import { basename, delimiter, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 
@@ -125,6 +125,26 @@ try {
   assert.equal(timedOut.status, 0, timedOut.stderr);
   assert.match(timedOut.stderr, /could not apply security fixes/);
   assert.ok(elapsedMs < 3000, `Expected audit timeout to fall back quickly, took ${elapsedMs}ms`);
+
+  // #23: a clean clone has no runtime/.git, so plant one in a copy of the plugin
+  // and check setup still starts a fresh single-commit repo instead of copying it.
+  const pluginCopy = join(scratch, "plugin-with-git");
+  cpSync(pluginRoot, pluginCopy, { recursive: true, filter: (src) => basename(src) !== ".git" });
+  const runtimeCopy = join(pluginCopy, "runtime");
+  const gitArgs = ["-c", "user.name=T", "-c", "user.email=t@example.com", "-c", "commit.gpgsign=false"];
+  execFileSync("git", ["init", "-q"], { cwd: runtimeCopy });
+  execFileSync("git", ["add", "--all"], { cwd: runtimeCopy });
+  execFileSync("git", [...gitArgs, "commit", "-q", "-m", "one"], { cwd: runtimeCopy });
+  execFileSync("git", [...gitArgs, "commit", "-q", "--allow-empty", "-m", "two"], { cwd: runtimeCopy });
+  const gitTarget = join(scratch, "runtime-git-check");
+  execFileSync(process.execPath, [join(pluginCopy, "scripts", "setup.mjs"), "setup", "personal-diary", gitTarget], {
+    stdio: "pipe", env,
+  });
+  assert.equal(
+    execFileSync("git", ["rev-list", "--count", "HEAD"], { cwd: gitTarget, encoding: "utf8" }).trim(),
+    "1",
+    "setup inherited runtime/.git history",
+  );
 
   console.log(`${exerciseIds.length} setup integration checks passed`);
 } finally {

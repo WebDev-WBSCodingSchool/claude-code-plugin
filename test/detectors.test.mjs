@@ -21,6 +21,8 @@ const CASES = [
   ['getRequests', 'main.js', 'fetch(BASE + "/events")', 'const getRequests = []'],
   ['getRequests', 'main.js', 'fetch(buildUrl())', 'function fetchData() {}'],
   ['getRequests', 'main.js', 'fetch(url, { cache: "no-store" });\nfetch(url, { method: "POST" });', 'fetch(url, { method: "POST" })'],
+  ['getRequests', 'main.js', 'fetch(\n  "/api",\n)', 'fetch(url, {\n  // create\n  method: "POST",\n})'],
+  ['getRequests', 'main.js', 'fetch(url, { method: "GET" /* read */ })', 'fetch(url, {\n  /* spread */\n  ...opts,\n})'],
   ['postRequests', 'main.js', 'fetch("/api", { method: "POST" })', 'fetch("/api")'],
   ['putRequests', 'main.js', 'fetch("/api", { method: "PUT" })', 'fetch("/api")'],
   ['deleteRequests', 'main.js', 'fetch("/api", { method: "DELETE" })', 'fetch("/api")'],
@@ -62,6 +64,9 @@ const CASES = [
   ['tailwindStyling', 'App.jsx', '<div className={`flex gap-4 ${active ? "bg-blue-500" : ""}`}>', '<div className={`card ${active ? "card-active" : ""}`}>'],
   ['tailwindStyling', 'App.jsx', '<div className={`md:grid ${open ? "block" : "hidden"}`}>', 'const classes = `flex gap-4`'],
   ['tailwindStyling', 'App.jsx', '<div className={active ? "flex" : "hidden"}>', '<div className={`card ${active ? "card-active" : ""}`}>'],
+  ['tailwindStyling', 'index.html', '<div class="\n  flex\n  gap-4\n">', '<div class="\n  card\n">'],
+  ['tailwindStyling', 'App.jsx', '<div className={\n  active ? "flex" : "hidden"\n} />', '<div className={`card ${hidden ? "card-off" : "card-on"}`} />'],
+  ['tailwindStyling', 'App.jsx', '<div className={`${base} flex`} />', '<div className={`${fixed} card`} />'],
   ['esModules', 'main.js', 'import { render } from "./render.js"', 'let exportButton = null'],
   ['viteConfig', 'vite.config.js', 'defineConfig({})', 'const config = { input: "main.js" }'],
 ];
@@ -163,6 +168,18 @@ for (const [category, file, positive, negative] of CASES) {
       true,
       'multi-line split-edit completing fetch("/api") was not caught',
     );
+
+    // 5. Deletion-only edit joining `fet\nch(` into `fetch(` must be denied
+    writeFileSync(join(repo, 'App.jsx'), 'fet\nch("/api");\n');
+    assert.equal(deniedEdit(repo, 'App.jsx', 'fet\n', 'fet'), true, 'newline deletion joining fetch( was not caught');
+
+    // 6. Deleting `method: "POST"` turns the call into a GET and must be denied
+    writeFileSync(join(repo, 'App.jsx'), 'fetch("/api", {\n  method: "POST",\n  cache: "no-store",\n});\n');
+    assert.equal(deniedEdit(repo, 'App.jsx', '  method: "POST",\n', ''), true, 'deleting method: POST was not caught');
+
+    // 7. Deleting a line between existing gated lines must still be allowed
+    writeFileSync(join(repo, 'App.jsx'), 'const [a, setA] = useState(0);\n// remove me\nconst [b, setB] = useState(1);\n');
+    assert.equal(deniedEdit(repo, 'App.jsx', '// remove me\n', ''), false, 'deleting a comment next to useState was blocked');
   } finally {
     rmSync(repo, { recursive: true, force: true });
   }

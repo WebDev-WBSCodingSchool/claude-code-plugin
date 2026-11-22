@@ -29,6 +29,7 @@ import {
   readProgress,
   demonstrated,
   lockedAs,
+  normalizeRel,
   planFile,
   onboardingBlock,
   branchState,
@@ -144,15 +145,18 @@ function isGetOptions(optsText) {
   if (!props) return false;
   let hasMethod = false;
   let methodIsGet = false;
+  // splitTopLevel skips comments while splitting but keeps them in each slice,
+  // so `// create\n method: "POST"` must lose its comment before the checks below.
+  const comments = String.raw`(?:\s|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*`;
   for (const rawProp of props) {
-    const prop = rawProp.trim();
+    const prop = rawProp.replace(new RegExp(`^${comments}`), "");
     if (!prop) continue;
     if (prop.startsWith("...")) return false;
     const match = prop.match(/^(?:["']method["']|method(?=\s*(?::|$)))\s*(:)?([\s\S]*)$/);
     if (match) {
       hasMethod = true;
       if (!match[1]) return false;
-      methodIsGet = /^["'`]GET["'`]$/i.test(match[2].trim());
+      methodIsGet = /^["'`]GET["'`]$/i.test(match[2].replace(new RegExp(`${comments}$`), "").trim());
     }
   }
   return !hasMethod || methodIsGet;
@@ -165,6 +169,8 @@ function hasGetFetch(text) {
     const openIdx = match.index + match[0].length - 1;
     const args = splitTopLevel(text, openIdx, ")");
     if (!args) continue;
+    // A trailing comma (Prettier's multiline style) leaves an empty last slice.
+    if (args.length > 1 && args.at(-1).trim() === "") args.pop();
     if (args.length === 1 && args[0].trim() !== "") return true;
     if (args.length >= 2 && isGetOptions(args[1])) return true;
   }
@@ -175,6 +181,8 @@ const TW_VARIANTS =
   "(?:sm|md|lg|xl|2xl|hover|focus|focus-within|focus-visible|active|disabled|checked|dark|first|last|odd|even|group-hover|peer-focus|motion-safe|motion-reduce|print)";
 const TW_UTILITIES =
   "(?:flex|inline-flex|grid|inline-grid|block|inline-block|hidden|absolute|relative|fixed|sticky|mx-auto|items-\\w+|justify-\\w+|self-\\w+|gap-[\\d.]|space-[xy]-[\\d.]|grid-cols-\\d|col-span-\\d|row-span-\\d|[mp][xytrbl]?-[\\d.]|w-[\\w./]|h-[\\w./]|max-w-\\w|min-w-\\w|max-h-\\w|min-h-\\w|text-\\w+|font-\\w+|leading-\\w+|tracking-\\w+|bg-\\w+|border-\\w|rounded[\\w-]*|shadow[\\w-]*|opacity-\\d|z-\\d|overflow-\\w+|object-\\w+|transition[\\w-]*|duration-\\d|ease-\\w+|cursor-\\w+)";
+// Template-literal body: any char, a lone `$`, or a whole `${...}` skipped as a unit.
+const TW_TEMPLATE = String.raw`(?:[^\`$]|\$(?!\{)|\$\{[^}\`]*\}){0,400}?`;
 
 const DETECTORS = {
   fetch: [
@@ -405,10 +413,13 @@ const DETECTORS = {
   tailwindStyling: [
     // A variant prefix or core utility inside a class / className attribute
     // (straight quotes, JSX template literals, or JSX braced expressions).
-    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"\n]{0,400}?|'[^'\n]{0,400}?|\{\s*\`[^\`]{0,400}?)\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
-    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"\n]{0,400}?|'[^'\n]{0,400}?|\{\s*\`[^\`]{0,400}?)\b${TW_UTILITIES}\b`, "i"),
-    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}\n]{0,400}?(?:"[^"\n]{0,400}?|'[^'\n]{0,400}?)\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
-    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}\n]{0,400}?(?:"[^"\n]{0,400}?|'[^'\n]{0,400}?)\b${TW_UTILITIES}\b`, "i"),
+    // Attributes may span lines. The template-literal scan steps over `${...}`
+    // so an identifier like `hidden` in `${hidden ? ...}` is not read as a
+    // utility; the string literals inside it are covered by the braced patterns.
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"]{0,400}?|'[^']{0,400}?|\{\s*\`${TW_TEMPLATE})\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*(?:"[^"]{0,400}?|'[^']{0,400}?|\{\s*\`${TW_TEMPLATE})\b${TW_UTILITIES}\b`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}]{0,400}?(?:"[^"]{0,400}?|'[^']{0,400}?)\b${TW_VARIANTS}:[-a-z0-9[\]/.]`, "i"),
+    new RegExp(String.raw`\bclass(?:Name)?\s*=\s*\{[^}]{0,400}?(?:"[^"]{0,400}?|'[^']{0,400}?)\b${TW_UTILITIES}\b`, "i"),
   ],
 };
 
@@ -505,6 +516,13 @@ function fullLineAt(text, offset) {
   return text.slice(start, end).replace(/\r$/, "");
 }
 
+/** The whole lines covering text[start..end], including the line `end` lands on. */
+function linesAround(text, start, end) {
+  const s = start <= 0 ? 0 : text.lastIndexOf("\n", start - 1) + 1;
+  const e = text.indexOf("\n", end);
+  return text.slice(s, e === -1 ? text.length : e);
+}
+
 function detectHits(toolInput, filePath, gated) {
   if (typeof toolInput?.old_string !== "string" || typeof toolInput?.new_string !== "string") {
     return categoriesIn(payloadOf(toolInput), gated);
@@ -512,8 +530,9 @@ function detectHits(toolInput, filePath, gated) {
 
   const oldString = toolInput.old_string;
   const newString = toolInput.new_string;
+  // May be empty for a pure deletion; that still needs the region and
+  // whole-file checks below, since deleting text can join or unwrap a call.
   const changed = changedNewLineIndices(oldString, newString);
-  if (changed.length === 0) return [];
 
   const newLines = newString.split(/\r?\n/);
   const absPath = resolve(root, filePath);
@@ -551,10 +570,19 @@ function detectHits(toolInput, filePath, gated) {
           }
         }
 
+        // The whole lines the edit touched, before and after. A category that
+        // appears there only afterwards was made by the edit, even when no new
+        // line was added (`fet\nch(` joined into `fetch(` by deleting a newline).
+        const regionNew = positions.flatMap((pos, i) => {
+          const before = new Set(categoriesIn(linesAround(beforeText, pos, pos + oldString.length), gated));
+          const after = linesAround(afterText, afterOffsets[i], afterOffsets[i] + newString.length);
+          return categoriesIn(after, gated).filter((c) => !before.has(c));
+        });
+
         const hunkHits = categoriesIn(hunkLines.join("\n"), gated);
         const beforeHits = new Set(categoriesIn(beforeText, gated));
         const newlyIntroduced = categoriesIn(afterText, gated).filter((c) => !beforeHits.has(c));
-        return [...new Set([...hunkLines.length ? hunkHits : [], ...newlyIntroduced])];
+        return [...new Set([...hunkLines.length ? hunkHits : [], ...regionNew, ...newlyIntroduced])];
       }
     } catch {
       /* fall through to diff-only check */
@@ -642,8 +670,7 @@ try {
   // and it must be able to say why it won't try.
   if (
     locked &&
-    rel.replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase() ===
-      planFile(config).replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase()
+    normalizeRel(rel) === normalizeRel(planFile(config))
   ) {
     deny(
       `\`${rel}\` is the group's own writing and you may not write to it. It is also ` +

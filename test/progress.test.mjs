@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -25,7 +25,7 @@ try {
   const config = {
     ...loadConfig(),
     unlockRoute: true,
-    tasks: emails.map((email, index) => ({ id: `T${index}`, categories: ["fetch"] })),
+    tasks: emails.map((email, index) => ({ id: `T${index}`, title: `Task ${index}`, categories: ["fetch"] })),
   };
   const keys = [];
   for (const [index, email] of emails.entries()) {
@@ -63,6 +63,14 @@ try {
   });
   assert.equal(status.status, 0, status.stderr);
   assert.doesNotMatch(status.stdout, /--done|Core hand-written/);
+
+  // #28: --status must survive a signed-off row with no commits recorded (T0 above).
+  writeFileSync(join(repo, ".claude/harness/config.json"), JSON.stringify(config));
+  const noCommits = spawnSync(process.execPath, [join(repo, ".claude/hooks/signoff.mjs"), "--status"], {
+    cwd: repo, encoding: "utf8",
+  });
+  assert.equal(noCommits.status, 0, noCommits.stderr);
+  assert.match(noCommits.stdout, /T0\s+signed off \(written, no commit\)/);
   console.log("Progress identity and signoff checks passed");
 } finally {
   if (previousProjectDir === undefined) delete process.env.CLAUDE_PROJECT_DIR;
