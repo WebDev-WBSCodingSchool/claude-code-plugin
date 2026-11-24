@@ -179,6 +179,7 @@ claude plugin validate --strict instructor
 Students install from the `stable` branch, so nothing merged to `main` reaches
 them until a release. To release, open **Actions → Release → Run workflow** on
 `main` and choose `patch`, `minor`, or `major`. The workflow runs the tests,
-bumps `version` in both `exercise/.claude-plugin/plugin.json` and
+bumps `version` in `exercise/.claude-plugin/plugin.json`,
+`exercise/.codex-plugin/plugin.json` and
 `instructor/.claude-plugin/plugin.json`, tags the commit, and moves
 `stable` to it. Installed copies only update when that version changes.

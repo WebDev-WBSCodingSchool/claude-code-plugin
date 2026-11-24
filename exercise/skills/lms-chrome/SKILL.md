@@ -10,6 +10,9 @@ The LMS pages sit behind the student's login, so read them through Claude in
 Chrome, which uses the student's own browser and its sign-ins. Reply in the
 student's language.
 
+This skill needs Claude Code with Claude in Chrome. In any other coding agent,
+say so and stop.
+
 ## Check the link
 
 The link must start with `https://learn.wbscodingschool.com/`. If there is no

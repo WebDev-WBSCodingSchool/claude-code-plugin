@@ -21,6 +21,30 @@ To check that it worked, start Claude Code and type `/exercise:`. You should see
 `/exercise:setup`, `/exercise:list`, `/exercise:custom` and
 `/exercise:lms-chrome`.
 
+## Other coding agents
+
+The `setup`, `list` and `custom` skills also work in Codex and Google
+Antigravity. `lms-chrome` needs Claude in Chrome and stays Claude-only.
+
+In Codex, add this repository as a plugin marketplace, then install `exercise`
+from the plugin list:
+
+```sh
+codex plugin marketplace add WebDev-WBSCodingSchool/claude-code-plugin --ref stable
+```
+
+Antigravity has no plugin marketplace, so copy the skills into its skills
+folder with the launcher. The same command works for Codex if you prefer plain
+skills to the plugin:
+
+```sh
+npx @wbscodingschool/exercise install-skills antigravity
+npx @wbscodingschool/exercise install-skills codex
+```
+
+Run it again to update the skills. You call them as `$wbs-setup`, `$wbs-list`
+and `$wbs-custom` in Codex, or by asking for them by name.
+
 ## Update
 
 To receive new exercises and fixes automatically, open `/plugin` in Claude Code,
