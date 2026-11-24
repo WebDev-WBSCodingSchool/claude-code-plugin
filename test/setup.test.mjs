@@ -102,10 +102,13 @@ try {
     .filter((name) => name !== ".git" && name !== ".in_use")
     .sort();
   assert.deepEqual(shipped, [
-    ".claude-plugin", "agents", "exercises", "runtime", "scripts", "skills",
+    ".claude-plugin", ".codex-plugin", "agents", "exercises", "runtime", "scripts", "skills",
   ]);
   const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
   assert.deepEqual(Object.keys(manifest).sort(), ["author", "description", "name", "version"]);
+  // The Codex manifest is the Claude one plus the skills folder, so a release bumps both alike.
+  const codexManifest = JSON.parse(readFileSync(join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8"));
+  assert.deepEqual(codexManifest, { ...manifest, skills: "./skills/" });
 
   // #18: every curriculum exercise must appear in root README.md table in order
   const rootReadme = readFileSync(resolve(pluginRoot, "..", "README.md"), "utf8");
@@ -128,6 +131,12 @@ try {
     assert.equal(m.name, entry.name);
     assert.match(m.version, /^\d+\.\d+\.\d+$/);
     assert.ok(m.description && m.author?.name);
+  }
+  const codexMarketplace = JSON.parse(readFileSync(join(repoRoot, ".agents", "plugins", "marketplace.json"), "utf8"));
+  for (const entry of codexMarketplace.plugins) {
+    const m = JSON.parse(readFileSync(join(repoRoot, entry.source.path, ".codex-plugin", "plugin.json"), "utf8"));
+    assert.equal(m.name, entry.name);
+    assert.ok(entry.policy?.installation && entry.policy?.authentication && entry.category);
   }
   for (const dir of [
     ...readdirSync(join(pluginRoot, "skills"), { withFileTypes: true })

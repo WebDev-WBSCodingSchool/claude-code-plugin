@@ -1,0 +1,20 @@
+{
+  "name": "wbs-cs",
+  "interface": {
+    "displayName": "WBS Coding School"
+  },
+  "plugins": [
+    {
+      "name": "exercise",
+      "source": {
+        "source": "local",
+        "path": "./exercise"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
