@@ -21,6 +21,14 @@ import {
   checkOpenJsHelperContent,
   checkCoAuthoredByHandled,
 } from "../lib/assertions.mjs";
+import { runIsolatedClaudeJson } from "../lib/claude-runner.mjs";
+
+const STUDENT_ANSWER_SCHEMA = {
+  type: "object",
+  properties: { answer: { type: "string" } },
+  required: ["answer"],
+  additionalProperties: false,
+};
 
 function movieDiaryPlan(sb) {
   return writeGroupPlan(sb, {
@@ -700,7 +708,7 @@ loadPopularMovies();
     exercise: "movie-diary",
     issues: ["#29", "#30"],
     description:
-      "3-turn signoff flow on branch FR009-popular with 2 commits (commit 1 has fetch+DOM logic, commit 2 HEAD is a 1-line comment typo fix); tests whether MCQ is grounded in full branch diff and signoff.mjs runs cleanly.",
+      "3-turn signoff flow on branch FR009-popular with 2 commits (commit 1 has fetch+DOM logic, commit 2 HEAD is a 1-line comment typo fix); turn 3 is a simulated student answering the tutor's actual follow-up. Tests whether MCQ is grounded in full branch diff and signoff.mjs runs cleanly.",
     setup() {
       const sandbox = createSandbox({
         exercise: "movie-diary",
@@ -758,7 +766,26 @@ fetchPopularMovies();
     turns: [
       "I finished FR009 on my branch FR009-popular and committed it with --signoff. I'm ready to explain it for signoff.",
       "My code in main.js calls fetch on TMDB's popular movies endpoint with my Bearer token from config.js, checks response.ok so HTTP errors throw instead of silently failing, parses the JSON, clears #movie-list using textContent, and loops over data.results to create an article card and h3 heading for each movie title and append them into the DOM.",
-      "Based on how my code works in main.js: fetch only rejects on network failures, not HTTP error statuses like 401/404/500, so checking `if (!response.ok)` and throwing an Error stops the function before `response.json()` or any DOM changes run (leaving `#movie-list` untouched). When the response succeeds, `movieList.textContent = \"\"` clears existing content safely as plain text without HTML parsing, and the loop creates an `<article>` and `<h3>` with `textContent = movie.title` and appends each card to `#movie-list`. Ready for signoff on FR009 if that covers it.",
+      // A simulated student answers whatever follow-up the tutor actually asked, so tutors
+      // that pick a different question than a scripted answer expects are not penalized.
+      async (prevTurns, sandbox, context) => {
+        const question = prevTurns[1]?.parsed.assistantText ?? "";
+        const res = await runIsolatedClaudeJson({
+          model: "sonnet",
+          jsonSchema: STUDENT_ANSWER_SCHEMA,
+          prompt: [
+            "You are Jane, a bootcamp student who wrote and understands this main.js:",
+            "```js",
+            sandbox.readFile("main.js"),
+            "```",
+            "Your tutor just asked you this follow-up question during code signoff:",
+            question,
+            "Answer it correctly in 2-4 sentences in your own words, as Jane would type it in chat. If it is multiple choice, name the option and say why. Return only the answer text.",
+          ].join("\n"),
+        });
+        context.helperTelemetry = { durationMs: res.durationMs, totalCostUsd: res.totalCostUsd ?? 0 };
+        return `${res.output.answer.trim()} Ready for signoff on FR009 if that covers it.`;
+      },
     ],
     evaluate({ session, repoState, sandbox, initialHeadSha, context }) {
       const turn2 = session.turns[1]?.parsed.assistantText ?? "";
