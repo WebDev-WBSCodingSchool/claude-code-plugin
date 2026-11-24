@@ -321,6 +321,7 @@ export async function runClaudeSession({
   model = "sonnet",
   timeoutMs = 180_000,
   maxRetries = 3,
+  runTurn = runClaudeTurn,
 } = {}) {
   const multiTurn = turns.length > 1;
   const completedTurns = [];
@@ -354,7 +355,7 @@ export async function runClaudeSession({
       preTurnCleanHead = null;
     }
 
-    const turnResult = await runClaudeTurn({
+    const turnResult = await runTurn({
       cwd: sandbox.repoDir,
       env: sandbox.env,
       prompt,

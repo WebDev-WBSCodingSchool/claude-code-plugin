@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runClaudeSession } from "./lib/claude-runner.mjs";
+import { parseSubjectModel, subjectTurnRunner } from "./lib/agent-runner.mjs";
 import { snapshotRepoState } from "./lib/sandbox.mjs";
 import { checkSessionCompletedCleanly, runHookStringLint } from "./lib/assertions.mjs";
 import { runStaticReadabilitySuite } from "./lib/readability.mjs";
@@ -39,7 +40,7 @@ function usage() {
 Options:
   --suite <smoke|tutor|onboard|readability|full>   Suite to run (default: smoke)
   --scenario <id,...>                              Comma-separated scenario ID filter
-  --models <list>                                  Subject models (default: sonnet; pass sonnet,opus for release baselines)
+  --models <list>                                  Subject models (default: sonnet; pass sonnet,opus for release baselines; codex:<model> / agy:<model> run Codex / Antigravity without Claude hooks)
   --trials <n>                                     Trials per scenario × model (default: 1, or 2 for full)
   --concurrency <n>                                Parallel trials (default: 2)
   --judges <spec,...>                              Judge panel (default: codex,agy:gemini-4-neon-medium; e.g. claude:sonnet,codex)
@@ -231,6 +232,7 @@ async function runBehavioralTrial({ scenario, model, trial, judgeSpecs }) {
       turns: scenario.turns,
       context,
       model,
+      runTurn: subjectTurnRunner(model),
     });
     const repoState = snapshotRepoState(sandbox, { initialHeadSha });
     const sessionCleanCheck = checkSessionCompletedCleanly(session);
@@ -382,6 +384,7 @@ async function main() {
     node: process.version,
     claude: safeCmd("claude", ["--version"]),
     codex: safeCmd("codex", ["--version"]),
+    agy: safeCmd("agy", ["--version"]),
   };
 
   console.log(
@@ -471,8 +474,9 @@ async function main() {
 
   // 3. Simulated-student README comprehension (runs once per exercise on the primary model to avoid redundant Opus spend)
   const compJobs = [];
-  if (runComprehension) {
-    const compModel = opts.models[0] ?? "sonnet";
+  // Comprehension runs through `claude -p`, so it uses the first Claude subject model and is skipped without one
+  const compModel = opts.models.find((m) => parseSubjectModel(m).provider === "claude");
+  if (runComprehension && compModel) {
     for (const exerciseId of listComprehensionExercises()) {
       compJobs.push({ exerciseId, model: compModel });
     }

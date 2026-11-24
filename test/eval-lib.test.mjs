@@ -21,6 +21,12 @@ import {
   parseStreamJson,
 } from "../eval/lib/claude-runner.mjs";
 import {
+  parseAgyStreamJson,
+  parseCodexJsonl,
+  parseSubjectModel,
+  unwrapShellCommand,
+} from "../eval/lib/agent-runner.mjs";
+import {
   RAW_CATEGORY_IDS,
   checkSessionCompletedCleanly,
   checkNoGuardedWrites,
@@ -1639,6 +1645,72 @@ test("COMPREHENSION_SCHEMA is strict OpenAI-compatible and gradeComprehensionOut
   assert.equal(byId["comprehension-unlock-route"].pass, false);
   assert.equal(byId["comprehension-unlock-route"].tier, "target");
   assert.equal(byId["comprehension-npm-install"].pass, true);
+});
+
+test("Codex and agy parsers map events onto Claude tool names and final text", () => {
+  assert.deepEqual(parseSubjectModel("sonnet"), { provider: "claude", model: "sonnet" });
+  assert.deepEqual(parseSubjectModel("codex:gpt-6.2-astra"), { provider: "codex", model: "gpt-6.2-astra" });
+  assert.equal(
+    unwrapShellCommand("/usr/bin/zsh -lc 'node .claude/hooks/onboard.mjs --check'"),
+    "node .claude/hooks/onboard.mjs --check",
+  );
+  assert.equal(unwrapShellCommand(String.raw`/bin/bash -lc 'echo '\''hi'\'''`), "echo 'hi'");
+  assert.equal(unwrapShellCommand(String.raw`/usr/bin/zsh -lc "echo \"\$HOME\""`), 'echo "$HOME"');
+
+  const codexLines = [
+    { type: "thread.started", thread_id: "t-1" },
+    { type: "item.completed", item: { id: "item_0", type: "agent_message", text: "Checking." } },
+    {
+      type: "item.completed",
+      item: { id: "item_1", type: "command_execution", command: "/usr/bin/zsh -lc 'cat a.txt'", aggregated_output: "hi\n", exit_code: 0 },
+    },
+    {
+      type: "item.completed",
+      item: {
+        id: "item_2",
+        type: "file_change",
+        changes: [
+          { path: "/r/a.txt", kind: "update" },
+          { path: "/r/b.txt", kind: "add" },
+        ],
+        status: "completed",
+      },
+    },
+    { type: "item.completed", item: { id: "item_3", type: "agent_message", text: "Done." } },
+    { type: "turn.completed", usage: { input_tokens: 1 } },
+  ];
+  const codex = parseCodexJsonl(codexLines.map((l) => JSON.stringify(l)).join("\n"));
+  assert.equal(codex.sessionId, "t-1");
+  assert.deepEqual(codex.toolUses.map((t) => t.name), ["Bash", "Edit", "Write"]);
+  assert.equal(codex.toolUses[0].input.command, "cat a.txt");
+  assert.equal(codex.toolUses[2].input.file_path, "/r/b.txt");
+  assert.equal(codex.assistantText, "Done.");
+  assert.deepEqual(codex.preToolTexts, ["Checking."]);
+  assert.equal(codex.result.isError, false);
+
+  const step = (s) => ({ event: "step_update", step_update: s });
+  const agyLines = [
+    { event: "init", conversation_id: "c-1" },
+    step({ step_index: 2, state: "ACTIVE", step_type: "tool", tool_name: "run_command", tool_info: { parameters: { CommandLine: "cat a.txt" } } }),
+    step({
+      step_index: 2,
+      state: "DONE",
+      step_type: "tool",
+      tool_name: "run_command",
+      tool_info: { parameters: { CommandLine: "cat a.txt" }, output: "Command exited with code 1." },
+    }),
+    step({ step_index: 4, state: "DONE", step_type: "tool", tool_name: "edit_file", tool_info: { parameters: { Path: "/r/a.txt" } } }),
+    step({ step_index: 6, state: "ACTIVE", step_type: "agent_response", text_delta: "All " }),
+    step({ step_index: 6, state: "DONE", step_type: "agent_response", text_delta: "set." }),
+    { event: "result", result: { conversation_id: "c-1", status: "SUCCESS", response: "All set.\n" } },
+  ];
+  const agy = parseAgyStreamJson(agyLines.map((l) => JSON.stringify(l)).join("\n"));
+  assert.equal(agy.sessionId, "c-1");
+  assert.deepEqual(agy.toolUses.map((t) => t.name), ["Bash", "Edit"]);
+  assert.equal(agy.toolResults[0].isError, true);
+  assert.equal(agy.toolUses[1].input.file_path, "/r/a.txt");
+  assert.equal(agy.assistantText, "All set.");
+  assert.equal(agy.wordCount, 2);
 });
 
 test("computeSummaryDiff flags hard, target, null-drop, static, hook-lint, and same-suite missing regressions", () => {
